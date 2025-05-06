@@ -15,6 +15,7 @@ def consultar_cep(cep):
             print(f"Bairro: {dados.get('bairro')}")
             print(f"Cidade: {dados.get('localidade')}")
             print(f"Estado (UF): {dados.get('uf')}")
+            #{"cep":"01404-003","logradouro":"Alameda Campinas","complemento":"de 1271 ao fim - lado ímpar","unidade":"","bairro":"Jardim Paulista","localidade":"São Paulo","uf":"SP","estado":"São Paulo"
     else:
         print("Erro ao consultar o CEP.")
  
