@@ -15,12 +15,9 @@ def consultar_cep(cep):
             print(f"Bairro: {dados.get('bairro')}")
             print(f"Cidade: {dados.get('localidade')}")
             print(f"Estado (UF): {dados.get('uf')}")
-            print(f"DDD: {dados.get('ddd')}")
     else:
         print("Erro ao consultar o CEP.")
  
-# Exemplo de uso
-cep_input = input("Digite um CEP (somente números): ")
-consultar_cep(cep_input)
+
  
  
