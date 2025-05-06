@@ -148,6 +148,7 @@ def cadastrar_paciente():
     # Telefone
     while True:
         telefone = input('\nTelefone: ').strip()
+        
         if validar_telefone(telefone):
             confirmacao = input(f'Confirma o telefone "{telefone}"? (s/n): ').strip().lower()
             if confirmacao == 's':
@@ -286,7 +287,7 @@ def menu():
         print('5 - Ver registro')
         print('6 - Sair')
 
-        opcao = input('Opção: \n').strip()
+        opcao = input('\nOpção: ').strip()
         if opcao == '1':
             cadastrar_paciente()
         elif opcao == '2':
