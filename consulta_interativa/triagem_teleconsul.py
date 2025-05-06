@@ -30,12 +30,13 @@ def cadastrar_paciente():
     # Validação da data de nascimento
     while True:
         try:
-            data_nascimento = input('Data de nascimento (DD/MM/AAAA): ').strip()
-            # Tenta converter a data para verificar se é válida
-            datetime.strptime(data_nascimento, '%d/%m/%Y')
-            break
+         data_nascimento_str = input('Data de nascimento (DD/MM/AAAA): ').strip()
+         data_nascimento = datetime.strptime(data_nascimento_str, '%d/%m/%Y')  # CORRETO: transforma em datetime
+         hoje = datetime.now()
+         idade = hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))  # CORRETO
+         break
         except ValueError:
-            print('Data inválida. Use o formato DD/MM/AAAA (ex: 01/01/2000)')
+         print('Data inválida. Use o formato DD/MM/AAAA (ex: 01/01/2000)')
     
     telefone = input('Telefone: ').strip()
     
@@ -66,6 +67,7 @@ def cadastrar_paciente():
         'nome': nome,
         'cpf': cpf,
         'data_nascimento': data_nascimento,
+        'idade': idade,
         'telefone': telefone,
         'email': email,
         'cep': cep,
@@ -134,7 +136,7 @@ def ver_historico():
         return
 
     for usuario in registros:
-        print(f'{usuario["nome"]} | CPF: {usuario["cpf"]} | Nascimento: {usuario["data_nascimento"]} | Tel: {usuario["telefone"]} | Email: {usuario["email"]} | CEP: {usuario["cep"]}')
+        print(f'{usuario["nome"]} | CPF: {usuario["cpf"]} | Idade: {usuario["idade"]} | Tel: {usuario["telefone"]} | Email: {usuario["email"]} | CEP: {usuario["cep"]}')
         if usuario['checkin']:
             print(f' • Check-in realizado em: {usuario["checkin_data"]}')
         else:
@@ -151,8 +153,8 @@ def menu():
     """Função principal que exibe o menu interativo do sistema.
     Permite ao usuário navegar entre as diferentes funcionalidades."""
     while True:
-        print('\n-- SISTEMA DE TRIAGEM BÁSICA --')
-        exibir_texto('Escolha uma opção:')
+        print('\n---- SISTEMA DE TRIAGEM BÁSICA ----')
+        exibir_texto('\nEscolha uma opção:')
         print('1 - Cadastrar paciente')
         print('2 - Confirmar presença')
         print('3 - Enviar feedback')
