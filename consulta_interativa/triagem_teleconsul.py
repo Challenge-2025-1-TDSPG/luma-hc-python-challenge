@@ -119,71 +119,71 @@ def cadastrar_paciente():
     # Nome
     while True:
         nome = input('Nome do paciente: ').strip()
-        confirmacao = input(f'Confirma o nome "{nome}"? (s/n): \n').strip().lower()
+        confirmacao = input(f'Confirma o nome "{nome}"? (s/n): ').strip().lower()
         if confirmacao == 's':
             break
-        print('Por favor, digite o nome novamente.')
+        print('\nPor favor, digite o nome novamente.')
 
     # Validação do CPF
     while True:
-        cpf_input = input('Digite seu CPF: ').strip()
+        cpf_input = input('\nDigite seu CPF: ').strip()
         if validar_cpf(cpf_input):
             cpf = formatar_cpf(cpf_input)
-            print('CPF válido!')
+            print('\nCPF válido!')
             break
         else:
-            print('CPF inválido. Tente novamente.')
+            print('\nCPF inválido. Tente novamente.')
     
     # Validação da data de nascimento
     while True:
         try:
-            data_nascimento_str = input('Data de nascimento (DD/MM/AAAA): ').strip()
+            data_nascimento_str = input('\nData de nascimento (DD/MM/AAAA): ').strip()
             data_nascimento = datetime.strptime(data_nascimento_str, '%d/%m/%Y')
             hoje = datetime.now()
             idade = hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
             break
         except ValueError:
-            print('Data inválida. Use o formato DD/MM/AAAA (ex: 01/01/2000)')
+            print('\nData inválida. Use o formato DD/MM/AAAA (ex: 01/01/2000)')
     
     # Telefone
     while True:
-        telefone = input('Telefone: ').strip()
+        telefone = input('\nTelefone: ').strip()
         if validar_telefone(telefone):
-            confirmacao = input(f'Confirma o telefone "{telefone}"? (s/n): \n').strip().lower()
+            confirmacao = input(f'Confirma o telefone "{telefone}"? (s/n): ').strip().lower()
             if confirmacao == 's':
                 break
-            print('Por favor, digite o telefone novamente.')
+            print('\nPor favor, digite o telefone novamente.')
         else:
-            print('Telefone inválido. Use o formato (XX)XXXXX-XXXX ou (XX)XXXX-XXXX')
+            print('\nTelefone inválido. Use o formato (XX)XXXXX-XXXX ou (XX)XXXX-XXXX')
     
     # Validação do email
     while True:
-        email = input('Email: ').strip()
+        email = input('\nEmail: ').strip()
         if '@' in email and '.' in email:
-            confirmacao = input(f'Confirma o email "{email}"? (s/n): \n').strip().lower()
+            confirmacao = input(f'Confirma o email "{email}"? (s/n): ').strip().lower()
             if confirmacao == 's':
                 break
-            print('Por favor, digite o email novamente.')
+            print('\nPor favor, digite o email novamente.')
         else:
-            print('Email inválido. Digite um email válido.')
+            print('\nEmail inválido. Digite um email válido.')
 
     # Validação do CEP
     while True:
-        cep = input('CEP (apenas números): ').strip()
+        cep = input('\nCEP (apenas números): ').strip()
         if cep.isdigit() and len(cep) == 8:
             cep = f'{cep[:5]}-{cep[5:]}'
             # Consulta o CEP usando a função do cep_validacao.py
             cep_validacao.consultar_cep(cep)
-            confirmacao = input(f'Confirma o CEP "{cep}"? (s/n): \n').strip().lower()
+            confirmacao = input(f'Confirma o CEP "{cep}"? (s/n): ').strip().lower()
             if confirmacao == 's':
                 break
-            print('Por favor, digite o CEP novamente.')
+            print('\nPor favor, digite o CEP novamente.')
         else:
-            print('CEP inválido. Digite apenas números (8 dígitos).')
+            print('\nCEP inválido. Digite apenas números (8 dígitos).')
 
     # Verifica se todos os campos foram preenchidos
     if not nome or not cpf or not telefone or not email or not cep or not data_nascimento:
-        exibir_texto('Todos os campos são obrigatórios.')
+        exibir_texto('\nTodos os campos são obrigatórios.')
         return
 
     # Cria o registro do paciente
@@ -201,7 +201,7 @@ def cadastrar_paciente():
 
     # Adiciona o registro à lista global
     registros.append(paciente_atual)
-    exibir_texto(f'Cadastro realizado. Sessão iniciada para {nome}.')
+    exibir_texto(f'\nCadastro realizado. Sessão iniciada para {nome}.')
 
 def confirmar_checkin():
     """Função que confirma a presença do paciente para a teleconsulta.
