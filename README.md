@@ -1,60 +1,91 @@
-#  Sistema de Triagem para Teleconsulta
+# Sistema de Triagem para Teleconsulta
 
-Este projeto simula um sistema básico de triagem para pacientes que irão participar de uma **teleconsulta**. O sistema permite o cadastro completo do paciente, confirmação de presença (check-in), envio de feedback e visualização de histórico de atendimentos.
+Sistema interativo para gerenciamento de pacientes em teleconsultas, desenvolvido em Python.
 
----
+## Funcionalidades
 
-##  Funcionalidades
+### Cadastro de Pacientes
 
-- **Cadastro de Pacientes**  
-  - Nome completo  
-  - CPF com validação  
-  - Data de nascimento  
-  - Telefone  
-  - E-mail com validação  
-  - CEP formatado  
+- Validação completa de CPF
+- Validação de email
+- Validação de telefone
+- Consulta automática de CEP via API ViaCEP
+- Coleta de endereço completo (logradouro, número, complemento, bairro, cidade, UF)
+- Confirmação de todos os dados inseridos
 
-- **Confirmação de Presença**  
-  - Registra data e hora do check-in  
-  - Exibe orientações importantes para a realização da teleconsulta
+### Gerenciamento de Consultas
 
-- **Envio de Feedback**  
-  - Avaliação da experiência (Boa, Regular ou Ruim)
+- Confirmação de presença (check-in)
+- Orientações pré-consulta
+- Feedback pós-consulta com opção de comentários
+- Histórico completo de registros
+- Visualização detalhada de registros individuais
 
-- **Histórico**  
-  - Exibe dados de todos os pacientes registrados  
-  - Indica se o paciente realizou o check-in e quando  
-  - Lista de feedbacks enviados
+### Edição de Registros
 
----
+- Atualização de dados pessoais
+- Alteração de endereço com validação de CEP
+- Confirmação de alterações
 
-##  Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
-- Python 3.10+
-- Validação de CPF com módulo auxiliar `validadar_cpf.py`
-- Execução via terminal (modo CLI)
+- Python 3.x
+- Biblioteca `requests` para consulta de CEP
+- API ViaCEP para validação de endereços
 
----
+## Como Executar
 
-##  Como Executar
+1. Instale as dependências:
 
-1. Abra o terminal na pasta do projeto.
+```bash
+pip install requests
+```
 
-2. Execute o sistema com o comando:
-   ```bash
-   python triagem_teleconsul.py
+2. Execute o programa principal:
 
----
+```bash
+python consulta_interativa/triagem_teleconsul.py
+```
 
-##  Possíveis Melhorias Futuras
+## Estrutura do Projeto
 
-- Login por CPF (evitar múltiplos cadastros)
-- Geração de número de protocolo da consulta
-- Exportação do histórico para arquivo .txt ou .csv
-- Simulação de envio de e-mail ou SMS
-- Integração com API de CEP
+```
+consulta_interativa/
+├── triagem_teleconsul.py    # Programa principal
+├── cep_validacao.py         # Validação de CEP
+└── validadar_cpf.py         # Validação de CPF
+```
 
-##  Desenvolvedor
+## Funcionalidades Detalhadas
+
+### Validação de CPF
+
+- Verifica se o CPF possui 11 dígitos
+- Valida os dígitos verificadores
+- Formata automaticamente no padrão XXX.XXX.XXX-XX
+
+### Validação de CEP
+
+- Consulta automática via API ViaCEP
+- Validação do formato do CEP
+- Retorno de endereço completo
+- Tratamento de erros de conexão
+
+### Feedback
+
+- Avaliação da experiência (Boa, Regular, Ruim)
+- Campo opcional para comentários
+- Armazenamento do histórico de feedbacks
+
+### Registros
+
+- Visualização de todos os registros
+- Detalhes completos de cada paciente
+- Edição de informações
+- Histórico de check-ins
+
+## Desenvolvedor
+
 Lucas Rossoni Dieder
 Aluno de Análise e Desenvolvimento de Sistemas - FIAP
 Projeto desenvolvido para o Challenge 2025 – 1º Semestre
