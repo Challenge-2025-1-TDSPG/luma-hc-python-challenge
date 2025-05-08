@@ -1,36 +1,33 @@
 # Sistema de Triagem para Teleconsulta
 
-Sistema interativo para gerenciamento de pacientes em teleconsultas, desenvolvido em Python.
+Sistema interativo em Python para triagem e acompanhamento de pacientes e médicos durante teleconsultas, com validações completas, orientações clínicas e histórico de feedbacks.
 
 ## Funcionalidades
 
-### Cadastro de Pacientes
+### Área do Paciente
 
-- Validação completa de CPF
-- Validação de email
-- Validação de telefone
-- Consulta automática de CEP via API ViaCEP
-- Coleta de endereço completo (logradouro, número, complemento, bairro, cidade, UF)
-- Confirmação de todos os dados inseridos
-
-### Gerenciamento de Consultas
-
+- Cadastro completo com:
+  - Validação de CPF (estrutura e dígitos verificadores)
+  - Validação de e-mail e telefone
+  - Consulta automática de endereço via API ViaCEP
+  - Coleta e confirmação de dados residenciais (logradouro, número, complemento, bairro, cidade, UF)
 - Confirmação de presença (check-in)
-- Orientações pré-consulta
-- Feedback pós-consulta com opção de comentários
-- Histórico completo de registros
-- Visualização detalhada de registros individuais
+- Orientações automáticas pré-consulta
+- Envio de feedback com opção de comentário
+- Visualização do histórico pessoal
+- Edição de dados cadastrados
 
-### Edição de Registros
+### Área do Médico
 
-- Atualização de dados pessoais
-- Alteração de endereço com validação de CEP
-- Confirmação de alterações
+- Cadastro com validação de CRM, CPF e telefone
+- Visualização de feedbacks dos pacientes (organizados por CPF e avaliação)
+- Acesso ao histórico geral dos pacientes cadastrados
+- Emissão e registro de orientações médicas personalizadas
 
 ## Tecnologias Utilizadas
 
 - Python 3.x
-- Biblioteca `requests` para consulta de CEP
+- Biblioteca `requests` para chamadas HTTP
 - API ViaCEP para validação de endereços
 
 ## Como Executar
@@ -44,16 +41,16 @@ pip install requests
 2. Execute o programa principal:
 
 ```bash
-python consulta_interativa/triagem_teleconsul.py
+python menu_interativo/triagem_teleconsulta.py
 ```
 
 ## Estrutura do Projeto
 
 ```
-consulta_interativa/
-├── triagem_teleconsul.py    # Programa principal
-├── cep_validacao.py         # Validação de CEP
-└── validadar_cpf.py         # Validação de CPF
+menu_interativo/
+├── triagem_teleconsul.py    # Programa principal (menus, cadastros e lógicas)
+├── validar_cep.py.py         # Módulo para consulta e validação de CEP via API
+└── validar_cpf.py         # Módulo para validação e formatação de CPF
 ```
 
 ## Funcionalidades Detalhadas
@@ -73,16 +70,16 @@ consulta_interativa/
 
 ### Feedback
 
-- Avaliação da experiência (Boa, Regular, Ruim)
-- Campo opcional para comentários
-- Armazenamento do histórico de feedbacks
+- Opções de avaliação: Boa, Regular ou Ruim
+- Comentário opcional
+- Visualização exclusiva do paciente logado
+- Visualização completa para médicos
 
-### Registros
+### Registros e Histórico
 
-- Visualização de todos os registros
-- Detalhes completos de cada paciente
-- Edição de informações
-- Histórico de check-ins
+- Acesso a dados detalhados do paciente logado
+- Visualização de histórico de check-in e orientações médicas
+- Atualização de dados pessoais e endereço
 
 ## Desenvolvedor
 

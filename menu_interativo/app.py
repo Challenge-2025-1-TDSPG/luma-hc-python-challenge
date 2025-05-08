@@ -1,6 +1,6 @@
 from datetime import datetime
-from validadar_cpf import validar_cpf, formatar_cpf
-import cep_validacao
+from menu_interativo.validar_cpf import validar_cpf, formatar_cpf
+import validar_cep
 
 # Variáveis globais para armazenamento de dados
 paciente_atual = None  # Armazena o paciente atualmente logado no sistema
@@ -100,7 +100,7 @@ def cadastrar_paciente():
         cep_input = input('\nCEP (apenas números): ').strip()
         if cep_input.isdigit() and len(cep_input) == 8:
             cep_formatado = f'{cep_input[:5]}-{cep_input[5:]}'
-            dados_endereco = cep_validacao.consultar_cep(cep_formatado)
+            dados_endereco = validar_cep.consultar_cep(cep_formatado)
             if dados_endereco:
                 confirmacao = input(f'Confirma o CEP "{cep_formatado}"? (s/n): ').strip().lower()
                 if confirmacao == 's':
@@ -344,7 +344,7 @@ def editar_registro(paciente):
                 novo_cep = input("Novo CEP (apenas números): ").strip()
                 if novo_cep.isdigit() and len(novo_cep) == 8:
                     cep_formatado = f'{novo_cep[:5]}-{novo_cep[5:]}'
-                    dados_endereco = cep_validacao.consultar_cep(cep_formatado)
+                    dados_endereco = validar_cep.consultar_cep(cep_formatado)
                     if dados_endereco:
                         confirmacao = input(f"Confirma a alteração do CEP para '{cep_formatado}'? (s/n): \n").strip().lower()
                         if confirmacao == 's':
