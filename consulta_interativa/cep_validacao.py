@@ -24,7 +24,7 @@ def consultar_cep(cep):
             if 'erro' not in dados:
                 # Exibe os dados do endereço
                 print(f"\nDados do CEP {cep}:")
-                print(f"Logradouro: {dados.get('logradouro', 'Não informado')}")
+                print(f"Endereço: {dados.get('logradouro', 'Não informado')}")
                 print(f"Bairro: {dados.get('bairro', 'Não informado')}")
                 print(f"Cidade: {dados.get('localidade')} - {dados.get('uf')}\n")
                 return dados

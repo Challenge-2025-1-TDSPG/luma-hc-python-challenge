@@ -7,6 +7,11 @@ paciente_atual = None  # Armazena o paciente atualmente logado no sistema
 registros_pacientes = []  # Lista que armazena todos os registros de pacientes cadastrados
 historico_feedbacks = []  # Lista que armazena todos os feedbacks enviados pelos pacientes
 
+# Variáveis para médicos
+medico_atual = None  # Armazena o médico atualmente logado no sistema
+registros_medicos = []  # Lista que armazena todos os registros de médicos cadastrados
+orientacoes_medicas = []  # Lista que armazena todas as orientações médicas
+
 def exibir_mensagem(mensagem):
     """Função auxiliar para exibir mensagens do sistema"""
     print(mensagem)
@@ -21,6 +26,15 @@ def validar_telefone(numero_telefone): #Valida e formata o número de telefone
             return f"({numero_limpo[:2]}){numero_limpo[2:6]}-{numero_limpo[6:]}"
         else:  # (XX)XXXXX-XXXX
             return f"({numero_limpo[:2]}){numero_limpo[2:7]}-{numero_limpo[7:]}"
+    return None
+
+def validar_crm(crm):
+    """Valida o número do CRM"""
+    # Remove caracteres não numéricos
+    crm_limpo = ''.join(filter(str.isdigit, crm))
+    # Verifica se tem entre 5 e 10 dígitos
+    if 5 <= len(crm_limpo) <= 10:
+        return crm_limpo
     return None
 
 def cadastrar_paciente():
@@ -124,6 +138,63 @@ def cadastrar_paciente():
     # Adiciona o registro à lista global
     registros_pacientes.append(paciente_atual)
     exibir_mensagem(f'\nCadastro realizado. Sessão iniciada para {nome_paciente}.')
+
+def cadastrar_medico():
+    """Função para cadastrar um novo médico no sistema"""
+    global medico_atual
+    
+    # Coleta e valida nome
+    while True:
+        nome_medico = input('Nome do médico: ').strip()
+        confirmacao = input(f'Confirma o nome "{nome_medico}"? (s/n): ').strip().lower()
+        if confirmacao == 's':
+            break
+        exibir_mensagem('\nPor favor, digite o nome novamente.')
+
+    # Validação do CRM
+    while True:
+        crm_input = input('\nDigite seu CRM: ').strip()
+        crm_validado = validar_crm(crm_input)
+        if crm_validado:
+            confirmacao = input(f'Confirma o CRM "{crm_validado}"? (s/n): ').strip().lower()
+            if confirmacao == 's':
+                break
+        exibir_mensagem('\nCRM inválido. Tente novamente.')
+
+    # Validação do CPF
+    while True:
+        cpf_input = input('\nDigite seu CPF: ').strip()
+        if validar_cpf(cpf_input):
+            cpf_formatado = formatar_cpf(cpf_input)
+            exibir_mensagem('\nCPF válido!')
+            break
+        else:
+            exibir_mensagem('\nCPF inválido. Tente novamente.')
+
+    # Validação do telefone
+    while True:
+        numero_telefone = input('\nTelefone: ').strip()
+        telefone_formatado = validar_telefone(numero_telefone)
+        if telefone_formatado:
+            confirmacao = input(f'Confirma o telefone "{telefone_formatado}"? (s/n): ').strip().lower()
+            if confirmacao == 's':
+                numero_telefone = telefone_formatado
+                break
+            exibir_mensagem('\nPor favor, digite o telefone novamente.')
+        else:
+            exibir_mensagem('\nTelefone inválido. Use o formato (XX)XXXXX-XXXX ou (XX)XXXX-XXXX')
+
+    # Cria o registro do médico
+    medico_atual = {
+        'nome': nome_medico,
+        'crm': crm_validado,
+        'cpf': cpf_formatado,
+        'telefone': numero_telefone
+    }
+
+    # Adiciona o registro à lista global
+    registros_medicos.append(medico_atual)
+    exibir_mensagem(f'\nCadastro realizado. Sessão iniciada para Dr(a). {nome_medico}.')
 
 def confirmar_checkin():
     """Função que confirma a presença do paciente para a teleconsulta.
@@ -302,18 +373,134 @@ def editar_registro(paciente):
         else:
             print("Opção inválida!")
 
+def ver_feedbacks_medico():
+    """Função que permite ao médico visualizar os feedbacks dos pacientes"""
+    if not medico_atual:
+        exibir_mensagem('Você precisa se cadastrar primeiro.')
+        return
+
+    if not historico_feedbacks:
+        exibir_mensagem('Nenhum feedback registrado.')
+        return
+
+    print('\nFeedbacks dos Pacientes:')
+    for i, feedback in enumerate(historico_feedbacks, 1):
+        print(f'{i}. {feedback}')
+
+def ver_historico_medico():
+    """Função que permite ao médico visualizar o histórico de pacientes"""
+    if not medico_atual:
+        exibir_mensagem('Você precisa se cadastrar primeiro.')
+        return
+
+    if not registros_pacientes:
+        exibir_mensagem('Nenhum registro de paciente encontrado.')
+        return
+
+    print('\nHistórico de Pacientes:')
+    for paciente in registros_pacientes:
+        print(f'\nPaciente: {paciente["nome"]}')
+        print(f'CPF: {paciente["cpf"]}')
+        print(f'Idade: {paciente["idade"]}')
+        if paciente['checkin']:
+            print(f'Check-in realizado em: {paciente["checkin_data"]}')
+        else:
+            print('Check-in: Não realizado')
+
+def adicionar_orientacao():
+    """Função que permite ao médico adicionar orientações para os pacientes"""
+    if not medico_atual:
+        exibir_mensagem('Você precisa se cadastrar primeiro.')
+        return
+
+    if not registros_pacientes:
+        exibir_mensagem('Nenhum paciente cadastrado.')
+        return
+
+    print('\nPacientes disponíveis:')
+    for i, paciente in enumerate(registros_pacientes, 1):
+        print(f'{i} - {paciente["nome"]} (CPF: {paciente["cpf"]})')
+
+    try:
+        escolha = int(input('\nEscolha o número do paciente (ou 0 para voltar): ').strip())
+        if escolha == 0:
+            return
+        if 1 <= escolha <= len(registros_pacientes):
+            paciente = registros_pacientes[escolha - 1]
+            orientacao = input('\nDigite a orientação médica: ').strip()
+            data_orientacao = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+            
+            orientacao_completa = {
+                'paciente': paciente['nome'],
+                'cpf': paciente['cpf'],
+                'medico': medico_atual['nome'],
+                'crm': medico_atual['crm'],
+                'orientacao': orientacao,
+                'data': data_orientacao
+            }
+            
+            orientacoes_medicas.append(orientacao_completa)
+            exibir_mensagem('\nOrientação registrada com sucesso!')
+        else:
+            exibir_mensagem('Número de paciente inválido!')
+    except ValueError:
+        exibir_mensagem('Por favor, digite um número válido!')
+
+def ver_orientacoes_paciente():
+    """Função que permite ao paciente visualizar suas orientações médicas"""
+    if not paciente_atual:
+        exibir_mensagem('Você precisa se cadastrar primeiro.')
+        return
+
+    # Filtra as orientações para mostrar apenas as do paciente atual
+    orientacoes_do_paciente = [
+        orientacao for orientacao in orientacoes_medicas 
+        if orientacao['cpf'] == paciente_atual['cpf']
+    ]
+
+    if not orientacoes_do_paciente:
+        exibir_mensagem('\nNenhuma orientação médica registrada para você.')
+        return
+
+    print('\nSuas Orientações Médicas:')
+    for i, orientacao in enumerate(orientacoes_do_paciente, 1):
+        print(f'\n{i}. Data: {orientacao["data"]}')
+        print(f'   Médico: Dr(a). {orientacao["medico"]} (CRM: {orientacao["crm"]})')
+        print(f'   Orientação: {orientacao["orientacao"]}')
+
 def menu():
     """Função principal que exibe o menu interativo do sistema.
     Permite ao usuário navegar entre as diferentes funcionalidades."""
     while True:
         print('\n---- SISTEMA DE TRIAGEM BÁSICA ----')
         exibir_mensagem('\nEscolha uma opção:')
+        print('1 - Área do Paciente')
+        print('2 - Área do Médico')
+        print('3 - Sair')
+
+        opcao = input('\nOpção: ').strip()
+        if opcao == '1':
+            menu_paciente()
+        elif opcao == '2':
+            menu_medico()
+        elif opcao == '3':
+            exibir_mensagem('Sistema encerrado.')
+            break
+        else:
+            exibir_mensagem('Opção inválida.')
+
+def menu_paciente():
+    """Menu específico para pacientes"""
+    while True:
+        print('\n---- MENU PACIENTE ----')
+        exibir_mensagem('\nEscolha uma opção:')
         print('1 - Cadastrar paciente')
         print('2 - Confirmar presença')
         print('3 - Enviar feedback')
         print('4 - Ver histórico')
         print('5 - Ver registro')
-        print('6 - Sair')
+        print('6 - Ver orientações médicas')
+        print('7 - Sair')
 
         opcao = input('\nOpção: ').strip()
         if opcao == '1':
@@ -327,7 +514,33 @@ def menu():
         elif opcao == '5':
             ver_registro()
         elif opcao == '6':
-            exibir_mensagem('Sistema encerrado.')
+            ver_orientacoes_paciente()
+        elif opcao == '7':
+            break
+        else:
+            exibir_mensagem('Opção inválida.')
+
+def menu_medico():
+    """Menu específico para médicos"""
+    while True:
+        print('\n---- MENU MÉDICO ----')
+        exibir_mensagem('\nEscolha uma opção:')
+        print('1 - Cadastrar médico')
+        print('2 - Ver feedbacks')
+        print('3 - Ver histórico de pacientes')
+        print('4 - Adicionar orientação')
+        print('5 - Voltar ao menu principal')
+
+        opcao = input('\nOpção: ').strip()
+        if opcao == '1':
+            cadastrar_medico()
+        elif opcao == '2':
+            ver_feedbacks_medico()
+        elif opcao == '3':
+            ver_historico_medico()
+        elif opcao == '4':
+            adicionar_orientacao()
+        elif opcao == '5':
             break
         else:
             exibir_mensagem('Opção inválida.')
