@@ -240,10 +240,14 @@ def enviar_feedback():
 
         if opcao_escolhida in opcoes_avaliacao:
             comentario_feedback = input('Digite seu comentário e nos ajude a melhorar a sua experiência (ou pressione Enter para pular): ').strip()
-            feedback_completo = f'{paciente_atual["nome"]} - {paciente_atual["cpf"]}: {opcoes_avaliacao[opcao_escolhida]}'
-            if comentario_feedback:
-                feedback_completo += f' - Comentário: {comentario_feedback}'
-            historico_feedbacks.append(feedback_completo)
+            feedback = {
+                "cpf": paciente_atual["cpf"],
+                "nome": paciente_atual["nome"],
+                "avaliacao": opcoes_avaliacao[opcao_escolhida],
+                "comentario": comentario_feedback
+            }
+
+            historico_feedbacks.append(feedback)
             exibir_mensagem('Feedback registrado.')
             break
         else:
@@ -252,56 +256,46 @@ def enviar_feedback():
 def ver_historico():
     """Função que exibe o histórico completo de registros e feedbacks.
     Mostra informações detalhadas de todos os pacientes cadastrados."""
-    if not registros_pacientes:
+    if not paciente_atual:
         exibir_mensagem('Nenhum registro encontrado.')
         return
 
-    for paciente in registros_pacientes:
-        print(f'{paciente["nome"]} | CPF: {paciente["cpf"]} | Idade: {paciente["idade"]}')
-        if paciente['checkin']:
-            print(f' • Check-in realizado em: {paciente["checkin_data"]}\n')
-        else:
-            print(' • Check-in: Não realizado\n')
-
-    if historico_feedbacks:
-        print('\nFeedbacks:')
-        for i, feedback in enumerate(historico_feedbacks, 1):
-            print(f'{i}. {feedback}')
+    paciente = paciente_atual
+    print(f'{paciente["nome"]} | CPF: {paciente["cpf"]} | Idade: {paciente["idade"]}')
+    if paciente['checkin']:
+        print(f' • Check-in realizado em: {paciente["checkin_data"]}')
     else:
-        exibir_mensagem('Nenhum feedback registrado.')
+        print(' • Check-in: Não realizado')
+
+    feedbacks_do_paciente = [f for f in historico_feedbacks if f["cpf"] == paciente["cpf"]]
+
+    if feedbacks_do_paciente:
+        print('Seus Feedbacks:')
+        for i, f in enumerate(feedbacks_do_paciente, 1):
+            comentario = f["comentario"] if f["comentario"] else "Sem comentário."
+            print(f"{i}. {f['avaliacao']} - {comentario}")
+    else:
+        exibir_mensagem('Você ainda não enviou feedback.')
 
 def ver_registro():
     """Exibe um registro específico de paciente"""
-    if not registros_pacientes:
-        exibir_mensagem("Nenhum registro encontrado.")
+    if not paciente_atual:
+        exibir_mensagem("Nenhum paciente encontrado.")
         return
 
-    print("\nRegistros disponíveis:")
-    for i, paciente in enumerate(registros_pacientes, 1):
-        print(f"{i} - {paciente['nome']} (CPF: {paciente['cpf']})")
+    paciente = paciente_atual
+    print("\nDados do registro:")
+    print(f"Nome: {paciente['nome']}")
+    print(f"CPF: {paciente['cpf']}")
+    print(f"Data de Nascimento: {paciente['data_nascimento'].strftime('%d/%m/%Y')}")
+    print(f"Idade: {paciente['idade']}")
+    print(f"Telefone: {paciente['telefone']}")
+    print(f"Email: {paciente['email']}")
+    print(f"CEP: {paciente['cep']} - Endereço: {paciente.get('endereco', 'Não informado')} - Número: {paciente.get('numero_endereco', 'Não informado')} - Complemento: {paciente.get('complemento_endereco', 'Não informado')} - Cidade: {paciente.get('cidade', 'Não informado')} - {paciente.get('uf', 'Não informado')}")
 
-    try:
-        escolha = int(input("\nEscolha o número do registro que deseja ver (ou 0 para voltar): \n").strip())
-        if escolha == 0:
-            return
-        if 1 <= escolha <= len(registros_pacientes):
-            paciente = registros_pacientes[escolha - 1]
-            print("\nDados do registro:")
-            print(f"Nome: {paciente['nome']}")
-            print(f"CPF: {paciente['cpf']}")
-            print(f"Data de Nascimento: {paciente['data_nascimento'].strftime('%d/%m/%Y')}")
-            print(f"Idade: {paciente['idade']}")
-            print(f"Telefone: {paciente['telefone']}")
-            print(f"Email: {paciente['email']}")
-            print(f"CEP: {paciente['cep']} - Endereço: {paciente.get('endereco', 'Não informado')} - Número: {paciente.get('numero_endereco', 'Não informado')} - Complemento: {paciente.get('complemento_endereco', 'Não informado')} - Cidade: {paciente.get('cidade', 'Não informado')} - {paciente.get('uf', 'Não informado')}")
-
-            opcao = input("\nDeseja editar este registro? (s/n): \n").strip().lower()
-            if opcao == 's':
-                editar_registro(paciente)
-        else:
-            print("Número de registro inválido!")
-    except ValueError:
-        print("Por favor, digite um número válido!")
+    opcao = input("\nDeseja editar este registro? (s/n): \n").strip().lower()
+    if opcao == 's':
+        editar_registro(paciente)    
 
 def editar_registro(paciente):
     """Permite editar os dados de um registro de paciente"""
@@ -385,7 +379,11 @@ def ver_feedbacks_medico():
 
     print('\nFeedbacks dos Pacientes:')
     for i, feedback in enumerate(historico_feedbacks, 1):
-        print(f'{i}. {feedback}')
+         nome = feedback.get('nome', 'Desconhecido')
+         cpf = feedback.get('cpf', '---')
+         avaliacao = feedback.get('avaliacao', '---')
+         comentario = feedback.get('comentario') or 'Nenhum'
+         print(f"{i}. {nome} (CPF: {cpf}) - Avaliação: {avaliacao} - Comentário: {comentario}")
 
 def ver_historico_medico():
     """Função que permite ao médico visualizar o histórico de pacientes"""
@@ -473,7 +471,7 @@ def menu():
     Permite ao usuário navegar entre as diferentes funcionalidades."""
     while True:
         print('\n---- Sistema de Triagem ----')
-        exibir_mensagem('\nEscolha uma opção:')
+        exibir_mensagem('Escolha uma opção:')
         print('1 - Área do Paciente')
         print('2 - Área do Médico')
         print('3 - Sair')
@@ -493,7 +491,7 @@ def menu_paciente():
     """Menu específico para pacientes"""
     while True:
         print('\n---- Menu Paciente ----')
-        exibir_mensagem('\nEscolha uma opção:')
+        exibir_mensagem('Escolha uma opção:')
         print('1 - Cadastrar paciente')
         print('2 - Confirmar presença')
         print('3 - Enviar feedback')
@@ -524,7 +522,7 @@ def menu_medico():
     """Menu específico para médicos"""
     while True:
         print('\n---- Menu Médico ----')
-        exibir_mensagem('\nEscolha uma opção:')
+        exibir_mensagem('Escolha uma opção:')
         print('1 - Cadastrar médico')
         print('2 - Ver feedbacks')
         print('3 - Ver histórico de pacientes')
