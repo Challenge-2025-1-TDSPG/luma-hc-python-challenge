@@ -472,7 +472,7 @@ def menu():
     """Função principal que exibe o menu interativo do sistema.
     Permite ao usuário navegar entre as diferentes funcionalidades."""
     while True:
-        print('\n---- SISTEMA DE TRIAGEM BÁSICA ----')
+        print('\n---- Sistema de Triagem ----')
         exibir_mensagem('\nEscolha uma opção:')
         print('1 - Área do Paciente')
         print('2 - Área do Médico')
@@ -492,7 +492,7 @@ def menu():
 def menu_paciente():
     """Menu específico para pacientes"""
     while True:
-        print('\n---- MENU PACIENTE ----')
+        print('\n---- Menu Paciente ----')
         exibir_mensagem('\nEscolha uma opção:')
         print('1 - Cadastrar paciente')
         print('2 - Confirmar presença')
@@ -523,7 +523,7 @@ def menu_paciente():
 def menu_medico():
     """Menu específico para médicos"""
     while True:
-        print('\n---- MENU MÉDICO ----')
+        print('\n---- Menu Médico ----')
         exibir_mensagem('\nEscolha uma opção:')
         print('1 - Cadastrar médico')
         print('2 - Ver feedbacks')
