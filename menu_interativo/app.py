@@ -1,5 +1,5 @@
 from datetime import datetime
-from menu_interativo.validar_cpf import validar_cpf, formatar_cpf
+from validar_cpf import validar_cpf, formatar_cpf
 import validar_cep
 
 # Variáveis globais para armazenamento de dados
