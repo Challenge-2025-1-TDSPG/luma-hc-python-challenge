@@ -147,25 +147,11 @@ def cadastrar_medico():
         else:
             exibir_mensagem('\nCPF inválido. Tente novamente.')
 
-    # Validação do telefone
-    while True:
-        numero_telefone = input('\nTelefone: ').strip()
-        telefone_formatado = validar_telefone(numero_telefone)
-        if telefone_formatado:
-            confirmacao = input(f'Confirma o telefone "{telefone_formatado}"? (s/n): ').strip().lower()
-            if confirmacao == 's':
-                numero_telefone = telefone_formatado
-                break
-            exibir_mensagem('\nPor favor, digite o telefone novamente.')
-        else:
-            exibir_mensagem('\nTelefone inválido. Use o formato (XX)XXXXX-XXXX ou (XX)XXXX-XXXX')
-
     # Cria o registro do médico
     medico_atual = {
         'nome': nome_medico,
         'crm': crm_validado,
-        'cpf': cpf_formatado,
-        'telefone': numero_telefone
+        'cpf': cpf_formatado
     }
 
     # Adiciona o registro à lista global
