@@ -240,7 +240,8 @@ def ver_historico():
         exibir_mensagem('Você ainda não enviou feedback.')
 
 def ver_registro():
-    """Exibe um registro específico de paciente"""
+    """Exibe os dados cadastrais do paciente logado.
+    Permite editar informações como nome, telefone e email."""
     if not paciente_atual:
         exibir_mensagem("Nenhum paciente encontrado.")
         return

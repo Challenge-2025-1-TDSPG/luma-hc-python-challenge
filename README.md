@@ -7,15 +7,15 @@ Sistema interativo em Python para triagem e acompanhamento de pacientes e médic
 ### Área do Paciente
 
 - Cadastro completo com:
-  - Validação de CPF (estrutura e dígitos verificadores)
-  - Validação de e-mail e telefone
-  - Consulta automática de endereço via API ViaCEP
-  - Coleta e confirmação de dados residenciais (logradouro, número, complemento, bairro, cidade, UF)
+- Validação de CPF (estrutura e dígitos verificadores)
+- Validação de e-mail e telefone
+- Data de nascimento com cálculo automático de idade
 - Confirmação de presença (check-in)
 - Orientações automáticas pré-consulta
 - Envio de feedback com opção de comentário
 - Visualização do histórico pessoal
 - Edição de dados cadastrados
+- Visualização de orientações médicas
 
 ### Área do Médico
 
@@ -27,30 +27,25 @@ Sistema interativo em Python para triagem e acompanhamento de pacientes e médic
 ## Tecnologias Utilizadas
 
 - Python 3.x
-- Biblioteca `requests` para chamadas HTTP
-- API ViaCEP para validação de endereços
+- Biblioteca `datetime` para manipulação de datas
+- Módulo personalizado `validar_cpf` para validação de CPF
 
 ## Como Executar
 
-1. Instale as dependências:
-
-```bash
-pip install requests
-```
+1. Certifique-se de ter o Python 3.x instalado
 
 2. Execute o programa principal:
 
 ```bash
-python menu_interativo/triagem_teleconsulta.py
+python menu_interativo/app.py
 ```
 
 ## Estrutura do Projeto
 
 ```
 menu_interativo/
-├── triagem_teleconsul.py    # Programa principal (menus, cadastros e lógicas)
-├── validar_cep.py.py         # Módulo para consulta e validação de CEP via API
-└── validar_cpf.py         # Módulo para validação e formatação de CPF
+├── app.py           # Programa principal (menus, cadastros e lógicas)
+└── validar_cpf.py   # Módulo para validação e formatação de CPF
 ```
 
 ## Funcionalidades Detalhadas
@@ -61,12 +56,11 @@ menu_interativo/
 - Valida os dígitos verificadores
 - Formata automaticamente no padrão XXX.XXX.XXX-XX
 
-### Validação de CEP
+### Validação de Telefone
 
-- Consulta automática via API ViaCEP
-- Validação do formato do CEP
-- Retorno de endereço completo
-- Tratamento de erros de conexão
+- Aceita formatos com e sem DDD
+- Formata automaticamente no padrão (XX)XXXX-XXXX ou (XX)XXXXX-XXXX
+- Validação de números com 10 ou 11 dígitos
 
 ### Feedback
 
@@ -79,7 +73,7 @@ menu_interativo/
 
 - Acesso a dados detalhados do paciente logado
 - Visualização de histórico de check-in e orientações médicas
-- Atualização de dados pessoais e endereço
+- Atualização de dados pessoais (nome, telefone e email)
 
 ## Desenvolvedor
 
