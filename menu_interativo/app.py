@@ -1,6 +1,5 @@
 from datetime import datetime
 from validar_cpf import validar_cpf, formatar_cpf
-import validar_cep
 
 # Variáveis globais para armazenamento de dados
 paciente_atual = None  # Armazena o paciente atualmente logado no sistema
@@ -95,24 +94,8 @@ def cadastrar_paciente():
         else:
             exibir_mensagem('\nEmail inválido. Digite um email válido.')
 
-    # Validação do CEP e endereço
-    while True:
-        cep_input = input('\nCEP (apenas números): ').strip()
-        if cep_input.isdigit() and len(cep_input) == 8:
-            cep_formatado = f'{cep_input[:5]}-{cep_input[5:]}'
-            dados_endereco = validar_cep.consultar_cep(cep_formatado)
-            if dados_endereco:
-                confirmacao = input(f'Confirma o CEP "{cep_formatado}"? (s/n): ').strip().lower()
-                if confirmacao == 's':
-                    numero_residencia = input('\nNúmero da residência: ').strip()
-                    complemento_residencia = input('Complemento (ou pressione Enter se não houver): ').strip()
-                    break
-            exibir_mensagem('\nPor favor, digite o CEP novamente.')
-        else:
-            exibir_mensagem('\nCEP inválido. Digite apenas números (8 dígitos).')
-
     # Verifica se todos os campos foram preenchidos
-    if not nome_paciente or not cpf_formatado or not numero_telefone or not email_paciente or not cep_formatado or not data_nascimento:
+    if not nome_paciente or not cpf_formatado or not numero_telefone or not email_paciente or not data_nascimento:
         exibir_mensagem('\nTodos os campos são obrigatórios.')
         return
 
@@ -124,13 +107,6 @@ def cadastrar_paciente():
         'idade': idade_paciente,
         'telefone': numero_telefone,
         'email': email_paciente,
-        'cep': cep_formatado,
-        'endereco': dados_endereco.get('logradouro'),
-        'numero_endereco': numero_residencia,
-        'complemento_endereco': complemento_residencia,
-        'bairro': dados_endereco.get('bairro'),
-        'cidade': dados_endereco.get('localidade'),
-        'uf': dados_endereco.get('uf'),
         'checkin': False,
         'checkin_data': None
     }
@@ -291,7 +267,6 @@ def ver_registro():
     print(f"Idade: {paciente['idade']}")
     print(f"Telefone: {paciente['telefone']}")
     print(f"Email: {paciente['email']}")
-    print(f"CEP: {paciente['cep']} - Endereço: {paciente.get('endereco', 'Não informado')} - Número: {paciente.get('numero_endereco', 'Não informado')} - Complemento: {paciente.get('complemento_endereco', 'Não informado')} - Cidade: {paciente.get('cidade', 'Não informado')} - {paciente.get('uf', 'Não informado')}")
 
     opcao = input("\nDeseja editar este registro? (s/n): \n").strip().lower()
     if opcao == 's':
@@ -304,8 +279,7 @@ def editar_registro(paciente):
         print("1 - Nome")
         print("2 - Telefone")
         print("3 - Email")
-        print("4 - CEP")
-        print("5 - Voltar")
+        print("4 - Voltar")
         
         opcao = input("Opção: \n").strip()
         
@@ -338,31 +312,8 @@ def editar_registro(paciente):
                     print("Email atualizado com sucesso!")
             else:
                 print("Email inválido!")
-                
-        elif opcao == '4':
-            while True:
-                novo_cep = input("Novo CEP (apenas números): ").strip()
-                if novo_cep.isdigit() and len(novo_cep) == 8:
-                    cep_formatado = f'{novo_cep[:5]}-{novo_cep[5:]}'
-                    dados_endereco = validar_cep.consultar_cep(cep_formatado)
-                    if dados_endereco:
-                        confirmacao = input(f"Confirma a alteração do CEP para '{cep_formatado}'? (s/n): \n").strip().lower()
-                        if confirmacao == 's':
-                            numero_residencia = input('\nNúmero da residência: ').strip()
-                            complemento_residencia = input('Complemento (ou pressione Enter se não houver): ').strip()
-                            paciente['cep'] = cep_formatado
-                            paciente['endereco'] = dados_endereco.get('logradouro')
-                            paciente['numero_endereco'] = numero_residencia
-                            paciente['complemento_endereco'] = complemento_residencia
-                            paciente['bairro'] = dados_endereco.get('bairro')
-                            paciente['cidade'] = dados_endereco.get('localidade')
-                            paciente['uf'] = dados_endereco.get('uf')
-                            print("Endereço atualizado com sucesso!")
-                            break
-                else:
-                    print("CEP inválido. Digite apenas números (8 dígitos).")
                     
-        elif opcao == '5':
+        elif opcao == '4':
             break
         else:
             print("Opção inválida!")
