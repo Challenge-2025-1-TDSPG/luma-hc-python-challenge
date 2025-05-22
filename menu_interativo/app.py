@@ -29,12 +29,27 @@ def validar_telefone(numero_telefone): #Valida e formata o número de telefone
 
 def validar_crm(crm):
     """Valida o número do CRM"""
-    # Remove caracteres não numéricos
-    crm_limpo = ''.join(filter(str.isdigit, crm))
-    # Verifica se tem entre 5 e 10 dígitos
-    if 5 <= len(crm_limpo) <= 10:
-        return crm_limpo
-    return None
+    # Lista de siglas de estados válidas
+    estados_validos = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
+    
+    # Verifica se o CRM tem o formato correto (sigla do estado + espaço + 6 dígitos)
+    partes = crm.strip().split()
+    if len(partes) != 2:
+        return None
+    
+    sigla_estado = partes[0].upper()
+    numero = partes[1]
+    
+    # Verifica se a sigla do estado é válida
+    if sigla_estado not in estados_validos:
+        return None
+    
+    # Verifica se o número tem exatamente 6 dígitos
+    if not numero.isdigit() or len(numero) != 6:
+        return None
+    
+    # Retorna o CRM formatado
+    return f"{sigla_estado} {numero}"
 
 def cadastrar_paciente():
     """Função para cadastrar um novo paciente no sistema.
