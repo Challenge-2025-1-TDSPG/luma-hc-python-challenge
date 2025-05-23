@@ -1,10 +1,13 @@
 from datetime import datetime
 from validar_cpf import validar_cpf, formatar_cpf
+import random  # Adicionando import para números aleatórios
 
 # Variáveis globais para armazenamento de dados
 paciente_atual = None  # Armazena o paciente atualmente logado no sistema
 registros_pacientes = []  # Lista que armazena todos os registros de pacientes cadastrados
 historico_feedbacks = []  # Lista que armazena todos os feedbacks enviados pelos pacientes
+numeros_prontuarios_usados = set()  # Conjunto para controlar números de prontuário únicos
+numeros_consultas_usados = set()  # Conjunto para controlar números de consulta únicos
 
 # Variáveis para médicos
 medico_atual = None  # Armazena o médico atualmente logado no sistema
@@ -50,6 +53,14 @@ def validar_crm(crm):
     
     # Retorna o CRM formatado
     return f"{sigla_estado} {numero}"
+
+def gerar_numero_unico(min_val, max_val, numeros_usados):
+    """Gera um número único que não está no conjunto de números usados"""
+    while True:
+        numero = random.randint(min_val, max_val)
+        if numero not in numeros_usados:
+            numeros_usados.add(numero)
+            return numero
 
 def cadastrar_paciente():
     """Função para cadastrar um novo paciente no sistema.
@@ -114,6 +125,9 @@ def cadastrar_paciente():
         exibir_mensagem('\nTodos os campos são obrigatórios.')
         return
 
+    # Gera um número de prontuário único para o paciente
+    prontuario_paciente = gerar_numero_unico(100000, 999999, numeros_prontuarios_usados)
+
     # Cria o registro do paciente
     paciente_atual = {
         'nome': nome_paciente,
@@ -123,7 +137,8 @@ def cadastrar_paciente():
         'telefone': numero_telefone,
         'email': email_paciente,
         'checkin': False,
-        'checkin_data': None
+        'checkin_data': None,
+        'prontuario': prontuario_paciente
     }
 
     # Adiciona o registro à lista global
@@ -132,7 +147,11 @@ def cadastrar_paciente():
 
 def cadastrar_medico():
     """Função para cadastrar um novo médico no sistema"""
-    global medico_atual
+    global medico_atual, historico_feedbacks, orientacoes_medicas
+    
+    # Limpa o histórico de feedbacks e orientações quando um novo médico é cadastrado
+    historico_feedbacks = []
+    orientacoes_medicas = []
     
     # Coleta e valida nome
     while True:
@@ -184,7 +203,8 @@ def confirmar_checkin():
         exibir_mensagem('Você já confirmou sua presença.')
     else:
         paciente_atual['checkin'] = True
-        paciente_atual['checkin_data'] = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        data_hora_atual = datetime.now()
+        paciente_atual['checkin_data'] = data_hora_atual.strftime('%d/%m/%Y %H:%M')
         exibir_mensagem('Check-in confirmado com sucesso.')
         exibir_mensagem(
             'Agora que sua presença foi confirmada, prepare-se para a sua teleconsulta.\n'
@@ -217,14 +237,23 @@ def enviar_feedback():
 
         if opcao_escolhida in opcoes_avaliacao:
             comentario_feedback = input('Digite seu comentário e nos ajude a melhorar a sua experiência (ou pressione Enter para pular): ').strip()
+            data_hora_atual = datetime.now()
+            # Gera um número de consulta único
+            numero_consulta = gerar_numero_unico(10000, 99999, numeros_consultas_usados)
             feedback = {
                 "cpf": paciente_atual["cpf"],
                 "nome": paciente_atual["nome"],
+                "prontuario": paciente_atual["prontuario"],
                 "avaliacao": opcoes_avaliacao[opcao_escolhida],
-                "comentario": comentario_feedback
+                "comentario": comentario_feedback,
+                "data_hora": data_hora_atual.strftime('%d/%m/%Y %H:%M'),
+                "consulta": numero_consulta
             }
 
             historico_feedbacks.append(feedback)
+            # Reseta o status de check-in após enviar o feedback
+            paciente_atual['checkin'] = False
+            paciente_atual['checkin_data'] = None
             exibir_mensagem('Feedback registrado.')
             break
         else:
@@ -242,17 +271,20 @@ def ver_historico():
     if paciente['checkin']:
         print(f' • Check-in realizado em: {paciente["checkin_data"]}')
     else:
-        print(' • Check-in: Não realizado')
+        print(' • Check-in atual: Não realizado')
 
+    # Filtra apenas os feedbacks do paciente atual
     feedbacks_do_paciente = [f for f in historico_feedbacks if f["cpf"] == paciente["cpf"]]
 
     if feedbacks_do_paciente:
-        print('Seus Feedbacks:')
+        print('\nSeus Feedbacks:')
         for i, f in enumerate(feedbacks_do_paciente, 1):
             comentario = f["comentario"] if f["comentario"] else "Sem comentário."
-            print(f"{i}. {f['avaliacao']} - {comentario}")
+            print(f"Consulta #{f['consulta']} - {f['data_hora']}")
+            print(f"Avaliação: {f['avaliacao']}")
+            print(f"Comentário: {comentario}\n")
     else:
-        exibir_mensagem('Você ainda não enviou feedback.')
+        exibir_mensagem('\nVocê ainda não enviou feedback.')
 
 def ver_registro():
     """Exibe os dados cadastrais do paciente logado.
@@ -333,10 +365,15 @@ def ver_feedbacks_medico():
     print('\nFeedbacks dos Pacientes:')
     for i, feedback in enumerate(historico_feedbacks, 1):
          nome = feedback.get('nome', 'Desconhecido')
-         cpf = feedback.get('cpf', '---')
          avaliacao = feedback.get('avaliacao', '---')
          comentario = feedback.get('comentario') or 'Nenhum'
-         print(f"{i}. {nome} (CPF: {cpf}) - Avaliação: {avaliacao} - Comentário: {comentario}")
+         data_hora = feedback.get('data_hora', '---')
+         prontuario = feedback.get('prontuario', '---')
+         consulta = feedback.get('consulta', '---')
+         print(f"\n{i}. Paciente: {nome} (Prontuário: #{prontuario})")
+         print(f"   Consulta #{consulta} - {data_hora}")
+         print(f"   Avaliação: {avaliacao}")
+         print(f"   Comentário: {comentario}")
 
 def ver_historico_medico():
     """Função que permite ao médico visualizar o histórico de pacientes"""
@@ -351,7 +388,7 @@ def ver_historico_medico():
     print('\nHistórico de Pacientes:')
     for paciente in registros_pacientes:
         print(f'\nPaciente: {paciente["nome"]}')
-        print(f'CPF: {paciente["cpf"]}')
+        print(f'Prontuário: #{paciente["prontuario"]}')
         print(f'Idade: {paciente["idade"]}')
         if paciente['checkin']:
             print(f'Check-in realizado em: {paciente["checkin_data"]}')
@@ -370,7 +407,7 @@ def adicionar_orientacao():
 
     print('\nPacientes disponíveis:')
     for i, paciente in enumerate(registros_pacientes, 1):
-        print(f'{i} - {paciente["nome"]} (CPF: {paciente["cpf"]})')
+        print(f'{i} - {paciente["nome"]} (Prontuário: #{paciente["prontuario"]})')
 
     try:
         escolha = int(input('\nEscolha o número do paciente (ou 0 para voltar): ').strip())
@@ -379,11 +416,11 @@ def adicionar_orientacao():
         if 1 <= escolha <= len(registros_pacientes):
             paciente = registros_pacientes[escolha - 1]
             orientacao = input('\nDigite a orientação médica: ').strip()
-            data_orientacao = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+            data_orientacao = datetime.now().strftime('%d/%m/%Y %H:%M')
             
             orientacao_completa = {
                 'paciente': paciente['nome'],
-                'cpf': paciente['cpf'],
+                'prontuario': paciente['prontuario'],
                 'medico': medico_atual['nome'],
                 'crm': medico_atual['crm'],
                 'orientacao': orientacao,
@@ -406,7 +443,7 @@ def ver_orientacoes_paciente():
     # Filtra as orientações para mostrar apenas as do paciente atual
     orientacoes_do_paciente = [
         orientacao for orientacao in orientacoes_medicas 
-        if orientacao['cpf'] == paciente_atual['cpf']
+        if orientacao['prontuario'] == paciente_atual['prontuario']
     ]
 
     if not orientacoes_do_paciente:
@@ -417,6 +454,7 @@ def ver_orientacoes_paciente():
     for i, orientacao in enumerate(orientacoes_do_paciente, 1):
         print(f'\n{i}. Data: {orientacao["data"]}')
         print(f'   Médico: Dr(a). {orientacao["medico"]} (CRM: {orientacao["crm"]})')
+        print(f'   Prontuário: #{orientacao["prontuario"]}')
         print(f'   Orientação: {orientacao["orientacao"]}')
 
 def menu():
@@ -425,15 +463,15 @@ def menu():
     while True:
         print('\n---- Sistema de Triagem ----')
         exibir_mensagem('Escolha uma opção:')
-        print('1 - Área do Paciente')
-        print('2 - Área do Médico')
+        print('1 - Área do Médico')
+        print('2 - Área do Paciente')
         print('3 - Sair')
 
         opcao = input('\nOpção: ').strip()
         if opcao == '1':
-            menu_paciente()
-        elif opcao == '2':
             menu_medico()
+        elif opcao == '2':
+            menu_paciente()
         elif opcao == '3':
             exibir_mensagem('Sistema encerrado.')
             break
