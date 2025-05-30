@@ -2,7 +2,7 @@ from datetime import datetime
 from validar_cpf import validar_cpf, formatar_cpf
 import random  # Adicionando import para números aleatórios
 
-# Variáveis globais para armazenamento de dados
+# Variáveis globais para armazenamento de dado
 paciente_atual = None  # Armazena o paciente atualmente logado no sistema
 registros_pacientes = []  # Lista que armazena todos os registros de pacientes cadastrados
 historico_feedbacks = []  # Lista que armazena todos os feedbacks enviados pelos pacientes
