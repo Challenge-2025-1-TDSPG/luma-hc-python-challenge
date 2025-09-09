@@ -31,45 +31,20 @@ class FaqDB:
 
     def create_table_oracle(self):
         try:
-            # Criação da tabela
+            # Criação da tabela com IDENTITY (Oracle 12c+)
             self.cursor.execute("""
                 BEGIN
                     EXECUTE IMMEDIATE 'CREATE TABLE FAQ (
-                        id NUMBER PRIMARY KEY,
-                        pergunta VARCHAR2(4000) NOT NULL,
-                        resposta VARCHAR2(4000) NOT NULL,
+                        id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                        pergunta VARCHAR2(150) NOT NULL,
+                        resposta VARCHAR2(600) NOT NULL,
                         ativo NUMBER(1) NOT NULL,
                         atualizado_em VARCHAR2(50) NOT NULL,
-                        categoria VARCHAR2(255) NOT NULL
+                        categoria VARCHAR2(50) NOT NULL
                     )';
                 EXCEPTION
                     WHEN OTHERS THEN
                         IF SQLCODE != -955 THEN RAISE; END IF;
-                END;
-            """)
-            # Criação da sequence
-            self.cursor.execute("""
-                BEGIN
-                    EXECUTE IMMEDIATE 'CREATE SEQUENCE faq_seq START WITH 1 INCREMENT BY 1';
-                EXCEPTION
-                    WHEN OTHERS THEN
-                        IF SQLCODE != -955 THEN RAISE; END IF;
-                END;
-            """)
-            # Criação do trigger para autoincremento
-            self.cursor.execute("""
-                BEGIN
-                    EXECUTE IMMEDIATE '
-                        CREATE OR REPLACE TRIGGER faq_bi
-                        BEFORE INSERT ON FAQ
-                        FOR EACH ROW
-                        WHEN (new.id IS NULL)
-                        BEGIN
-                            SELECT faq_seq.NEXTVAL INTO :new.id FROM dual;
-                        END;';
-                EXCEPTION
-                    WHEN OTHERS THEN
-                        IF SQLCODE != -4080 THEN RAISE; END IF;
                 END;
             """)
             self.conn.commit()
@@ -79,68 +54,68 @@ class FaqDB:
     def adicionar(self, pergunta, resposta, ativo, categoria):
         atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
-            sql = 'INSERT INTO perguntas (id, pergunta, resposta, ativo, atualizado_em, categoria) VALUES (perguntas_seq.NEXTVAL, :1, :2, :3, :4, :5)'
+            sql = 'INSERT INTO FAQ (pergunta, resposta, ativo, atualizado_em, categoria) VALUES (:1, :2, :3, :4, :5)'
             self.cursor.execute(
                 sql, (pergunta, resposta, ativo, atualizado_em, categoria)
             )
             self.conn.commit()
-            print('Pergunta adicionada com sucesso!')
+            print('FAQ adicionada com sucesso!')
         except Exception as e:
-            print(f'Erro ao adicionar pergunta: {e}')
+            print(f'Erro ao adicionar FAQ: {e}')
 
     def listar(self, categoria=None):
         try:
             if categoria:
-                sql = 'SELECT * FROM perguntas WHERE categoria = :1'
+                sql = 'SELECT * FROM FAQ WHERE categoria = :1'
                 self.cursor.execute(sql, (categoria,))
             else:
-                sql = 'SELECT * FROM perguntas'
+                sql = 'SELECT * FROM FAQ'
                 self.cursor.execute(sql)
             rows = self.cursor.fetchall()
             perguntas = [FAQ(*row) for row in rows]
             return perguntas
         except Exception as e:
-            print(f'Erro ao listar perguntas: {e}')
+            print(f'Erro ao listar FAQ: {e}')
             return []
 
     def atualizar(self, id, pergunta, resposta, ativo, categoria):
         atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
-            sql = 'UPDATE perguntas SET pergunta=:1, resposta=:2, ativo=:3, atualizado_em=:4, categoria=:5 WHERE id=:6'
+            sql = 'UPDATE FAQ SET pergunta=:1, resposta=:2, ativo=:3, atualizado_em=:4, categoria=:5 WHERE id=:6'
             self.cursor.execute(
                 sql, (pergunta, resposta, ativo, atualizado_em, categoria, id)
             )
             self.conn.commit()
-            print('Pergunta atualizada com sucesso!')
+            print('FAQ atualizada com sucesso!')
         except Exception as e:
-            print(f'Erro ao atualizar pergunta: {e}')
+            print(f'Erro ao atualizar FAQ: {e}')
 
     def deletar(self, id):
         try:
-            sql = 'DELETE FROM perguntas WHERE id=:1'
+            sql = 'DELETE FROM FAQ WHERE id=:1'
             self.cursor.execute(sql, (id,))
             self.conn.commit()
-            print('Pergunta deletada com sucesso!')
+            print('FAQ deletada com sucesso!')
         except Exception as e:
-            print(f'Erro ao deletar pergunta: {e}')
+            print(f'Erro ao deletar FAQ: {e}')
 
     def buscar_por_id(self, id):
         try:
-            sql = 'SELECT * FROM perguntas WHERE id=:1'
+            sql = 'SELECT * FROM FAQ WHERE id=:1'
             self.cursor.execute(sql, (id,))
             row = self.cursor.fetchone()
             if row:
                 return FAQ(*row)
             else:
-                print('Pergunta não encontrada.')
+                print('FAQ não encontrada.')
                 return None
         except Exception as e:
-            print(f'Erro ao buscar pergunta: {e}')
+            print(f'Erro ao buscar FAQ: {e}')
             return None
 
     def listar_categorias(self):
         try:
-            sql = 'SELECT DISTINCT categoria FROM perguntas'
+            sql = 'SELECT DISTINCT categoria FROM FAQ'
             self.cursor.execute(sql)
             rows = self.cursor.fetchall()
             return [row[0] for row in rows]
