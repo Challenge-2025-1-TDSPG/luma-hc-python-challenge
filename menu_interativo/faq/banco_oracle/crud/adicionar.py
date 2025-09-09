@@ -1,17 +1,26 @@
+from colorama import Fore, Style
+
+
 def adicionar_faq(db):
     """Adiciona um novo FAQ (pergunta, resposta, categoria, ativo) ao banco."""
     operacao_iniciada = False
 
     try:
-        pergunta = input('Digite a pergunta: ').strip()
-        resposta = input('Digite a resposta: ').strip()
-        categoria = input('Digite o nome da categoria: ').strip()
-        ativo_str = input('Ativo? (1-Sim, 0-Não): ').strip()
+        pergunta = input(f'{Fore.CYAN}Digite a pergunta: {Style.RESET_ALL}').strip()
+        resposta = input(f'{Fore.CYAN}Digite a resposta: {Style.RESET_ALL}').strip()
+        categoria = input(
+            f'{Fore.CYAN}Digite o nome da categoria: {Style.RESET_ALL}'
+        ).strip()
+        ativo_str = input(
+            f'{Fore.CYAN}Ativo? (1-Sim, 0-Não): {Style.RESET_ALL}'
+        ).strip()
         if not (pergunta and resposta and categoria):
-            print('Todos os campos são obrigatórios!')
+            print(f'{Fore.RED}Todos os campos são obrigatórios!{Style.RESET_ALL}')
             return
         if ativo_str not in ['0', '1']:
-            print('Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).')
+            print(
+                f'{Fore.RED}Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).{Style.RESET_ALL}'
+            )
             return
 
         operacao_iniciada = True
@@ -22,12 +31,16 @@ def adicionar_faq(db):
         faqs = db.listar()
         if faqs:
             novo_faq = max(faqs, key=lambda f: f.id)
-            print('FAQ adicionado com sucesso!')
-            print(novo_faq)
+            print(f'{Fore.GREEN}FAQ adicionado com sucesso!{Style.RESET_ALL}')
+            print(f'{Fore.CYAN}{novo_faq}{Style.RESET_ALL}')
         else:
-            print('FAQ adicionado, mas não foi possível exibir.')
+            print(
+                f'{Fore.YELLOW}FAQ adicionado, mas não foi possível exibir.{Style.RESET_ALL}'
+            )
     except Exception as e:
-        print(f'Erro ao adicionar FAQ: {e}')
+        print(f'{Fore.RED}Erro ao adicionar FAQ: {e}{Style.RESET_ALL}')
     finally:
         if operacao_iniciada:
-            print('[LOG] Operação de inserção finalizada.')
+            print(
+                f'{Fore.GREEN}[LOG] Operação de inserção finalizada.{Style.RESET_ALL}'
+            )

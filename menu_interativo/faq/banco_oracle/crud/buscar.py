@@ -1,11 +1,14 @@
+from colorama import Fore, Style
+
+
 def buscar_faq(db):
     """Busca um FAQ pelo ID."""
     operacao_iniciada = False
 
     try:
-        id_str = input('Digite o ID do FAQ: ').strip()
+        id_str = input(f'{Fore.CYAN}Digite o ID do FAQ: {Style.RESET_ALL}').strip()
         if not id_str.isdigit():
-            print('ID deve ser um número inteiro.')
+            print(f'{Fore.RED}ID deve ser um número inteiro.{Style.RESET_ALL}')
             return
         id = int(id_str)
 
@@ -15,9 +18,11 @@ def buscar_faq(db):
         if faq:
             print(faq)
         else:
-            print(f'FAQ com ID {id} não encontrado no banco de dados.')
+            print(
+                f'{Fore.YELLOW}FAQ com ID {id} não encontrado no banco de dados.{Style.RESET_ALL}'
+            )
     except Exception as e:
-        print(f'Erro ao buscar FAQ: {e}')
+        print(f'{Fore.RED}Erro ao buscar FAQ: {e}{Style.RESET_ALL}')
     finally:
         if operacao_iniciada:
-            print('[LOG] Operação de busca finalizada.')
+            print(f'{Fore.GREEN}[LOG] Operação de busca finalizada.{Style.RESET_ALL}')

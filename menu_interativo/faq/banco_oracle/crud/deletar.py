@@ -1,27 +1,36 @@
+from colorama import Fore, Style
+
+
 def deletar_faq(db):
     """Remove um FAQ pelo ID."""
     operacao_iniciada = False
 
     try:
-        id_str = input('Digite o ID do FAQ a deletar: ').strip()
+        id_str = input(
+            f'{Fore.CYAN}Digite o ID do FAQ a deletar: {Style.RESET_ALL}'
+        ).strip()
         if not id_str.isdigit():
-            print('ID deve ser um número inteiro.')
+            print(f'{Fore.RED}ID deve ser um número inteiro.{Style.RESET_ALL}')
             return
         id = int(id_str)
         # Verifica se o FAQ existe antes de tentar deletar
         faq = db.buscar_por_id(id)
         if not faq:
-            print('FAQ não encontrado.')
+            print(f'{Fore.YELLOW}FAQ não encontrado.{Style.RESET_ALL}')
             return
 
         operacao_iniciada = True
 
-        input('Pressione Enter para confirmar a exclusão...')
+        input(
+            f'{Fore.RED}{Style.BRIGHT}Pressione Enter para confirmar a exclusão...{Style.RESET_ALL}'
+        )
         db.deletar(id)
     except Exception as e:
-        print(f'Erro ao deletar FAQ: {e}')
+        print(f'{Fore.RED}Erro ao deletar FAQ: {e}{Style.RESET_ALL}')
     else:
-        print('FAQ deletado com sucesso!')
+        print(f'{Fore.GREEN}FAQ deletado com sucesso!{Style.RESET_ALL}')
     finally:
         if operacao_iniciada:
-            print('[LOG] Operação de exclusão finalizada.')
+            print(
+                f'{Fore.GREEN}[LOG] Operação de exclusão finalizada.{Style.RESET_ALL}'
+            )
