@@ -1,4 +1,3 @@
-import sqlite3
 from datetime import datetime
 
 from .models import FAQ
@@ -6,92 +5,149 @@ from .models import FAQ
 
 class FaqDB:
     """
-    Classe responsável por gerenciar o banco de dados dos itens de FAQ.
+    Classe responsável por gerenciar o banco de dados dos itens de FAQ (Oracle).
     """
-    def __init__(self, db_name='faq_perguntas.db'):
-        self.conn = sqlite3.connect(db_name)
-        self.create_table()
 
-    def create_table(self):
+    def __init__(self, oracle_config):
+        """
+        oracle_config: dict com chaves user, password, dsn
+        """
         try:
-            self.conn.execute("""CREATE TABLE IF NOT EXISTS perguntas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                pergunta TEXT NOT NULL,
-                resposta TEXT NOT NULL,
-                ativo INTEGER NOT NULL,
-                atualizado_em TEXT NOT NULL,
-                pasta TEXT NOT NULL
-            )""")
+            import cx_Oracle
+
+            if oracle_config:
+                self.conn = cx_Oracle.connect(
+                    user=oracle_config['user'],
+                    password=oracle_config['password'],
+                    dsn=oracle_config['dsn'],
+                )
+            else:
+                raise Exception('oracle_config deve ser fornecido para Oracle')
+            self.cursor = self.conn.cursor()
+            self.create_table_oracle()
+        except ImportError:
+            print('cx_Oracle não instalado. Instale com: pip install cx_Oracle')
+            raise
+
+    def create_table_oracle(self):
+        try:
+            # Criação da tabela
+            self.cursor.execute("""
+                BEGIN
+                    EXECUTE IMMEDIATE 'CREATE TABLE perguntas (
+                        id NUMBER PRIMARY KEY,
+                        pergunta VARCHAR2(4000) NOT NULL,
+                        resposta VARCHAR2(4000) NOT NULL,
+                        ativo NUMBER(1) NOT NULL,
+                        atualizado_em VARCHAR2(50) NOT NULL,
+                        pasta VARCHAR2(255) NOT NULL
+                    )';
+                EXCEPTION
+                    WHEN OTHERS THEN
+                        IF SQLCODE != -955 THEN RAISE; END IF;
+                END;
+            """)
+            # Criação da sequence
+            self.cursor.execute("""
+                BEGIN
+                    EXECUTE IMMEDIATE 'CREATE SEQUENCE perguntas_seq START WITH 1 INCREMENT BY 1';
+                EXCEPTION
+                    WHEN OTHERS THEN
+                        IF SQLCODE != -955 THEN RAISE; END IF;
+                END;
+            """)
+            # Criação do trigger para autoincremento
+            self.cursor.execute("""
+                BEGIN
+                    EXECUTE IMMEDIATE '
+                        CREATE OR REPLACE TRIGGER perguntas_bi
+                        BEFORE INSERT ON perguntas
+                        FOR EACH ROW
+                        WHEN (new.id IS NULL)
+                        BEGIN
+                            SELECT perguntas_seq.NEXTVAL INTO :new.id FROM dual;
+                        END;';
+                EXCEPTION
+                    WHEN OTHERS THEN
+                        IF SQLCODE != -4080 THEN RAISE; END IF;
+                END;
+            """)
             self.conn.commit()
-        except sqlite3.Error as e:
-            print(f'Erro ao criar tabela: {e}')
+        except Exception as e:
+            print(f'Erro ao criar tabela Oracle: {e}')
 
     def adicionar(self, pergunta, resposta, ativo, pasta):
+        atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
-            atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            self.conn.execute(
-                'INSERT INTO perguntas (pergunta, resposta, ativo, atualizado_em, pasta) VALUES (?, ?, ?, ?, ?)',
-                (pergunta, resposta, ativo, atualizado_em, pasta),
-            )
+            sql = 'INSERT INTO perguntas (id, pergunta, resposta, ativo, atualizado_em, pasta) VALUES (perguntas_seq.NEXTVAL, :1, :2, :3, :4, :5)'
+            self.cursor.execute(sql, (pergunta, resposta, ativo, atualizado_em, pasta))
             self.conn.commit()
             print('Pergunta adicionada com sucesso!')
-        except sqlite3.Error as e:
+        except Exception as e:
             print(f'Erro ao adicionar pergunta: {e}')
 
     def listar(self, pasta=None):
         try:
             if pasta:
-                cursor = self.conn.execute(
-                    'SELECT * FROM perguntas WHERE pasta=?', (pasta,)
-                )
+                sql = 'SELECT * FROM perguntas WHERE pasta = :1'
+                self.cursor.execute(sql, (pasta,))
             else:
-                cursor = self.conn.execute('SELECT * FROM perguntas')
-            perguntas = [FAQ(*row) for row in cursor]
+                sql = 'SELECT * FROM perguntas'
+                self.cursor.execute(sql)
+            rows = self.cursor.fetchall()
+            perguntas = [FAQ(*row) for row in rows]
             return perguntas
-        except sqlite3.Error as e:
+        except Exception as e:
             print(f'Erro ao listar perguntas: {e}')
             return []
 
     def atualizar(self, id, pergunta, resposta, ativo, pasta):
+        atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
-            atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            self.conn.execute(
-                'UPDATE perguntas SET pergunta=?, resposta=?, ativo=?, atualizado_em=?, pasta=? WHERE id=?',
-                (pergunta, resposta, ativo, atualizado_em, pasta, id),
+            sql = 'UPDATE perguntas SET pergunta=:1, resposta=:2, ativo=:3, atualizado_em=:4, pasta=:5 WHERE id=:6'
+            self.cursor.execute(
+                sql, (pergunta, resposta, ativo, atualizado_em, pasta, id)
             )
             self.conn.commit()
             print('Pergunta atualizada com sucesso!')
-        except sqlite3.Error as e:
+        except Exception as e:
             print(f'Erro ao atualizar pergunta: {e}')
 
     def deletar(self, id):
         try:
-            self.conn.execute('DELETE FROM perguntas WHERE id=?', (id,))
+            sql = 'DELETE FROM perguntas WHERE id=:1'
+            self.cursor.execute(sql, (id,))
             self.conn.commit()
             print('Pergunta deletada com sucesso!')
-        except sqlite3.Error as e:
+        except Exception as e:
             print(f'Erro ao deletar pergunta: {e}')
 
     def buscar_por_id(self, id):
         try:
-            cursor = self.conn.execute('SELECT * FROM perguntas WHERE id=?', (id,))
-            row = cursor.fetchone()
+            sql = 'SELECT * FROM perguntas WHERE id=:1'
+            self.cursor.execute(sql, (id,))
+            row = self.cursor.fetchone()
             if row:
                 return FAQ(*row)
             else:
                 print('Pergunta não encontrada.')
                 return None
-        except sqlite3.Error as e:
+        except Exception as e:
             print(f'Erro ao buscar pergunta: {e}')
             return None
 
     def listar_pastas(self):
         try:
-            cursor = self.conn.execute('SELECT DISTINCT pasta FROM perguntas')
-            return [row[0] for row in cursor]
-        except sqlite3.Error as e:
+            sql = 'SELECT DISTINCT pasta FROM perguntas'
+            self.cursor.execute(sql)
+            rows = self.cursor.fetchall()
+            return [row[0] for row in rows]
+        except Exception as e:
             print(f'Erro ao listar pastas: {e}')
             return []
 
     def close(self):
-        self.conn.close()
+        if self.cursor:
+            self.cursor.close()
+        if self.conn:
+            self.conn.close()
