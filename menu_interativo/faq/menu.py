@@ -3,7 +3,7 @@ Módulo de menu principal do sistema FAQ.
 Oferece interface de CRUD, exportação para JSON e consumo de API pública.
 """
 
-from .crud.menu_crud import MenuCRUD
+from .banco_oracle.menu_crud import MenuCRUD
 from .db import FaqDB
 from .exportacao.menu_exportacao import MenuExportacao
 from .memoria.menu_memoria import MenuMemoria
