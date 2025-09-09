@@ -1,8 +1,4 @@
-# Sistema FAQ Corporativo em Python
-
-## Requisitos de Banco de Dados
-
-> **Atenção:** Este sistema utiliza o recurso IDENTITY do Oracle, disponível apenas a partir do Oracle 12c (12.1) ou superior. Não é compatível com versões anteriores.
+# Sistema de Gerenciamento de CRUD de FAQs em Python com Integração Oracle
 
 ## Stacks Utilizadas
 
@@ -13,9 +9,11 @@
 - **Ambiente:** Windows (recomendado), mas pode ser adaptado para Linux/Mac
 - **Gerenciamento de dependências:** venv + requirements.txt
 
+> **Atenção:** Este sistema utiliza o recurso IDENTITY do Oracle, disponível apenas a partir do Oracle 12c (12.1) ou superior. Não é compatível com versões anteriores.
+
 ## Visão Geral Profissional
 
-Este projeto implementa um sistema de gerenciamento de FAQ (Frequently Asked Questions) corporativo, desenvolvido em Python com foco em modularidade, escalabilidade e integração corporativa. O sistema utiliza Programação Orientada a Objetos (POO), separação clara de responsabilidades e integração nativa com banco de dados Oracle, além de oferecer API RESTful e exportação de dados.
+Este projeto implementa um sistema de gerenciamento de FAQ (Frequently Asked Questions) para a aplicação Luma HC (Projeto do Challenge 2025 Fiap para o Hospital das Clínicas), desenvolvido em Python com foco em modularidade, escalabilidade e integração corporativa. O sistema utiliza Programação Orientada a Objetos (POO), separação clara de responsabilidades e integração nativa com banco de dados Oracle, além de oferecer API RESTful e exportação de dados.
 
 ---
 
@@ -36,28 +34,36 @@ menu_interativo/
     main.py                # Ponto de entrada do sistema
     data/                  # Exportações e arquivos auxiliares
     faq/
-        __init__.py
+        __init__.py        # Facilita importações de todo o módulo
         db.py              # Camada de acesso Oracle
         models.py          # Modelos de dados (FAQ)
         menu.py            # Menu principal (orquestrador)
-        crud/
-            __init__.py
+        banco_oracle/
+            __init__.py    # Exporta operações do banco
             menu_crud.py   # Orquestrador do menu CRUD
-            adicionar.py   # Adiciona FAQ
-            listar.py      # Lista FAQs
-            atualizar.py   # Atualiza FAQ
-            deletar.py     # Deleta FAQ
-            buscar.py      # Busca FAQ por ID
-            categorias.py  # Lista categorias
+            crud/
+                __init__.py    # Exporta todas as funções CRUD
+                adicionar.py   # Adiciona FAQ
+                listar.py      # Lista FAQs
+                atualizar.py   # Atualiza FAQ
+                deletar.py     # Deleta FAQ
+                buscar.py      # Busca FAQ por ID
+                categorias.py  # Lista categorias
         exportacao/
             __init__.py
             menu_exportacao.py # Exportação para JSON
+            exportar_banco.py  # Função de exportação
         memoria/
-            __init__.py
-            menu_memoria.py    # Operações em memória
-        faq_api.py         # API RESTful (Flask)
+            __init__.py        # Exporta operações de memória
+            menu_memoria.py    # Menu de operações em memória
+            crud_memoria/
+                __init__.py    # Exporta funções CRUD de memória
+                adicionar.py   # Adiciona FAQ em memória
+                listar.py      # Lista FAQs em memória
+                atualizar.py   # Atualiza FAQ em memória
+                deletar.py     # Remove FAQ em memória
+                buscar.py      # Busca FAQ em memória
         api.py             # Consumo de APIs externas (opcional)
-    # Todas as operações em memória agora estão em memoria/crud_memoria/ (adicionar, listar, atualizar, deletar, buscar)
 ```
 
 ---
@@ -66,8 +72,8 @@ menu_interativo/
 
 1. **Inicialização**: O sistema carrega as configurações Oracle do arquivo `.env` e valida a conexão.
 2. **Menu Interativo**: O usuário navega pelo menu principal, podendo acessar:
-   - CRUD de FAQs (cada operação em um arquivo próprio em `crud/`)
-   - Listagem e manipulação de FAQs em memória (via `memoria/menu_memoria.py` e módulos de operações em `memoria/crud_memoria/`)
+   - CRUD de FAQs (cada operação em um arquivo próprio em `banco_oracle/crud/`)
+   - Listagem e manipulação de FAQs em memória (via `memoria/menu_memoria.py` e módulos em `memoria/crud_memoria/`)
    - Exportação para JSON (via `exportacao/menu_exportacao.py`)
 3. **API RESTful**: Opcionalmente, o sistema pode ser executado como API para integração com front-ends modernos.
 
@@ -135,8 +141,6 @@ O driver cx_Oracle exige a biblioteca nativa Oracle Instant Client instalada na 
 
 5. Execute o sistema normalmente.
 
-> **Atenção:** Todos os usuários do projeto precisam realizar este procedimento para que a conexão Oracle funcione corretamente.
-
 ---
 
 ## Como Executar
@@ -148,6 +152,10 @@ O driver cx_Oracle exige a biblioteca nativa Oracle Instant Client instalada na 
 
 ---
 
-## Contato e Suporte
+## Contato
 
-Para dúvidas, sugestões ou suporte corporativo, entre em contato com o time de desenvolvimento responsável pelo projeto.
+| Nome                           | GitHub                                        | LinkedIn                                                                |
+| ------------------------------ | --------------------------------------------- | ----------------------------------------------------------------------- |
+| Alexander Dennis Isidro Mamani | [alex-isidro](https://github.com/alex-isidro) | [LinkedIn](https://www.linkedin.com/in/alexander-dennis-a3b48824b/)     |
+| Kelson Zhang                   | [KelsonZh0](https://github.com/KelsonZh0)     | [LinkedIn](https://www.linkedin.com/in/kelson-zhang-211456323/)         |
+| Lucas Rossoni Dieder           | [PxS00](https://github.com/PxS00)             | [LinkedIn](https://www.linkedin.com/in/lucas-rossoni-dieder-32242a353/) |
