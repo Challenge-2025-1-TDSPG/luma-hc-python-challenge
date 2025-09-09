@@ -65,7 +65,7 @@ class FaqDB:
                         FOR EACH ROW
                         WHEN (new.id IS NULL)
                         BEGIN
-                            SELECT perguntas_seq.NEXTVAL INTO :new.id FROM dual;
+                            SELECT faq_seq.NEXTVAL INTO :new.id FROM dual;
                         END;';
                 EXCEPTION
                     WHEN OTHERS THEN
