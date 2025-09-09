@@ -151,7 +151,7 @@ def ativar_desativar_faq(db, id):
     )
 
     print(
-        f'{Fore.WHITE}Opções: {Fore.GREEN}1-Ativar FAQ{Fore.WHITE}, {Fore.RED}0-Desativar FAQ{Fore.WHITE}, {Fore.YELLOW}C-Cancelar{Style.RESET_ALL}'
+        f'{Fore.WHITE}Opções: {Fore.GREEN}1-Ativar FAQ | {Fore.RED}0-Desativar FAQ | {Fore.YELLOW}C-Cancelar{Style.RESET_ALL}'
     )
     ativo_str = (
         input(f'{Fore.CYAN}Escolha uma opção: {Style.RESET_ALL}').strip().upper()

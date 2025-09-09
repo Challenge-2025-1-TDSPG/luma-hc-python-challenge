@@ -21,10 +21,10 @@ class FAQ:
             else f'{Fore.RED}Não{Style.RESET_ALL}'
         )
         return (
-            f'{Fore.BLUE}ID:{Style.RESET_ALL} {self.id}\n'
-            f'{Fore.BLUE}Pergunta:{Style.RESET_ALL} {self.pergunta}\n'
-            f'{Fore.BLUE}Resposta:{Style.RESET_ALL} {self.resposta}\n'
-            f'{Fore.BLUE}Ativo:{Style.RESET_ALL} {ativo_texto}\n'
-            f'{Fore.BLUE}Atualizado em:{Style.RESET_ALL} {self.atualizado_em}\n'
-            f'{Fore.BLUE}Categoria:{Style.RESET_ALL} {self.categoria}'
+            f'{Fore.MAGENTA}ID:{Style.RESET_ALL} {self.id}\n'
+            f'{Fore.MAGENTA}Pergunta:{Style.RESET_ALL} {self.pergunta}\n'
+            f'{Fore.MAGENTA}Resposta:{Style.RESET_ALL} {self.resposta}\n'
+            f'{Fore.MAGENTA}Ativo:{Style.RESET_ALL} {ativo_texto}\n'
+            f'{Fore.MAGENTA}Atualizado em:{Style.RESET_ALL} {self.atualizado_em}\n'
+            f'{Fore.MAGENTA}Categoria:{Style.RESET_ALL} {self.categoria}'
         )

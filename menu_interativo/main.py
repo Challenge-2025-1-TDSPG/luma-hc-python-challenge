@@ -23,7 +23,7 @@ if __name__ == '__main__':
         # Usando o protocolo de contexto para testar a conexão
         with FaqDB(oracle_config) as test_db:
             print(
-                f'{Fore.GREEN}[INFO] Conexão com banco Oracle estabelecida com sucesso.{Style.RESET_ALL}'
+                f'{Fore.BLUE}[INFO] Conexão com banco Oracle estabelecida com sucesso.{Style.RESET_ALL}'
             )
     except Exception as e:
         print(
