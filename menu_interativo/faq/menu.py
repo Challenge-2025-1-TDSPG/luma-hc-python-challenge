@@ -17,11 +17,17 @@ class Menu:
     def __init__(self, oracle_config):
         """Inicializa o menu e as operações modulares."""
         self.db = FaqDB(oracle_config)
-        from .memoria.faq_memoria import adicionar_faq
-
-        faqs_memoria = []
-        adicionar_faq(faqs_memoria, 1, 'Exemplo de pergunta 1')
-        adicionar_faq(faqs_memoria, 2, 'Exemplo de pergunta 2')
+        # Inicializa a lista de FAQs em memória com exemplos, se desejar
+        faqs_memoria = [
+            {
+                'id': 1,
+                'pergunta': 'Exemplo de pergunta 1',
+                'resposta': 'Exemplo de resposta 1',
+                'ativo': 1,
+                'atualizado_em': '',
+                'categoria': 'Exemplo',
+            },
+        ]
         self.menu_crud = MenuCRUD(self.db)
         self.menu_exportacao = MenuExportacao(self.db)
         self.menu_memoria = MenuMemoria(faqs_memoria)
