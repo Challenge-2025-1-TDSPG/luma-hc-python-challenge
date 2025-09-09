@@ -16,8 +16,9 @@ if __name__ == '__main__':
     }
 
     try:
-        test_db = FaqDB(oracle_config)
-        test_db.close()
+        # Usando o protocolo de contexto para testar a conexão
+        with FaqDB(oracle_config) as test_db:
+            print('[INFO] Conexão com banco Oracle estabelecida com sucesso.')
     except Exception as e:
         print(
             '\n[ERRO] Não foi possível conectar ao banco Oracle. Verifique as credenciais e o DSN.'

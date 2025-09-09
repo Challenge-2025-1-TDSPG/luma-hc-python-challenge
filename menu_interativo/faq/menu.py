@@ -16,6 +16,7 @@ class Menu:
 
     def __init__(self, oracle_config):
         """Inicializa o menu e as operações modulares."""
+        self.oracle_config = oracle_config
         self.db = FaqDB(oracle_config)
         faqs_memoria = []
         self.menu_crud = MenuCRUD(self.db)
@@ -40,7 +41,8 @@ class Menu:
             elif opcao == '3':
                 self.menu_exportacao.exportar_json()
             elif opcao == '0':
-                self.db.close()
+                if self.db:
+                    self.db.close()
                 print('Saindo...')
                 break
             else:

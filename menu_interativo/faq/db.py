@@ -6,12 +6,16 @@ from .models import FAQ
 class FaqDB:
     """
     Classe responsável por gerenciar o banco de dados dos itens de FAQ (Oracle).
+    Implementa o protocolo de contexto para garantir o fechamento da conexão.
     """
 
     def __init__(self, oracle_config):
         """
         oracle_config: dict com chaves user, password, dsn
         """
+        self.conn = None
+        self.cursor = None
+
         try:
             import cx_Oracle
 
@@ -28,6 +32,14 @@ class FaqDB:
         except ImportError:
             print('cx_Oracle não instalado. Instale com: pip install cx_Oracle')
             raise
+
+    # Implementando o protocolo de contexto para uso com 'with'
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False  # Propaga exceções se houverem
 
     def create_table_oracle(self):
         try:
@@ -60,8 +72,12 @@ class FaqDB:
             )
             self.conn.commit()
             print('FAQ adicionada com sucesso!')
+            return True
         except Exception as e:
+            if self.conn:
+                self.conn.rollback()  # Desfaz a transação em caso de erro
             print(f'Erro ao adicionar FAQ: {e}')
+            return False
 
     def listar(self, categoria=None):
         try:
@@ -89,6 +105,8 @@ class FaqDB:
             self.conn.commit()
             return rows_affected > 0  # Retorna True se algum registro foi atualizado
         except Exception as e:
+            if self.conn:
+                self.conn.rollback()  # Desfaz a transação em caso de erro
             print(f'Erro ao atualizar FAQ: {e}')
             return False
 
@@ -96,10 +114,15 @@ class FaqDB:
         try:
             sql = 'DELETE FROM FAQ WHERE id=:1'
             self.cursor.execute(sql, (id,))
+            rows_affected = self.cursor.rowcount
             self.conn.commit()
             print('FAQ deletada com sucesso!')
+            return rows_affected > 0  # Retorna True se algum registro foi excluído
         except Exception as e:
+            if self.conn:
+                self.conn.rollback()  # Desfaz a transação em caso de erro
             print(f'Erro ao deletar FAQ: {e}')
+            return False
 
     def buscar_por_id(self, id):
         try:
@@ -126,7 +149,16 @@ class FaqDB:
             return []
 
     def close(self):
-        if self.cursor:
-            self.cursor.close()
-        if self.conn:
-            self.conn.close()
+        """Fecha a conexão com o banco de dados de forma segura."""
+        try:
+            if self.cursor:
+                self.cursor.close()
+        except Exception as e:
+            print(f'Erro ao fechar o cursor: {e}')
+        finally:
+            try:
+                if self.conn:
+                    self.conn.close()
+                    print('[LOG] Conexão com o banco de dados fechada com sucesso.')
+            except Exception as e:
+                print(f'Erro ao fechar a conexão com o banco: {e}')
