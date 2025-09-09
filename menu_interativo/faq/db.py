@@ -40,7 +40,7 @@ class FaqDB:
                         resposta VARCHAR2(4000) NOT NULL,
                         ativo NUMBER(1) NOT NULL,
                         atualizado_em VARCHAR2(50) NOT NULL,
-                        pasta VARCHAR2(255) NOT NULL
+                        categoria VARCHAR2(255) NOT NULL
                     )';
                 EXCEPTION
                     WHEN OTHERS THEN
@@ -76,21 +76,23 @@ class FaqDB:
         except Exception as e:
             print(f'Erro ao criar tabela Oracle: {e}')
 
-    def adicionar(self, pergunta, resposta, ativo, pasta):
+    def adicionar(self, pergunta, resposta, ativo, categoria):
         atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
-            sql = 'INSERT INTO perguntas (id, pergunta, resposta, ativo, atualizado_em, pasta) VALUES (perguntas_seq.NEXTVAL, :1, :2, :3, :4, :5)'
-            self.cursor.execute(sql, (pergunta, resposta, ativo, atualizado_em, pasta))
+            sql = 'INSERT INTO perguntas (id, pergunta, resposta, ativo, atualizado_em, categoria) VALUES (perguntas_seq.NEXTVAL, :1, :2, :3, :4, :5)'
+            self.cursor.execute(
+                sql, (pergunta, resposta, ativo, atualizado_em, categoria)
+            )
             self.conn.commit()
             print('Pergunta adicionada com sucesso!')
         except Exception as e:
             print(f'Erro ao adicionar pergunta: {e}')
 
-    def listar(self, pasta=None):
+    def listar(self, categoria=None):
         try:
-            if pasta:
-                sql = 'SELECT * FROM perguntas WHERE pasta = :1'
-                self.cursor.execute(sql, (pasta,))
+            if categoria:
+                sql = 'SELECT * FROM perguntas WHERE categoria = :1'
+                self.cursor.execute(sql, (categoria,))
             else:
                 sql = 'SELECT * FROM perguntas'
                 self.cursor.execute(sql)
@@ -101,12 +103,12 @@ class FaqDB:
             print(f'Erro ao listar perguntas: {e}')
             return []
 
-    def atualizar(self, id, pergunta, resposta, ativo, pasta):
+    def atualizar(self, id, pergunta, resposta, ativo, categoria):
         atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
-            sql = 'UPDATE perguntas SET pergunta=:1, resposta=:2, ativo=:3, atualizado_em=:4, pasta=:5 WHERE id=:6'
+            sql = 'UPDATE perguntas SET pergunta=:1, resposta=:2, ativo=:3, atualizado_em=:4, categoria=:5 WHERE id=:6'
             self.cursor.execute(
-                sql, (pergunta, resposta, ativo, atualizado_em, pasta, id)
+                sql, (pergunta, resposta, ativo, atualizado_em, categoria, id)
             )
             self.conn.commit()
             print('Pergunta atualizada com sucesso!')
@@ -136,14 +138,14 @@ class FaqDB:
             print(f'Erro ao buscar pergunta: {e}')
             return None
 
-    def listar_pastas(self):
+    def listar_categorias(self):
         try:
-            sql = 'SELECT DISTINCT pasta FROM perguntas'
+            sql = 'SELECT DISTINCT categoria FROM perguntas'
             self.cursor.execute(sql)
             rows = self.cursor.fetchall()
             return [row[0] for row in rows]
         except Exception as e:
-            print(f'Erro ao listar pastas: {e}')
+            print(f'Erro ao listar categorias: {e}')
             return []
 
     def close(self):
