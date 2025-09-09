@@ -38,7 +38,8 @@ class FaqDB:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
+        # Sempre fecha silenciosamente ao sair do contexto 'with'
+        self.close(silent=True)
         return False  # Propaga exceções se houverem
 
     def create_table_oracle(self):
@@ -148,17 +149,24 @@ class FaqDB:
             print(f'Erro ao listar categorias: {e}')
             return []
 
-    def close(self):
-        """Fecha a conexão com o banco de dados de forma segura."""
+    def close(self, silent=False):
+        """Fecha a conexão com o banco de dados de forma segura.
+
+        Args:
+            silent (bool): Se True, não exibe mensagens de log ao fechar a conexão.
+        """
         try:
             if self.cursor:
                 self.cursor.close()
         except Exception as e:
-            print(f'Erro ao fechar o cursor: {e}')
+            if not silent:
+                print(f'Erro ao fechar o cursor: {e}')
         finally:
             try:
                 if self.conn:
                     self.conn.close()
-                    print('[LOG] Conexão com o banco de dados fechada com sucesso.')
+                    if not silent:
+                        print('[LOG] Conexão com o banco de dados fechada com sucesso.')
             except Exception as e:
-                print(f'Erro ao fechar a conexão com o banco: {e}')
+                if not silent:
+                    print(f'Erro ao fechar a conexão com o banco: {e}')
