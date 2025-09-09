@@ -6,11 +6,9 @@ Este projeto implementa um sistema de gerenciamento de FAQ (Frequently Asked Que
 
 ---
 
-## Funcionalidades Principais
-
 - **CRUD Completo de FAQs**: Permite criar, listar, atualizar e remover perguntas e respostas, com categorização e controle de status (ativo/inativo).
 - **Exportação para JSON**: Exporta todos os dados do FAQ para um arquivo JSON, facilitando integrações e backups.
-- **Operações em Memória**: Permite visualizar e manipular perguntas em memória para testes e simulações.
+- **Operações em Memória**: Permite visualizar e manipular perguntas em memória usando lista de dicionários (estrutura recomendada para CRUD em Python), ideal para testes e simulações.
 - **API RESTful**: Disponibiliza endpoints para integração com front-ends e outros sistemas corporativos (implementação em `faq_api.py`).
 - **Integração Oracle**: Toda a persistência é feita via Oracle Database, utilizando o driver `cx_Oracle` e boas práticas de segurança (credenciais via `.env`).
 - **Estrutura Modular**: Cada grupo de operações (CRUD, exportação, memória) está em módulos próprios, facilitando manutenção e evolução.
@@ -40,7 +38,7 @@ menu_interativo/
             menu_memoria.py    # Operações em memória
         faq_api.py         # API RESTful (Flask)
         api.py             # Consumo de APIs externas (opcional)
-        perguntas_memoria.py # Dados de exemplo em memória
+    perguntas_memoria.py # Funções utilitárias para lista de dicionários em memória
 ```
 
 ---
@@ -50,7 +48,7 @@ menu_interativo/
 1. **Inicialização**: O sistema carrega as configurações Oracle do arquivo `.env` e valida a conexão.
 2. **Menu Interativo**: O usuário navega pelo menu principal, podendo acessar:
    - CRUD de perguntas (via `crud/menu_crud.py`)
-   - Listagem de perguntas em memória (via `memoria/menu_memoria.py`)
+   - Listagem de perguntas em memória (via `memoria/menu_memoria.py` e funções de lista de dicionários em `perguntas_memoria.py`)
    - Exportação para JSON (via `exportacao/menu_exportacao.py`)
 3. **API RESTful**: Opcionalmente, o sistema pode ser executado como API para integração com front-ends modernos.
 
