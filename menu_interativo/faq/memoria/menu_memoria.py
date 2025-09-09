@@ -5,7 +5,11 @@ Operações de FAQs em memória (cada FAQ contém pergunta, resposta, etc).
 import json
 import os
 
-from .faq_memoria import adicionar_faq, atualizar_faq, buscar_faq, remover_faq
+from .crud_memoria.adicionar import adicionar_faq_memoria
+from .crud_memoria.atualizar import atualizar_faq_memoria
+from .crud_memoria.buscar import buscar_faq_memoria
+from .crud_memoria.deletar import remover_faq_memoria
+from .crud_memoria.listar import listar_faqs_memoria
 
 
 class MenuMemoria:
@@ -69,63 +73,16 @@ class MenuMemoria:
                 print('Opção inválida! Digite o número da opção desejada.')
 
     def listar_faqs_memoria(self):
-        if not self.faqs_memoria:
-            print('Nenhum FAQ em memória.')
-        else:
-            for faq in self.faqs_memoria:
-                print(f'ID: {faq["id"]} | Pergunta: {faq["pergunta"]}')
-            print(f'Total de FAQs em memória: {len(self.faqs_memoria)}')
+        listar_faqs_memoria(self.faqs_memoria)
 
     def adicionar_faq_memoria(self):
-        try:
-            id_str = input('ID do FAQ: ').strip()
-            pergunta = input('Pergunta do FAQ: ').strip()
-            if not (id_str.isdigit() and pergunta):
-                print('ID deve ser número e a pergunta não pode ser vazia.')
-                return
-            id = int(id_str)
-            adicionar_faq(self.faqs_memoria, id, pergunta)
-            print('FAQ adicionado em memória!')
-        except Exception as e:
-            print(f'Erro ao adicionar FAQ: {e}')
+        adicionar_faq_memoria(self.faqs_memoria)
 
     def atualizar_faq_memoria(self):
-        try:
-            id_str = input('ID do FAQ a atualizar: ').strip()
-            nova_pergunta = input('Nova pergunta do FAQ: ').strip()
-            if not (id_str.isdigit() and nova_pergunta):
-                print('ID deve ser número e a pergunta não pode ser vazia.')
-                return
-            id = int(id_str)
-            atualizar_faq(self.faqs_memoria, id, nova_pergunta)
-            print('FAQ atualizado em memória!')
-        except Exception as e:
-            print(f'Erro ao atualizar FAQ: {e}')
+        atualizar_faq_memoria(self.faqs_memoria)
 
     def remover_faq_memoria(self):
-        try:
-            id_str = input('ID do FAQ a remover: ').strip()
-            if not id_str.isdigit():
-                print('ID deve ser número.')
-                return
-            id = int(id_str)
-            self.faqs_memoria[:] = remover_faq(self.faqs_memoria, id)
-            print('FAQ removido em memória!')
-        except Exception as e:
-            print(f'Erro ao remover FAQ: {e}')
+        remover_faq_memoria(self.faqs_memoria)
 
     def buscar_faq_memoria(self):
-        try:
-            id_str = input('ID do FAQ a buscar: ').strip()
-            if not id_str.isdigit():
-                print('ID deve ser número.')
-                return
-            id = int(id_str)
-            encontrados = buscar_faq(self.faqs_memoria, id)
-            if encontrados:
-                for faq in encontrados:
-                    print(f'ID: {faq["id"]} | Pergunta: {faq["pergunta"]}')
-            else:
-                print('Nenhum FAQ encontrado com esse ID.')
-        except Exception as e:
-            print(f'Erro ao buscar FAQ: {e}')
+        buscar_faq_memoria(self.faqs_memoria)
