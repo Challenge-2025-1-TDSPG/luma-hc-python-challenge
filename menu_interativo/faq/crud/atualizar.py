@@ -40,7 +40,12 @@ def atualizar_pergunta(db, id):
         print('Atualização de pergunta cancelada.')
         return
     if nova_pergunta:
-        db.atualizar(id, nova_pergunta, None, None, None)
+        # Buscar valores atuais
+        faq = db.buscar_por_id(id)
+        if not faq:
+            print('FAQ não encontrado.')
+            return
+        db.atualizar(id, nova_pergunta, faq.resposta, faq.ativo, faq.categoria)
         print('Pergunta atualizada com sucesso!')
     else:
         print('Pergunta não pode ser vazia.')
@@ -52,7 +57,11 @@ def atualizar_resposta(db, id):
         print('Atualização de resposta cancelada.')
         return
     if nova_resposta:
-        db.atualizar(id, None, nova_resposta, None, None)
+        faq = db.buscar_por_id(id)
+        if not faq:
+            print('FAQ não encontrado.')
+            return
+        db.atualizar(id, faq.pergunta, nova_resposta, faq.ativo, faq.categoria)
         print('Resposta atualizada com sucesso!')
     else:
         print('Resposta não pode ser vazia.')
@@ -64,7 +73,11 @@ def atualizar_categoria(db, id):
         print('Atualização de categoria cancelada.')
         return
     if nova_categoria:
-        db.atualizar(id, None, None, None, nova_categoria)
+        faq = db.buscar_por_id(id)
+        if not faq:
+            print('FAQ não encontrado.')
+            return
+        db.atualizar(id, faq.pergunta, faq.resposta, faq.ativo, nova_categoria)
         print('Categoria atualizada com sucesso!')
     else:
         print('Categoria não pode ser vazia.')
@@ -79,5 +92,9 @@ def ativar_desativar_faq(db, id):
         print('Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).')
         return
     ativo = int(ativo_str)
-    db.atualizar(id, None, None, ativo, None)
+    faq = db.buscar_por_id(id)
+    if not faq:
+        print('FAQ não encontrado.')
+        return
+    db.atualizar(id, faq.pergunta, faq.resposta, ativo, faq.categoria)
     print('Status do FAQ atualizado com sucesso!')
