@@ -13,13 +13,17 @@ def remover_faq_memoria(lista):
             return
 
         operacao_iniciada = True
-        
-        confirmacao = input('Pressione Enter para confirmar a exclusão ou C para cancelar: ').strip().upper()
-        
+
+        confirmacao = (
+            input('Pressione Enter para confirmar a exclusão ou C para cancelar: ')
+            .strip()
+            .upper()
+        )
+
         if confirmacao == 'C':
             print('Operação cancelada. Nenhuma alteração foi feita.')
             return
-        
+
         lista[:] = [item for item in lista if item['id'] != id]
         print('FAQ removido em memória!')
     except Exception as e:

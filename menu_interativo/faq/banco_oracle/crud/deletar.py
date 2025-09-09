@@ -21,14 +21,20 @@ def deletar_faq(db):
 
         operacao_iniciada = True
 
-        confirmacao = input(
-            f'{Fore.RED}{Style.BRIGHT}Pressione Enter para confirmar a exclusão ou C para cancelar: {Style.RESET_ALL}'
-        ).strip().upper()
-        
+        confirmacao = (
+            input(
+                f'{Fore.RED}{Style.BRIGHT}Pressione Enter para confirmar a exclusão ou C para cancelar: {Style.RESET_ALL}'
+            )
+            .strip()
+            .upper()
+        )
+
         if confirmacao == 'C':
-            print(f'{Fore.YELLOW}Operação cancelada. Nenhuma alteração foi feita.{Style.RESET_ALL}')
+            print(
+                f'{Fore.YELLOW}Operação cancelada. Nenhuma alteração foi feita.{Style.RESET_ALL}'
+            )
             return
-            
+
         db.deletar(id)
     except Exception as e:
         print(f'{Fore.RED}Erro ao deletar FAQ: {e}{Style.RESET_ALL}')
