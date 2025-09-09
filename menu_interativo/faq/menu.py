@@ -3,10 +3,10 @@ Módulo de menu principal do sistema FAQ.
 Oferece interface de CRUD, exportação para JSON e consumo de API pública.
 """
 
-from .banco_oracle.menu_crud import MenuCRUD
+from .banco_oracle import MenuCRUD
 from .db import FaqDB
-from .exportacao.menu_exportacao import MenuExportacao
-from .memoria.menu_memoria import MenuMemoria
+from .exportacao import MenuExportacao
+from .memoria import MenuMemoria
 
 
 class Menu:
@@ -17,17 +17,7 @@ class Menu:
     def __init__(self, oracle_config):
         """Inicializa o menu e as operações modulares."""
         self.db = FaqDB(oracle_config)
-        # Inicializa a lista de FAQs em memória com exemplos, se desejar
-        faqs_memoria = [
-            {
-                'id': 1,
-                'pergunta': 'Exemplo de pergunta 1',
-                'resposta': 'Exemplo de resposta 1',
-                'ativo': 1,
-                'atualizado_em': '',
-                'categoria': 'Exemplo',
-            },
-        ]
+        faqs_memoria = []
         self.menu_crud = MenuCRUD(self.db)
         self.menu_exportacao = MenuExportacao(self.db)
         self.menu_memoria = MenuMemoria(faqs_memoria)

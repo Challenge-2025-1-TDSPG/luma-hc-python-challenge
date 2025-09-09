@@ -4,11 +4,13 @@ Operações de FAQs em memória (cada FAQ contém pergunta, resposta, etc).
 
 import os
 
-from .crud_memoria.adicionar import adicionar_faq_memoria
-from .crud_memoria.atualizar import atualizar_faq_memoria
-from .crud_memoria.buscar import buscar_faq_memoria
-from .crud_memoria.deletar import remover_faq_memoria
-from .crud_memoria.listar import listar_faqs_memoria
+from .crud_memoria import (
+    adicionar_faq_memoria,
+    atualizar_faq_memoria,
+    buscar_faq_memoria,
+    listar_faqs_memoria,
+    remover_faq_memoria,
+)
 
 
 class MenuMemoria:

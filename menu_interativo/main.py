@@ -5,7 +5,7 @@ Arquivo principal para execução do sistema FAQ.
 import os
 
 from dotenv import load_dotenv
-from faq.menu import Menu
+from faq import FaqDB, Menu
 
 if __name__ == '__main__':
     load_dotenv()
@@ -14,9 +14,6 @@ if __name__ == '__main__':
         'password': os.environ.get('DB_PASS'),
         'dsn': os.environ.get('DB_URL'),
     }
-
-    # Validação das credenciais Oracle
-    from faq.db import FaqDB
 
     try:
         test_db = FaqDB(oracle_config)
