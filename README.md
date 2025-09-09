@@ -1,5 +1,18 @@
 # Sistema FAQ Corporativo em Python
 
+## Requisitos de Banco de Dados
+
+> **Atenção:** Este sistema utiliza o recurso IDENTITY do Oracle, disponível apenas a partir do Oracle 12c (12.1) ou superior. Não é compatível com versões anteriores.
+
+## Stacks Utilizadas
+
+- **Backend:** Python 3.x
+- **Banco de Dados:** Oracle Database 12c ou superior
+- **Driver Oracle:** cx_Oracle
+- **API REST:** Flask
+- **Ambiente:** Windows (recomendado), mas pode ser adaptado para Linux/Mac
+- **Gerenciamento de dependências:** venv + requirements.txt
+
 ## Visão Geral Profissional
 
 Este projeto implementa um sistema de gerenciamento de FAQ (Frequently Asked Questions) corporativo, desenvolvido em Python com foco em modularidade, escalabilidade e integração corporativa. O sistema utiliza Programação Orientada a Objetos (POO), separação clara de responsabilidades e integração nativa com banco de dados Oracle, além de oferecer API RESTful e exportação de dados.
