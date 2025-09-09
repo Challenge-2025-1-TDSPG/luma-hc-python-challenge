@@ -1,11 +1,14 @@
+from colorama import Fore, Style
+
+
 def buscar_faq_memoria(lista):
     """Busca um FAQ em memória pelo ID."""
     operacao_iniciada = False
 
     try:
-        id_str = input('ID do FAQ a buscar: ').strip()
+        id_str = input(f'{Fore.CYAN}ID do FAQ a buscar: {Style.RESET_ALL}').strip()
         if not id_str.isdigit():
-            print('ID deve ser número.')
+            print(f'{Fore.RED}ID deve ser número.{Style.RESET_ALL}')
             return
         id = int(id_str)
 
@@ -15,13 +18,18 @@ def buscar_faq_memoria(lista):
         if encontrados:
             for faq in encontrados:
                 print(
-                    f'ID: {faq["id"]}\nPergunta: {faq["pergunta"]}\nResposta: {faq.get("resposta", "")}\nAtivo: {faq.get("ativo", "")}\nAtualizado em: {faq.get("atualizado_em", "")}\nCategoria: {faq.get("categoria", "")}\n'
+                    f'{Fore.CYAN}ID:{Style.RESET_ALL} {faq["id"]}\n'
+                    f'{Fore.CYAN}Pergunta:{Style.RESET_ALL} {faq["pergunta"]}\n'
+                    f'{Fore.CYAN}Resposta:{Style.RESET_ALL} {faq.get("resposta", "")}\n'
+                    f'{Fore.CYAN}Ativo:{Style.RESET_ALL} {faq.get("ativo", "")}\n'
+                    f'{Fore.CYAN}Atualizado em:{Style.RESET_ALL} {faq.get("atualizado_em", "")}\n'
+                    f'{Fore.CYAN}Categoria:{Style.RESET_ALL} {faq.get("categoria", "")}\n'
                     + '-' * 30
                 )
         else:
-            print('Nenhum FAQ encontrado com esse ID.')
+            print(f'{Fore.YELLOW}Nenhum FAQ encontrado com esse ID.{Style.RESET_ALL}')
     except Exception as e:
-        print(f'Erro ao buscar FAQ em memória: {e}')
+        print(f'{Fore.RED}Erro ao buscar FAQ em memória: {e}{Style.RESET_ALL}')
     finally:
         if operacao_iniciada:
-            print('[LOG] Operação de busca em memória finalizada.')
+            print(f'{Fore.GREEN}[LOG] Operação de busca em memória finalizada.{Style.RESET_ALL}')

@@ -1,4 +1,5 @@
 from datetime import datetime
+from colorama import Fore, Style
 
 
 def atualizar_faq_memoria(lista):
@@ -6,26 +7,26 @@ def atualizar_faq_memoria(lista):
     operacao_iniciada = False
 
     try:
-        id_str = input('ID do FAQ a atualizar: ').strip()
+        id_str = input(f'{Fore.CYAN}ID do FAQ a atualizar: {Style.RESET_ALL}').strip()
         if not id_str.isdigit():
-            print('ID deve ser número.')
+            print(f'{Fore.RED}ID deve ser número.{Style.RESET_ALL}')
             return
         id = int(id_str)
         # Verifica se existe FAQ com esse id
         if not any(item['id'] == id for item in lista):
-            print('FAQ não encontrado.')
+            print(f'{Fore.YELLOW}FAQ não encontrado.{Style.RESET_ALL}')
             return
 
         operacao_iniciada = True
 
         while True:
-            print('\n--- Atualizar FAQ em Memória ---')
-            print('1. Atualizar Pergunta')
-            print('2. Atualizar Resposta')
-            print('3. Atualizar Categoria')
-            print('4. Ativar/Desativar FAQ')
-            print('0. Voltar')
-            opcao = input('Escolha uma opção: ').strip()
+            print(f'\n{Fore.CYAN}--- Atualizar FAQ em Memória ---{Style.RESET_ALL}')
+            print(f'{Fore.WHITE}1. Atualizar Pergunta')
+            print(f'{Fore.WHITE}2. Atualizar Resposta')
+            print(f'{Fore.WHITE}3. Atualizar Categoria')
+            print(f'{Fore.WHITE}4. Ativar/Desativar FAQ')
+            print(f'{Fore.YELLOW}0. Voltar{Style.RESET_ALL}')
+            opcao = input(f'{Fore.GREEN}Escolha uma opção: {Style.RESET_ALL}').strip()
             if opcao == '1':
                 atualizar_pergunta_memoria(lista, id)
             elif opcao == '2':
@@ -37,66 +38,66 @@ def atualizar_faq_memoria(lista):
             elif opcao == '0':
                 break
             else:
-                print('Opção inválida! Digite o número da opção desejada.')
+                print(f'{Fore.RED}Opção inválida! Digite o número da opção desejada.{Style.RESET_ALL}')
     except Exception as e:
-        print(f'Erro ao atualizar FAQ em memória: {e}')
+        print(f'{Fore.RED}Erro ao atualizar FAQ em memória: {e}{Style.RESET_ALL}')
     finally:
         if operacao_iniciada:
-            print('[LOG] Operação de atualização em memória finalizada.')
+            print(f'{Fore.GREEN}[LOG] Operação de atualização em memória finalizada.{Style.RESET_ALL}')
 
 
 def atualizar_pergunta_memoria(lista, id):
-    nova_pergunta = input('Nova pergunta do FAQ (ou 0 para cancelar): ').strip()
+    nova_pergunta = input(f'{Fore.CYAN}Nova pergunta do FAQ (ou 0 para cancelar): {Style.RESET_ALL}').strip()
     if nova_pergunta == '0':
-        print('Atualização de pergunta cancelada.')
+        print(f'{Fore.YELLOW}Atualização de pergunta cancelada.{Style.RESET_ALL}')
         return
     if nova_pergunta:
         for item in lista:
             if item['id'] == id:
                 item['pergunta'] = nova_pergunta
                 item['atualizado_em'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                print('Pergunta atualizada com sucesso!')
+                print(f'{Fore.GREEN}Pergunta atualizada com sucesso!{Style.RESET_ALL}')
                 break
     else:
-        print('Pergunta não pode ser vazia.')
+        print(f'{Fore.RED}Pergunta não pode ser vazia.{Style.RESET_ALL}')
 
 
 def atualizar_resposta_memoria(lista, id):
-    nova_resposta = input('Nova resposta do FAQ (ou 0 para cancelar): ').strip()
+    nova_resposta = input(f'{Fore.CYAN}Nova resposta do FAQ (ou 0 para cancelar): {Style.RESET_ALL}').strip()
     if nova_resposta == '0':
-        print('Atualização de resposta cancelada.')
+        print(f'{Fore.YELLOW}Atualização de resposta cancelada.{Style.RESET_ALL}')
         return
     if nova_resposta:
         for item in lista:
             if item['id'] == id:
                 item['resposta'] = nova_resposta
                 item['atualizado_em'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                print('Resposta atualizada com sucesso!')
+                print(f'{Fore.GREEN}Resposta atualizada com sucesso!{Style.RESET_ALL}')
                 break
     else:
-        print('Resposta não pode ser vazia.')
+        print(f'{Fore.RED}Resposta não pode ser vazia.{Style.RESET_ALL}')
 
 
 def atualizar_categoria_memoria(lista, id):
-    nova_categoria = input('Nova categoria do FAQ (ou 0 para cancelar): ').strip()
+    nova_categoria = input(f'{Fore.CYAN}Nova categoria do FAQ (ou 0 para cancelar): {Style.RESET_ALL}').strip()
     if nova_categoria == '0':
-        print('Atualização de categoria cancelada.')
+        print(f'{Fore.YELLOW}Atualização de categoria cancelada.{Style.RESET_ALL}')
         return
     if nova_categoria:
         for item in lista:
             if item['id'] == id:
                 item['categoria'] = nova_categoria
                 item['atualizado_em'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                print('Categoria atualizada com sucesso!')
+                print(f'{Fore.GREEN}Categoria atualizada com sucesso!{Style.RESET_ALL}')
                 break
     else:
-        print('Categoria não pode ser vazia.')
+        print(f'{Fore.RED}Categoria não pode ser vazia.{Style.RESET_ALL}')
 
 
 def ativar_desativar_faq_memoria(lista, id):
-    ativo_str = input('Novo status Ativo? (1-Sim, 0-Não, ou 9 para cancelar): ').strip()
-    if ativo_str == '9':
-        print('Atualização de status cancelada.')
+    ativo_str = input(f'{Fore.CYAN}Novo status Ativo? (1-Sim, 0-Não, ou C para cancelar): {Style.RESET_ALL}').strip().upper()
+    if ativo_str == 'C':
+        print(f'{Fore.YELLOW}Atualização de status cancelada.{Style.RESET_ALL}')
         return
     if ativo_str in ['0', '1']:
         novo_ativo = int(ativo_str)
@@ -104,7 +105,7 @@ def ativar_desativar_faq_memoria(lista, id):
             if item['id'] == id:
                 item['ativo'] = novo_ativo
                 item['atualizado_em'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                print('Status atualizado com sucesso!')
+                print(f'{Fore.GREEN}Status atualizado com sucesso!{Style.RESET_ALL}')
                 break
     else:
-        print('Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).')
+        print(f'{Fore.RED}Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).{Style.RESET_ALL}')
