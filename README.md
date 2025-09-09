@@ -86,8 +86,50 @@ menu_interativo/
 
 ## Como Executar
 
+## Ambiente Virtual e Instalação de Dependências
+
+1. **Crie e ative o ambiente virtual (venv):**
+
+   ```cmd
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+
+   O prompt deve mostrar `(venv)` indicando que o ambiente está ativo.
+
+2. **Instale as dependências do projeto:**
+   ```cmd
+   pip install -r requirements.txt
+   ```
+
+## Instalação do Oracle Instant Client (Obrigatório para conexão Oracle)
+
+O driver cx_Oracle exige a biblioteca nativa Oracle Instant Client instalada na máquina.
+
+1. Baixe o Oracle Instant Client 64-bit para Windows:
+
+   - [Download Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client/winx64-64-downloads.html)
+   - Baixe o pacote "Basic" (ZIP).
+
+2. Extraia o ZIP em uma pasta, por exemplo: `C:\oracle\instantclient_21_13`
+
+3. Adicione o caminho dessa pasta à variável de ambiente `PATH` do Windows:
+
+   - Pesquise por "variáveis de ambiente" no menu iniciar.
+   - Edite a variável `PATH` e adicione o caminho da pasta do Instant Client.
+
+4. Feche e reabra o terminal/VS Code para reconhecer a alteração.
+
+5. Execute o sistema normalmente.
+
+> **Atenção:** Todos os usuários do projeto precisam realizar este procedimento para que a conexão Oracle funcione corretamente.
+
+---
+
+## Como Executar
+
 1. Configure o arquivo `.env` com as credenciais Oracle.
-2. Instale as dependências (`cx_Oracle`, `python-dotenv`, `Flask` se for usar a API).
+2. Ative o ambiente virtual e instale as dependências conforme instruções acima.
 3. Execute `main.py` para usar o menu interativo.
 4. (Opcional) Execute `faq_api.py` para expor a API RESTful.
 
