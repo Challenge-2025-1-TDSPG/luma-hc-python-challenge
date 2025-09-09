@@ -53,7 +53,7 @@ menu_interativo/
 
 1. **Inicialização**: O sistema carrega as configurações Oracle do arquivo `.env` e valida a conexão.
 2. **Menu Interativo**: O usuário navega pelo menu principal, podendo acessar:
-    - CRUD de FAQs (cada operação em um arquivo próprio em `crud/`)
+   - CRUD de FAQs (cada operação em um arquivo próprio em `crud/`)
    - Listagem de perguntas em memória (via `memoria/menu_memoria.py` e funções de lista de dicionários em `perguntas_memoria.py`)
    - Exportação para JSON (via `exportacao/menu_exportacao.py`)
 3. **API RESTful**: Opcionalmente, o sistema pode ser executado como API para integração com front-ends modernos.
