@@ -6,6 +6,12 @@ def atualizar_faq(db):
             print('ID deve ser um número inteiro.')
             return
         id = int(id_str)
+
+        # Verifica se o FAQ existe antes de mostrar o menu
+        faq = db.buscar_por_id(id)
+        if not faq:
+            print('FAQ não encontrado.')
+            return
         while True:
             print('\n--- Atualizar FAQ ---')
             print('1. Atualizar Pergunta')
@@ -40,11 +46,8 @@ def atualizar_pergunta(db, id):
         print('Atualização de pergunta cancelada.')
         return
     if nova_pergunta:
-        # Buscar valores atuais
+        # Não busca novamente, pois já foi verificado antes
         faq = db.buscar_por_id(id)
-        if not faq:
-            print('FAQ não encontrado.')
-            return
         db.atualizar(id, nova_pergunta, faq.resposta, faq.ativo, faq.categoria)
         print('Pergunta atualizada com sucesso!')
     else:
@@ -58,9 +61,6 @@ def atualizar_resposta(db, id):
         return
     if nova_resposta:
         faq = db.buscar_por_id(id)
-        if not faq:
-            print('FAQ não encontrado.')
-            return
         db.atualizar(id, faq.pergunta, nova_resposta, faq.ativo, faq.categoria)
         print('Resposta atualizada com sucesso!')
     else:
@@ -74,9 +74,6 @@ def atualizar_categoria(db, id):
         return
     if nova_categoria:
         faq = db.buscar_por_id(id)
-        if not faq:
-            print('FAQ não encontrado.')
-            return
         db.atualizar(id, faq.pergunta, faq.resposta, faq.ativo, nova_categoria)
         print('Categoria atualizada com sucesso!')
     else:
@@ -93,8 +90,5 @@ def ativar_desativar_faq(db, id):
         return
     ativo = int(ativo_str)
     faq = db.buscar_por_id(id)
-    if not faq:
-        print('FAQ não encontrado.')
-        return
     db.atualizar(id, faq.pergunta, faq.resposta, ativo, faq.categoria)
     print('Status do FAQ atualizado com sucesso!')

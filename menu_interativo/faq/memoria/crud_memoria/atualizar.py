@@ -7,6 +7,10 @@ def atualizar_faq_memoria(lista):
         print('ID deve ser número.')
         return
     id = int(id_str)
+    # Verifica se existe FAQ com esse id
+    if not any(item['id'] == id for item in lista):
+        print('FAQ não encontrado.')
+        return
     while True:
         print('\n--- Atualizar FAQ em Memória ---')
         print('1. Atualizar Pergunta')
