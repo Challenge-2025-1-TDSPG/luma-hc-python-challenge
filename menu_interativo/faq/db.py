@@ -85,10 +85,12 @@ class FaqDB:
             self.cursor.execute(
                 sql, (pergunta, resposta, ativo, atualizado_em, categoria, id)
             )
+            rows_affected = self.cursor.rowcount
             self.conn.commit()
-            print('FAQ atualizada com sucesso!')
+            return rows_affected > 0  # Retorna True se algum registro foi atualizado
         except Exception as e:
             print(f'Erro ao atualizar FAQ: {e}')
+            return False
 
     def deletar(self, id):
         try:
@@ -107,7 +109,7 @@ class FaqDB:
             if row:
                 return FAQ(*row)
             else:
-                print('FAQ não encontrada.')
+                # Não imprime mensagem aqui, deixa o chamador tratar
                 return None
         except Exception as e:
             print(f'Erro ao buscar FAQ: {e}')

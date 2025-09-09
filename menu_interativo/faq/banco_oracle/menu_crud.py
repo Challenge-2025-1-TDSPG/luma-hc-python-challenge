@@ -26,7 +26,7 @@ class MenuCRUD:
             print('5. Buscar FAQ por ID')
             print('6. Listar Categorias')
             print('0. Voltar')
-            opcao = input('Escolha uma opção: ').strip()
+            opcao = input('Escolha uma opção: \n').strip()
             if opcao == '1':
                 adicionar_faq(self.db)
             elif opcao == '2':
