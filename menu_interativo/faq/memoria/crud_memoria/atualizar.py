@@ -2,35 +2,47 @@ from datetime import datetime
 
 
 def atualizar_faq_memoria(lista):
-    id_str = input('ID do FAQ a atualizar: ').strip()
-    if not id_str.isdigit():
-        print('ID deve ser número.')
-        return
-    id = int(id_str)
-    # Verifica se existe FAQ com esse id
-    if not any(item['id'] == id for item in lista):
-        print('FAQ não encontrado.')
-        return
-    while True:
-        print('\n--- Atualizar FAQ em Memória ---')
-        print('1. Atualizar Pergunta')
-        print('2. Atualizar Resposta')
-        print('3. Atualizar Categoria')
-        print('4. Ativar/Desativar FAQ')
-        print('0. Voltar')
-        opcao = input('Escolha uma opção: ').strip()
-        if opcao == '1':
-            atualizar_pergunta_memoria(lista, id)
-        elif opcao == '2':
-            atualizar_resposta_memoria(lista, id)
-        elif opcao == '3':
-            atualizar_categoria_memoria(lista, id)
-        elif opcao == '4':
-            ativar_desativar_faq_memoria(lista, id)
-        elif opcao == '0':
-            break
-        else:
-            print('Opção inválida! Digite o número da opção desejada.')
+    """Atualiza um FAQ existente em memória."""
+    operacao_iniciada = False
+
+    try:
+        id_str = input('ID do FAQ a atualizar: ').strip()
+        if not id_str.isdigit():
+            print('ID deve ser número.')
+            return
+        id = int(id_str)
+        # Verifica se existe FAQ com esse id
+        if not any(item['id'] == id for item in lista):
+            print('FAQ não encontrado.')
+            return
+
+        operacao_iniciada = True
+
+        while True:
+            print('\n--- Atualizar FAQ em Memória ---')
+            print('1. Atualizar Pergunta')
+            print('2. Atualizar Resposta')
+            print('3. Atualizar Categoria')
+            print('4. Ativar/Desativar FAQ')
+            print('0. Voltar')
+            opcao = input('Escolha uma opção: ').strip()
+            if opcao == '1':
+                atualizar_pergunta_memoria(lista, id)
+            elif opcao == '2':
+                atualizar_resposta_memoria(lista, id)
+            elif opcao == '3':
+                atualizar_categoria_memoria(lista, id)
+            elif opcao == '4':
+                ativar_desativar_faq_memoria(lista, id)
+            elif opcao == '0':
+                break
+            else:
+                print('Opção inválida! Digite o número da opção desejada.')
+    except Exception as e:
+        print(f'Erro ao atualizar FAQ em memória: {e}')
+    finally:
+        if operacao_iniciada:
+            print('[LOG] Operação de atualização em memória finalizada.')
 
 
 def atualizar_pergunta_memoria(lista, id):
