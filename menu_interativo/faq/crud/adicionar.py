@@ -13,9 +13,15 @@ def adicionar_faq(db):
             return
         ativo = int(ativo_str)
         db.adicionar(pergunta, resposta, ativo, categoria)
+        # Buscar o último FAQ adicionado (assumindo que o maior id é o último)
+        faqs = db.listar()
+        if faqs:
+            novo_faq = max(faqs, key=lambda f: f.id)
+            print('FAQ adicionado com sucesso!')
+            print(novo_faq)
+        else:
+            print('FAQ adicionado, mas não foi possível exibir.')
     except Exception as e:
         print(f'Erro ao adicionar FAQ: {e}')
-    else:
-        print('FAQ adicionado com sucesso!')
     finally:
         print('[LOG] Operação de inserção finalizada.')

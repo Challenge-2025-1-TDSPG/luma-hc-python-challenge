@@ -6,6 +6,11 @@ def deletar_faq(db):
             print('ID deve ser um número inteiro.')
             return
         id = int(id_str)
+        # Verifica se o FAQ existe antes de tentar deletar
+        faq = db.buscar_por_id(id)
+        if not faq:
+            print('FAQ não encontrado.')
+            return
         input('Pressione Enter para confirmar a exclusão...')
         db.deletar(id)
     except Exception as e:

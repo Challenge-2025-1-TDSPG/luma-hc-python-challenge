@@ -17,6 +17,10 @@ def adicionar_faq_memoria(lista):
         print('Todos os campos são obrigatórios e "Ativo" deve ser 1 ou 0.')
         return
     id = int(id_str)
+    # Verifica se já existe FAQ com esse id
+    if any(item['id'] == id for item in lista):
+        print('Já existe um FAQ com esse ID.')
+        return
     ativo = int(ativo_str)
     atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     lista.append(
