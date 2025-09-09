@@ -11,9 +11,11 @@ from .faq_memoria import adicionar_faq, atualizar_faq, buscar_faq, remover_faq
 class MenuMemoria:
     def __init__(self, faqs_memoria=None):
         self.faqs_memoria = faqs_memoria if faqs_memoria is not None else []
-        self.caminho_json = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', 'data', 'faq_export.json')
+        pasta_memoria = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'memoria')
         )
+        os.makedirs(pasta_memoria, exist_ok=True)
+        self.caminho_json = os.path.join(pasta_memoria, 'faq_export.json')
         self.carregar_json()
 
     def carregar_json(self):

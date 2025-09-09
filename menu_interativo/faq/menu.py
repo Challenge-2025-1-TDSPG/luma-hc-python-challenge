@@ -17,7 +17,8 @@ class Menu:
     def __init__(self, oracle_config):
         """Inicializa o menu e as operações modulares."""
         self.db = FaqDB(oracle_config)
-        from .memoria.perguntas_memoria import adicionar_faq
+        from .memoria.faq_memoria import adicionar_faq
+
         faqs_memoria = []
         adicionar_faq(faqs_memoria, 1, 'Exemplo de pergunta 1')
         adicionar_faq(faqs_memoria, 2, 'Exemplo de pergunta 2')

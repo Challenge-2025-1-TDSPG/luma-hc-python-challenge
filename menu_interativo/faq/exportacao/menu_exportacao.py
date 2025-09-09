@@ -14,10 +14,11 @@ class MenuExportacao:
         perguntas = self.db.listar()
         lista_dict = [vars(p) for p in perguntas]
         try:
-            caminho = os.path.join(
-                os.path.dirname(__file__), '..', 'data', 'faq_export.json'
+            pasta_banco = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'banco')
             )
-            caminho = os.path.abspath(caminho)
+            os.makedirs(pasta_banco, exist_ok=True)
+            caminho = os.path.join(pasta_banco, 'faq_export.json')
             with open(caminho, 'w', encoding='utf-8') as f:
                 json.dump(lista_dict, f, ensure_ascii=False, indent=4)
             print(f'Exportação realizada com sucesso para {caminho}!')
