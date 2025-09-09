@@ -34,7 +34,7 @@ class FaqDB:
             # Criação da tabela
             self.cursor.execute("""
                 BEGIN
-                    EXECUTE IMMEDIATE 'CREATE TABLE perguntas (
+                    EXECUTE IMMEDIATE 'CREATE TABLE FAQ (
                         id NUMBER PRIMARY KEY,
                         pergunta VARCHAR2(4000) NOT NULL,
                         resposta VARCHAR2(4000) NOT NULL,
@@ -50,7 +50,7 @@ class FaqDB:
             # Criação da sequence
             self.cursor.execute("""
                 BEGIN
-                    EXECUTE IMMEDIATE 'CREATE SEQUENCE perguntas_seq START WITH 1 INCREMENT BY 1';
+                    EXECUTE IMMEDIATE 'CREATE SEQUENCE faq_seq START WITH 1 INCREMENT BY 1';
                 EXCEPTION
                     WHEN OTHERS THEN
                         IF SQLCODE != -955 THEN RAISE; END IF;
@@ -60,8 +60,8 @@ class FaqDB:
             self.cursor.execute("""
                 BEGIN
                     EXECUTE IMMEDIATE '
-                        CREATE OR REPLACE TRIGGER perguntas_bi
-                        BEFORE INSERT ON perguntas
+                        CREATE OR REPLACE TRIGGER faq_bi
+                        BEFORE INSERT ON FAQ
                         FOR EACH ROW
                         WHEN (new.id IS NULL)
                         BEGIN
