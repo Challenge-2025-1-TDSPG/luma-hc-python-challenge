@@ -17,14 +17,13 @@ class Menu:
     def __init__(self, oracle_config):
         """Inicializa o menu e as operações modulares."""
         self.db = FaqDB(oracle_config)
-        from .memoria.perguntas_memoria import adicionar_pergunta
-
-        perguntas = []
-        adicionar_pergunta(perguntas, 1, 'Pergunta 1')
-        adicionar_pergunta(perguntas, 2, 'Pergunta 2')
+        from .memoria.perguntas_memoria import adicionar_faq
+        faqs_memoria = []
+        adicionar_faq(faqs_memoria, 1, 'Exemplo de pergunta 1')
+        adicionar_faq(faqs_memoria, 2, 'Exemplo de pergunta 2')
         self.menu_crud = MenuCRUD(self.db)
         self.menu_exportacao = MenuExportacao(self.db)
-        self.menu_memoria = MenuMemoria(perguntas)
+        self.menu_memoria = MenuMemoria(faqs_memoria)
 
     def exibir_menu(self):
         """
@@ -32,15 +31,15 @@ class Menu:
         """
         while True:
             print('\n--- MENU FAQ ---')
-            print('1. CRUD de Perguntas')
-            print('2. Listar perguntas em memória')
-            print('3. Exportar perguntas para JSON')
+            print('1. CRUD de FAQs (Banco Oracle)')
+            print('2. CRUD de FAQs em memória')
+            print('3. Exportar FAQs do banco para JSON')
             print('0. Sair')
             opcao = input('Escolha uma opção: ').strip()
             if opcao == '1':
                 self.menu_crud.menu_crud()
             elif opcao == '2':
-                self.menu_memoria.listar_perguntas_memoria()
+                self.menu_memoria.menu_memoria()
             elif opcao == '3':
                 self.menu_exportacao.exportar_json()
             elif opcao == '0':
