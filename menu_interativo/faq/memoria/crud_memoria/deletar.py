@@ -20,7 +20,13 @@ def remover_faq_memoria(lista):
         if not id_str.isdigit():
             print(f'{Fore.RED}ID deve ser um número inteiro.{Style.RESET_ALL}')
             return
-        id = int(id_str)
+
+        try:
+            id = int(id_str)
+        except ValueError:
+            print(f'{Fore.RED}O ID deve ser um número inteiro válido.{Style.RESET_ALL}')
+            return
+
         if not any(item['id'] == id for item in lista):
             print(f'{Fore.YELLOW}FAQ não encontrado.{Style.RESET_ALL}')
             return
@@ -41,10 +47,22 @@ def remover_faq_memoria(lista):
             )
             return
 
+        # Mantém apenas os FAQs com ID diferente do informado
+        lista_original = lista.copy()
         lista[:] = [item for item in lista if item['id'] != id]
-        print(f'{Fore.GREEN}FAQ removido em memória!{Style.RESET_ALL}')
+
+        # Verifica se algum item foi removido
+        if len(lista) == len(lista_original):
+            raise ValueError(f'Não foi possível remover o FAQ com ID {id}')
+
+    except ValueError as e:
+        print(f'{Fore.RED}Erro de valor ao remover FAQ: {e}{Style.RESET_ALL}')
+    except IndexError as e:
+        print(f'{Fore.RED}Erro de índice ao remover FAQ: {e}{Style.RESET_ALL}')
     except Exception as e:
         print(f'{Fore.RED}Erro ao remover FAQ da memória: {e}{Style.RESET_ALL}')
+    else:
+        print(f'{Fore.GREEN}FAQ removido em memória!{Style.RESET_ALL}')
     finally:
         if operacao_iniciada:
             print(

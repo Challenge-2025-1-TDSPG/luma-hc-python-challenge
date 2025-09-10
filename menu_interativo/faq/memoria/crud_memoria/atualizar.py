@@ -22,7 +22,13 @@ def atualizar_faq_memoria(lista):
         if not id_str.isdigit():
             print(f'{Fore.RED}ID deve ser um número inteiro.{Style.RESET_ALL}')
             return
-        id = int(id_str)
+
+        try:
+            id = int(id_str)
+        except ValueError:
+            print(f'{Fore.RED}O ID deve ser um número inteiro válido.{Style.RESET_ALL}')
+            return
+
         # Verifica se existe FAQ com esse id
         if not any(item['id'] == id for item in lista):
             print(f'{Fore.YELLOW}FAQ não encontrado.{Style.RESET_ALL}')
@@ -30,30 +36,49 @@ def atualizar_faq_memoria(lista):
 
         operacao_iniciada = True
 
-        while True:
-            print(f'\n{Fore.BLUE}{Style.BRIGHT}--- Atualizar FAQ ---{Style.RESET_ALL}')
-            print(f'{Fore.WHITE}1. Atualizar Pergunta')
-            print(f'{Fore.WHITE}2. Atualizar Resposta')
-            print(f'{Fore.WHITE}3. Atualizar Categoria')
-            print(f'{Fore.WHITE}4. Ativar/Desativar FAQ')
-            print(f'{Fore.YELLOW}0. Voltar{Style.RESET_ALL}')
-            opcao = input(f'{Fore.GREEN}Escolha uma opção: {Style.RESET_ALL}').strip()
-            if opcao == '1':
-                atualizar_pergunta_memoria(lista, id)
-            elif opcao == '2':
-                atualizar_resposta_memoria(lista, id)
-            elif opcao == '3':
-                atualizar_categoria_memoria(lista, id)
-            elif opcao == '4':
-                ativar_desativar_faq_memoria(lista, id)
-            elif opcao == '0':
-                break
-            else:
-                print(
-                    f'{Fore.RED}Opção inválida! Digite o número da opção desejada.{Style.RESET_ALL}'
-                )
+    except ValueError as e:
+        print(f'{Fore.RED}Erro de valor ao iniciar atualização: {e}{Style.RESET_ALL}')
+        return
     except Exception as e:
-        print(f'{Fore.RED}Erro ao atualizar FAQ em memória: {e}{Style.RESET_ALL}')
+        print(
+            f'{Fore.RED}Erro ao iniciar atualização do FAQ em memória: {e}{Style.RESET_ALL}'
+        )
+        return
+    else:
+        # Este bloco só executa se a validação inicial não lançar exceções
+        try:
+            while True:
+                print(
+                    f'\n{Fore.BLUE}{Style.BRIGHT}--- Atualizar FAQ ---{Style.RESET_ALL}'
+                )
+                print(f'{Fore.WHITE}1. Atualizar Pergunta')
+                print(f'{Fore.WHITE}2. Atualizar Resposta')
+                print(f'{Fore.WHITE}3. Atualizar Categoria')
+                print(f'{Fore.WHITE}4. Ativar/Desativar FAQ')
+                print(f'{Fore.YELLOW}0. Voltar{Style.RESET_ALL}')
+                opcao = input(
+                    f'{Fore.GREEN}Escolha uma opção: {Style.RESET_ALL}'
+                ).strip()
+                if opcao == '1':
+                    atualizar_pergunta_memoria(lista, id)
+                elif opcao == '2':
+                    atualizar_resposta_memoria(lista, id)
+                elif opcao == '3':
+                    atualizar_categoria_memoria(lista, id)
+                elif opcao == '4':
+                    ativar_desativar_faq_memoria(lista, id)
+                elif opcao == '0':
+                    break
+                else:
+                    print(
+                        f'{Fore.RED}Opção inválida! Digite o número da opção desejada.{Style.RESET_ALL}'
+                    )
+        except ValueError as e:
+            print(f'{Fore.RED}Erro de valor ao atualizar FAQ: {e}{Style.RESET_ALL}')
+        except KeyError as e:
+            print(f'{Fore.RED}Erro de chave ao atualizar FAQ: {e}{Style.RESET_ALL}')
+        except Exception as e:
+            print(f'{Fore.RED}Erro ao atualizar FAQ em memória: {e}{Style.RESET_ALL}')
     finally:
         if operacao_iniciada:
             print(

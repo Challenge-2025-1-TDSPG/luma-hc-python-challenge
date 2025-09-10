@@ -34,24 +34,50 @@ def adicionar_faq(db):
         operacao_iniciada = True
 
         # Converte string para inteiro para o status ativo
-        ativo = int(ativo_str)
+        try:
+            ativo = int(ativo_str)
+        except ValueError:
+            print(
+                f'{Fore.RED}Erro ao converter status ativo para número inteiro.{Style.RESET_ALL}'
+            )
+            return
 
         # Adiciona o FAQ ao banco de dados
-        db.adicionar(pergunta, resposta, ativo, categoria)
+        try:
+            db.adicionar(pergunta, resposta, ativo, categoria)
+        except ValueError as e:
+            print(f'{Fore.RED}Erro de valor ao adicionar FAQ: {e}{Style.RESET_ALL}')
+            return
+        except TypeError as e:
+            print(f'{Fore.RED}Erro de tipo ao adicionar FAQ: {e}{Style.RESET_ALL}')
+            return
 
-        # Busca o FAQ recém-adicionado para exibir ao usuário
-        # Considera o de maior ID como sendo o último adicionado
-        faqs = db.listar()
-        if faqs:
-            novo_faq = max(faqs, key=lambda f: f.id)
-            print(f'{Fore.GREEN}FAQ adicionado com sucesso!{Style.RESET_ALL}')
-            print(f'{Fore.CYAN}{novo_faq}{Style.RESET_ALL}')
-        else:
-            print(
-                f'{Fore.YELLOW}FAQ adicionado, mas não foi possível exibir.{Style.RESET_ALL}'
-            )
+    except ValueError as e:
+        print(f'{Fore.RED}Erro de valor ao adicionar FAQ: {e}{Style.RESET_ALL}')
+    except TypeError as e:
+        print(f'{Fore.RED}Erro de tipo ao adicionar FAQ: {e}{Style.RESET_ALL}')
     except Exception as e:
         print(f'{Fore.RED}Erro ao adicionar FAQ: {e}{Style.RESET_ALL}')
+    else:
+        # Este bloco só executa se não ocorrer exceção durante a adição
+        try:
+            # Busca o FAQ recém-adicionado para exibir ao usuário
+            # Considera o de maior ID como sendo o último adicionado
+            faqs = db.listar()
+            if faqs:
+                novo_faq = max(faqs, key=lambda f: f.id)
+                print(f'{Fore.GREEN}FAQ adicionado com sucesso!{Style.RESET_ALL}')
+                print(f'{Fore.CYAN}{novo_faq}{Style.RESET_ALL}')
+            else:
+                print(
+                    f'{Fore.YELLOW}FAQ adicionado, mas não foi possível exibir.{Style.RESET_ALL}'
+                )
+        except Exception as e:
+            # Mesmo se falhar ao buscar o FAQ para exibir, a inserção foi bem-sucedida
+            print(f'{Fore.GREEN}FAQ adicionado com sucesso!{Style.RESET_ALL}')
+            print(
+                f'{Fore.YELLOW}Não foi possível recuperar o FAQ para exibição: {e}{Style.RESET_ALL}'
+            )
     finally:
         if operacao_iniciada:
             print(

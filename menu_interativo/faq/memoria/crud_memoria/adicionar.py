@@ -36,14 +36,19 @@ def adicionar_faq_memoria(lista):
                 f'{Fore.RED}Todos os campos são obrigatórios e "Ativo" deve ser 1 ou 0.{Style.RESET_ALL}'
             )
             return
-        id = int(id_str)
+
+        try:
+            id = int(id_str)
+        except ValueError:
+            print(f'{Fore.RED}O ID deve ser um número inteiro válido.{Style.RESET_ALL}')
+            return
+
         # Verifica se já existe FAQ com esse id
         if any(item['id'] == id for item in lista):
             print(f'{Fore.YELLOW}Já existe um FAQ com esse ID.{Style.RESET_ALL}')
             return
 
         operacao_iniciada = True
-
         ativo = int(ativo_str)
         atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         novo_faq = {
@@ -54,7 +59,17 @@ def adicionar_faq_memoria(lista):
             'atualizado_em': atualizado_em,
             'categoria': categoria,
         }
+
+        # Registrar dados no final do bloco try
         lista.append(novo_faq)
+    except ValueError as e:
+        print(f'{Fore.RED}Erro de valor ao adicionar FAQ: {e}{Style.RESET_ALL}')
+    except KeyError as e:
+        print(f'{Fore.RED}Erro de chave ao adicionar FAQ: {e}{Style.RESET_ALL}')
+    except Exception as e:
+        print(f'{Fore.RED}Erro ao adicionar FAQ em memória: {e}{Style.RESET_ALL}')
+    else:
+        # Este bloco só executa se não ocorrer exceção
         print(f'{Fore.GREEN}FAQ adicionado com sucesso!{Style.RESET_ALL}')
 
         ativo_texto = (
@@ -71,8 +86,6 @@ def adicionar_faq_memoria(lista):
             f'{Fore.MAGENTA}Atualizado em:{Style.RESET_ALL} {novo_faq["atualizado_em"]}\n'
             f'{Fore.MAGENTA}Categoria:{Style.RESET_ALL} {novo_faq["categoria"]}'
         )
-    except Exception as e:
-        print(f'{Fore.RED}Erro ao adicionar FAQ em memória: {e}{Style.RESET_ALL}')
     finally:
         if operacao_iniciada:
             print(
