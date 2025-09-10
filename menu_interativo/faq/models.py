@@ -7,6 +7,16 @@ class FAQ:
     """
 
     def __init__(self, id, pergunta, resposta, ativo, atualizado_em, categoria):
+        """Inicializa um objeto FAQ com as informações fornecidas.
+
+        Args:
+            id (int): Identificador único do FAQ
+            pergunta (str): Texto da pergunta
+            resposta (str): Texto da resposta
+            ativo (int): Status de ativação (1 para ativo, 0 para inativo)
+            atualizado_em (str): Data e hora da última atualização no formato 'YYYY-MM-DD HH:MM:SS'
+            categoria (str): Categoria do FAQ para agrupamento
+        """
         self.id = id
         self.pergunta = pergunta
         self.resposta = resposta
@@ -15,6 +25,11 @@ class FAQ:
         self.categoria = categoria
 
     def __str__(self):
+        """Retorna uma representação formatada e colorida do FAQ.
+
+        Returns:
+            str: Representação do FAQ formatada com cores usando Colorama
+        """
         ativo_texto = (
             f'{Fore.GREEN}Sim{Style.RESET_ALL}'
             if self.ativo

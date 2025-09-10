@@ -10,8 +10,15 @@ class FaqDB:
     """
 
     def __init__(self, oracle_config):
-        """
-        oracle_config: dict com chaves user, password, dsn
+        """Inicializa a conexão com o banco de dados Oracle.
+
+        Args:
+            oracle_config (dict): Configuração de conexão ao banco Oracle,
+                                 contendo as chaves 'user', 'password' e 'dsn'
+
+        Raises:
+            ImportError: Se o módulo cx_Oracle não estiver instalado
+            Exception: Se oracle_config não for fornecido ou se a conexão falhar
         """
         self.conn = None
         self.cursor = None
@@ -43,6 +50,12 @@ class FaqDB:
         return False  # Propaga exceções se houverem
 
     def create_table_oracle(self):
+        """Cria a tabela FAQ no banco de dados Oracle se ela não existir.
+
+        Utiliza o recurso de auto-incremento IDENTITY do Oracle 12c ou superior.
+        A exceção ORA-00955 ("nome já usado por um objeto existente") é ignorada
+        pois indica que a tabela já existe.
+        """
         try:
             # Criação da tabela com IDENTITY (Oracle 12c+)
             self.cursor.execute("""
@@ -57,6 +70,7 @@ class FaqDB:
                     )';
                 EXCEPTION
                     WHEN OTHERS THEN
+                        -- SQLCODE -955 significa que a tabela já existe
                         IF SQLCODE != -955 THEN RAISE; END IF;
                 END;
             """)
@@ -65,6 +79,17 @@ class FaqDB:
             print(f'Erro ao criar tabela Oracle: {e}')
 
     def adicionar(self, pergunta, resposta, ativo, categoria):
+        """Adiciona um novo registro FAQ na tabela.
+
+        Args:
+            pergunta (str): Pergunta do FAQ
+            resposta (str): Resposta do FAQ
+            ativo (int): Status de ativação (1 para ativo, 0 para inativo)
+            categoria (str): Categoria do FAQ
+
+        Returns:
+            bool: True se a operação foi bem-sucedida, False caso contrário
+        """
         atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
             sql = 'INSERT INTO FAQ (pergunta, resposta, ativo, atualizado_em, categoria) VALUES (:1, :2, :3, :4, :5)'
@@ -81,6 +106,15 @@ class FaqDB:
             return False
 
     def listar(self, categoria=None):
+        """Lista todos os FAQs ou filtra por categoria.
+
+        Args:
+            categoria (str, optional): Categoria para filtrar.
+                                       Se None, retorna todos os FAQs.
+
+        Returns:
+            list: Lista de objetos FAQ encontrados
+        """
         try:
             if categoria:
                 sql = 'SELECT * FROM FAQ WHERE categoria = :1'
@@ -96,6 +130,18 @@ class FaqDB:
             return []
 
     def atualizar(self, id, pergunta, resposta, ativo, categoria):
+        """Atualiza um FAQ existente pelo ID.
+
+        Args:
+            id (int): ID do FAQ a ser atualizado
+            pergunta (str): Nova pergunta do FAQ
+            resposta (str): Nova resposta do FAQ
+            ativo (int): Novo status de ativação (1 para ativo, 0 para inativo)
+            categoria (str): Nova categoria do FAQ
+
+        Returns:
+            bool: True se a atualização foi bem-sucedida, False caso contrário
+        """
         atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
             sql = 'UPDATE FAQ SET pergunta=:1, resposta=:2, ativo=:3, atualizado_em=:4, categoria=:5 WHERE id=:6'
@@ -112,6 +158,14 @@ class FaqDB:
             return False
 
     def deletar(self, id):
+        """Remove um FAQ pelo seu ID.
+
+        Args:
+            id (int): ID do FAQ a ser removido
+
+        Returns:
+            bool: True se a remoção foi bem-sucedida, False caso contrário
+        """
         try:
             sql = 'DELETE FROM FAQ WHERE id=:1'
             self.cursor.execute(sql, (id,))
@@ -126,6 +180,14 @@ class FaqDB:
             return False
 
     def buscar_por_id(self, id):
+        """Busca um FAQ pelo seu ID.
+
+        Args:
+            id (int): ID do FAQ a ser buscado
+
+        Returns:
+            FAQ: Objeto FAQ encontrado, ou None se não encontrado
+        """
         try:
             sql = 'SELECT * FROM FAQ WHERE id=:1'
             self.cursor.execute(sql, (id,))
@@ -133,13 +195,17 @@ class FaqDB:
             if row:
                 return FAQ(*row)
             else:
-                # Não imprime mensagem aqui, deixa o chamador tratar
                 return None
         except Exception as e:
             print(f'Erro ao buscar FAQ: {e}')
             return None
 
     def listar_categorias(self):
+        """Lista todas as categorias distintas de FAQs cadastradas.
+
+        Returns:
+            list: Lista de strings com os nomes das categorias
+        """
         try:
             sql = 'SELECT DISTINCT categoria FROM FAQ'
             self.cursor.execute(sql)

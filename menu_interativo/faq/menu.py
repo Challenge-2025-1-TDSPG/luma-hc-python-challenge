@@ -17,19 +17,36 @@ class Menu:
     """
 
     def __init__(self, oracle_config):
-        """Inicializa o menu e as operações modulares."""
+        """Inicializa o menu principal e os submenus do sistema.
+
+        Args:
+            oracle_config (dict): Configuração de conexão ao banco Oracle,
+                                 contendo as chaves 'user', 'password' e 'dsn'
+        """
+        # Armazena a configuração para uso futuro
         self.oracle_config = oracle_config
+
+        # Inicializa a conexão com o banco de dados
         self.db = FaqDB(oracle_config)
+
+        # Inicializa a lista de FAQs em memória
         faqs_memoria = []
+
+        # Inicializa os submenus do sistema
         self.menu_crud = MenuCRUD(self.db)
         self.menu_exportacao = MenuExportacao(self.db)
         self.menu_memoria = MenuMemoria(faqs_memoria)
 
     def exibir_menu(self):
-        """
-        Exibe o menu principal e gerencia a navegação entre submenus.
+        """Exibe o menu principal e gerencia a navegação entre submenus.
+
+        Este método entra em um loop infinito até que o usuário escolha
+        a opção de sair (0). Gerencia a navegação entre os diferentes
+        submenus do sistema e garante o fechamento correto da conexão
+        com o banco de dados ao sair.
         """
         while True:
+            # Exibe o cabeçalho e as opções do menu principal
             print(f'\n{Fore.CYAN}{Style.BRIGHT}--- MENU FAQ ---{Style.RESET_ALL}')
             print(f'{Fore.WHITE}1. CRUD de FAQs (Banco Oracle)')
             print(f'{Fore.WHITE}2. CRUD de FAQs em memória')
@@ -53,6 +70,5 @@ class Menu:
                 )
 
 
-if __name__ == '__main__':
-    menu = Menu()
-    menu.exibir_menu()
+# Remover este bloco, pois ele tentaria iniciar o Menu sem os parâmetros corretos
+# O ponto de entrada deve ser sempre o main.py

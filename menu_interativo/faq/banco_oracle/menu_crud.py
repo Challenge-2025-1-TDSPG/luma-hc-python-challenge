@@ -1,5 +1,7 @@
 """
-Operações CRUD do FAQ.
+Módulo de menu para operações CRUD do FAQ com banco de dados Oracle.
+Fornece interface para adicionar, listar, atualizar, deletar, buscar FAQs
+e listar categorias.
 """
 
 from colorama import Fore, Style
@@ -15,10 +17,26 @@ from .crud import (
 
 
 class MenuCRUD:
+    """Classe que gerencia o menu de operações CRUD para FAQs no banco de dados.
+
+    Esta classe fornece uma interface interativa para realizar operações
+    Create, Read, Update e Delete (CRUD) nas FAQs armazenadas no banco Oracle.
+    """
+
     def __init__(self, db):
+        """Inicializa o menu CRUD.
+
+        Args:
+            db (FaqDB): Instância de conexão com o banco de dados
+        """
         self.db = db
 
     def menu_crud(self):
+        """Exibe o menu de operações CRUD e processa as escolhas do usuário.
+
+        Este método entra em um loop até que o usuário escolha voltar ao menu principal.
+        Cada opção do menu chama a função correspondente para realizar a operação CRUD.
+        """
         while True:
             print(f'\n{Fore.BLUE}{Style.BRIGHT}--- CRUD FAQ ---{Style.RESET_ALL}')
             print(f'{Fore.WHITE}1. Adicionar FAQ')

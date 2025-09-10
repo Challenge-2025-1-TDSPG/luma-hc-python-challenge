@@ -2,7 +2,15 @@ from colorama import Fore, Style
 
 
 def adicionar_faq(db):
-    """Adiciona um novo FAQ (pergunta, resposta, categoria, ativo) ao banco."""
+    """Adiciona um novo FAQ ao banco de dados Oracle.
+
+    Esta função solicita ao usuário os dados do FAQ (pergunta, resposta, categoria e status),
+    valida as entradas e persiste o FAQ no banco de dados. Exibe o FAQ adicionado
+    após a operação bem-sucedida.
+
+    Args:
+        db (FaqDB): Instância de conexão com o banco de dados
+    """
     operacao_iniciada = False
 
     try:
@@ -25,9 +33,14 @@ def adicionar_faq(db):
 
         operacao_iniciada = True
 
+        # Converte string para inteiro para o status ativo
         ativo = int(ativo_str)
+
+        # Adiciona o FAQ ao banco de dados
         db.adicionar(pergunta, resposta, ativo, categoria)
-        # Buscar o último FAQ adicionado (assumindo que o maior id é o último)
+
+        # Busca o FAQ recém-adicionado para exibir ao usuário
+        # Considera o de maior ID como sendo o último adicionado
         faqs = db.listar()
         if faqs:
             novo_faq = max(faqs, key=lambda f: f.id)
