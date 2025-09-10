@@ -242,7 +242,7 @@ Crie um arquivo `.env` na pasta `menu_interativo/` com as seguintes variáveis:
 # Credenciais Oracle
 DB_USER=seu_usuario
 DB_PASS=sua_senha
-DB_URL=localhost:1521/xepdb1
+DB_URL=oracle.com.br:xxxx/ORCL
 # DB_URL segue o formato: hostname:porta/service_name ou usando tnsnames.ora
 ```
 

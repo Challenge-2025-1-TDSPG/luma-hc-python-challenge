@@ -62,9 +62,9 @@ class Menu:
             elif opcao == '3':
                 self.menu_exportacao.exportar_json()
             elif opcao == '0':
+                print(f'{Fore.YELLOW}Saindo...{Style.RESET_ALL}')
                 if self.db:
                     self.db.close()
-                print(f'{Fore.YELLOW}Saindo...{Style.RESET_ALL}')
                 break
             else:
                 print(
