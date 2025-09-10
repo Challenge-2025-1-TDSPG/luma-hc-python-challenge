@@ -2,7 +2,15 @@ from colorama import Fore, Style
 
 
 def buscar_faq_memoria(lista):
-    """Busca um FAQ em memória pelo ID."""
+    """Busca e exibe um FAQ em memória pelo seu ID.
+
+    Esta função solicita ao usuário o ID do FAQ a ser buscado, valida a entrada,
+    realiza a busca na lista em memória e exibe o FAQ encontrado ou uma mensagem
+    informando que o FAQ não foi encontrado.
+
+    Args:
+        lista (list): Lista de FAQs em memória onde será feita a busca
+    """
     operacao_iniciada = False
 
     try:
@@ -17,15 +25,19 @@ def buscar_faq_memoria(lista):
         encontrados = [item for item in lista if item['id'] == id]
         if encontrados:
             for faq in encontrados:
+                ativo_texto = (
+                    f'{Fore.GREEN}Sim{Style.RESET_ALL}'
+                    if faq.get('ativo') == 1
+                    else f'{Fore.RED}Não{Style.RESET_ALL}'
+                )
                 print(
-                    f'{Fore.CYAN}ID:{Style.RESET_ALL} {faq["id"]}\n'
-                    f'{Fore.CYAN}Pergunta:{Style.RESET_ALL} {faq["pergunta"]}\n'
-                    f'{Fore.CYAN}Resposta:{Style.RESET_ALL} {faq.get("resposta", "")}\n'
-                    f'{Fore.CYAN}Ativo:{Style.RESET_ALL} {faq.get("ativo", "")}\n'
-                    f'{Fore.CYAN}Atualizado em:{Style.RESET_ALL} {faq.get("atualizado_em", "")}\n'
-                    f'{Fore.CYAN}Categoria:{Style.RESET_ALL} {faq.get("categoria", "")}\n'
-                    + '-'
-                    * 30
+                    f'{Fore.MAGENTA}ID:{Style.RESET_ALL} {faq["id"]}\n'
+                    f'{Fore.MAGENTA}Pergunta:{Style.RESET_ALL} {faq["pergunta"]}\n'
+                    f'{Fore.MAGENTA}Resposta:{Style.RESET_ALL} {faq.get("resposta", "")}\n'
+                    f'{Fore.MAGENTA}Ativo:{Style.RESET_ALL} {ativo_texto}\n'
+                    f'{Fore.MAGENTA}Atualizado em:{Style.RESET_ALL} {faq.get("atualizado_em", "")}\n'
+                    f'{Fore.MAGENTA}Categoria:{Style.RESET_ALL} {faq.get("categoria", "")}\n'
+                    f'{Fore.CYAN}{"-" * 30}{Style.RESET_ALL}'
                 )
         else:
             print(

@@ -2,7 +2,15 @@ from colorama import Fore, Style
 
 
 def atualizar_faq(db):
-    """Atualiza um FAQ existente."""
+    """Atualiza um FAQ existente no banco de dados.
+
+    Esta função apresenta um menu com opções para atualizar diferentes
+    aspectos de um FAQ (pergunta, resposta, categoria ou status de ativação).
+    Primeiro valida se o FAQ existe antes de mostrar o menu de atualização.
+
+    Args:
+        db (FaqDB): Instância de conexão com o banco de dados
+    """
     operacao_iniciada = False
 
     try:
@@ -56,6 +64,12 @@ def atualizar_faq(db):
 
 
 def atualizar_pergunta(db, id):
+    """Atualiza a pergunta de um FAQ específico.
+
+    Args:
+        db (FaqDB): Instância de conexão com o banco de dados
+        id (int): ID do FAQ a ser atualizado
+    """
     nova_pergunta = input(
         f'{Fore.CYAN}Digite a nova pergunta (ou 0 para cancelar): {Style.RESET_ALL}'
     ).strip()
@@ -83,6 +97,12 @@ def atualizar_pergunta(db, id):
 
 
 def atualizar_resposta(db, id):
+    """Atualiza a resposta de um FAQ específico.
+
+    Args:
+        db (FaqDB): Instância de conexão com o banco de dados
+        id (int): ID do FAQ a ser atualizado
+    """
     nova_resposta = input(
         f'{Fore.CYAN}Digite a nova resposta (ou 0 para cancelar): {Style.RESET_ALL}'
     ).strip()
@@ -109,6 +129,12 @@ def atualizar_resposta(db, id):
 
 
 def atualizar_categoria(db, id):
+    """Atualiza a categoria de um FAQ específico.
+
+    Args:
+        db (FaqDB): Instância de conexão com o banco de dados
+        id (int): ID do FAQ a ser atualizado
+    """
     nova_categoria = input(
         f'{Fore.CYAN}Digite a nova categoria (ou 0 para cancelar): {Style.RESET_ALL}'
     ).strip()
@@ -135,6 +161,15 @@ def atualizar_categoria(db, id):
 
 
 def ativar_desativar_faq(db, id):
+    """Altera o status de ativação de um FAQ específico.
+
+    Permite ativar ou desativar um FAQ, mostrando seu status atual e
+    solicitando confirmação antes de efetuar a alteração.
+
+    Args:
+        db (FaqDB): Instância de conexão com o banco de dados
+        id (int): ID do FAQ a ser atualizado
+    """
     # Busca o FAQ para verificar status atual
     faq = db.buscar_por_id(id)
     if not faq:

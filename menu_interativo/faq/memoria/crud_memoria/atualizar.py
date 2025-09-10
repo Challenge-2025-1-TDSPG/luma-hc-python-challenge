@@ -4,7 +4,15 @@ from colorama import Fore, Style
 
 
 def atualizar_faq_memoria(lista):
-    """Atualiza um FAQ existente em memória."""
+    """Atualiza um FAQ existente na lista em memória.
+
+    Esta função apresenta um menu com opções para atualizar diferentes
+    aspectos de um FAQ (pergunta, resposta, categoria ou status de ativação).
+    Primeiro valida se o FAQ existe antes de mostrar o menu de atualização.
+
+    Args:
+        lista (list): Lista de FAQs em memória onde está o FAQ a ser atualizado
+    """
     operacao_iniciada = False
 
     try:
@@ -23,9 +31,7 @@ def atualizar_faq_memoria(lista):
         operacao_iniciada = True
 
         while True:
-            print(
-                f'\n{Fore.BLUE}{Style.BRIGHT}--- Atualizar FAQ em Memória ---{Style.RESET_ALL}'
-            )
+            print(f'\n{Fore.BLUE}{Style.BRIGHT}--- Atualizar FAQ ---{Style.RESET_ALL}')
             print(f'{Fore.WHITE}1. Atualizar Pergunta')
             print(f'{Fore.WHITE}2. Atualizar Resposta')
             print(f'{Fore.WHITE}3. Atualizar Categoria')
@@ -56,11 +62,19 @@ def atualizar_faq_memoria(lista):
 
 
 def atualizar_pergunta_memoria(lista, id):
+    """Atualiza a pergunta de um FAQ específico na memória.
+
+    Args:
+        lista (list): Lista de FAQs em memória
+        id (int): ID do FAQ a ser atualizado
+    """
     nova_pergunta = input(
-        f'{Fore.CYAN}Nova pergunta do FAQ (ou 0 para cancelar): {Style.RESET_ALL}'
+        f'{Fore.CYAN}Digite a nova pergunta (ou 0 para cancelar): {Style.RESET_ALL}'
     ).strip()
     if nova_pergunta == '0':
-        print(f'{Fore.YELLOW}Atualização de pergunta cancelada.{Style.RESET_ALL}')
+        print(
+            f'{Fore.YELLOW}Operação cancelada. Pergunta não foi alterada.{Style.RESET_ALL}'
+        )
         return
     if nova_pergunta:
         for item in lista:
@@ -74,8 +88,14 @@ def atualizar_pergunta_memoria(lista, id):
 
 
 def atualizar_resposta_memoria(lista, id):
+    """Atualiza a resposta de um FAQ específico na memória.
+
+    Args:
+        lista (list): Lista de FAQs em memória
+        id (int): ID do FAQ a ser atualizado
+    """
     nova_resposta = input(
-        f'{Fore.CYAN}Nova resposta do FAQ (ou 0 para cancelar): {Style.RESET_ALL}'
+        f'{Fore.CYAN}Digite a nova resposta (ou 0 para cancelar): {Style.RESET_ALL}'
     ).strip()
     if nova_resposta == '0':
         print(f'{Fore.YELLOW}Atualização de resposta cancelada.{Style.RESET_ALL}')
@@ -92,8 +112,14 @@ def atualizar_resposta_memoria(lista, id):
 
 
 def atualizar_categoria_memoria(lista, id):
+    """Atualiza a categoria de um FAQ específico na memória.
+
+    Args:
+        lista (list): Lista de FAQs em memória
+        id (int): ID do FAQ a ser atualizado
+    """
     nova_categoria = input(
-        f'{Fore.CYAN}Nova categoria do FAQ (ou 0 para cancelar): {Style.RESET_ALL}'
+        f'{Fore.CYAN}Digite a nova categoria (ou 0 para cancelar): {Style.RESET_ALL}'
     ).strip()
     if nova_categoria == '0':
         print(f'{Fore.YELLOW}Atualização de categoria cancelada.{Style.RESET_ALL}')
@@ -110,6 +136,15 @@ def atualizar_categoria_memoria(lista, id):
 
 
 def ativar_desativar_faq_memoria(lista, id):
+    """Altera o status de ativação de um FAQ específico na memória.
+
+    Permite ativar ou desativar um FAQ, mostrando seu status atual e
+    solicitando confirmação antes de efetuar a alteração.
+
+    Args:
+        lista (list): Lista de FAQs em memória
+        id (int): ID do FAQ a ser atualizado
+    """
     # Busca o FAQ para verificar status atual
     faq = None
     for item in lista:

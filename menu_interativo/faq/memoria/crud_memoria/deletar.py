@@ -2,7 +2,15 @@ from colorama import Fore, Style
 
 
 def remover_faq_memoria(lista):
-    """Remove um FAQ da memória pelo ID."""
+    """Remove um FAQ da lista em memória pelo seu ID.
+
+    Esta função solicita ao usuário o ID do FAQ a ser removido, verifica sua existência,
+    pede confirmação antes de excluir, e então executa a operação de exclusão da lista.
+    Inclui tratamento de erros e confirmação para prevenir exclusões acidentais.
+
+    Args:
+        lista (list): Lista de FAQs em memória de onde o FAQ será removido
+    """
     operacao_iniciada = False
 
     try:

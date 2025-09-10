@@ -4,7 +4,15 @@ from colorama import Fore, Style
 
 
 def adicionar_faq_memoria(lista):
-    """Adiciona um novo FAQ na memória."""
+    """Adiciona um novo FAQ na lista em memória.
+
+    Esta função solicita ao usuário os dados do FAQ (ID, pergunta, resposta, categoria e status),
+    valida as entradas e adiciona o FAQ à lista em memória. Exibe o FAQ adicionado
+    após a operação bem-sucedida.
+
+    Args:
+        lista (list): Lista de FAQs em memória onde o novo FAQ será adicionado
+    """
     operacao_iniciada = False
 
     try:
@@ -48,12 +56,20 @@ def adicionar_faq_memoria(lista):
         }
         lista.append(novo_faq)
         print(f'{Fore.GREEN}FAQ adicionado com sucesso!{Style.RESET_ALL}')
+
+        ativo_texto = (
+            f'{Fore.GREEN}Sim{Style.RESET_ALL}'
+            if novo_faq['ativo'] == 1
+            else f'{Fore.RED}Não{Style.RESET_ALL}'
+        )
+
         print(
-            f'{Fore.CYAN}ID:{Style.RESET_ALL} {novo_faq["id"]}\n'
-            f'{Fore.CYAN}Pergunta:{Style.RESET_ALL} {novo_faq["pergunta"]}\n'
-            f'{Fore.CYAN}Resposta:{Style.RESET_ALL} {novo_faq["resposta"]}\n'
-            f'{Fore.CYAN}Ativo:{Style.RESET_ALL} {novo_faq["ativo"]}\n'
-            f'{Fore.CYAN}Categoria:{Style.RESET_ALL} {novo_faq["categoria"]}{Style.RESET_ALL}'
+            f'{Fore.MAGENTA}ID:{Style.RESET_ALL} {novo_faq["id"]}\n'
+            f'{Fore.MAGENTA}Pergunta:{Style.RESET_ALL} {novo_faq["pergunta"]}\n'
+            f'{Fore.MAGENTA}Resposta:{Style.RESET_ALL} {novo_faq["resposta"]}\n'
+            f'{Fore.MAGENTA}Ativo:{Style.RESET_ALL} {ativo_texto}\n'
+            f'{Fore.MAGENTA}Atualizado em:{Style.RESET_ALL} {novo_faq["atualizado_em"]}\n'
+            f'{Fore.MAGENTA}Categoria:{Style.RESET_ALL} {novo_faq["categoria"]}'
         )
     except Exception as e:
         print(f'{Fore.RED}Erro ao adicionar FAQ em memória: {e}{Style.RESET_ALL}')

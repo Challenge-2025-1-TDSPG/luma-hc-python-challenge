@@ -2,7 +2,15 @@ from colorama import Fore, Style
 
 
 def listar_faqs_memoria(lista):
-    """Lista todas as FAQs armazenadas em memória, com opção de filtro por categoria."""
+    """Lista todas as FAQs armazenadas em memória, com opção de filtro por categoria.
+
+    Esta função solicita ao usuário um filtro opcional por categoria e exibe todos os
+    FAQs armazenados em memória que correspondam ao critério. Se nenhum filtro
+    for especificado, lista todos os FAQs.
+
+    Args:
+        lista (list): Lista de FAQs em memória a serem listados
+    """
     operacao_iniciada = False
 
     try:
@@ -27,15 +35,19 @@ def listar_faqs_memoria(lista):
             )
         else:
             for faq in faqs_filtrados:
+                ativo_texto = (
+                    f'{Fore.GREEN}Sim{Style.RESET_ALL}'
+                    if faq.get('ativo') == 1
+                    else f'{Fore.RED}Não{Style.RESET_ALL}'
+                )
                 print(
-                    f'{Fore.CYAN}ID:{Style.RESET_ALL} {faq["id"]}\n'
-                    f'{Fore.CYAN}Pergunta:{Style.RESET_ALL} {faq["pergunta"]}\n'
-                    f'{Fore.CYAN}Resposta:{Style.RESET_ALL} {faq.get("resposta", "")}\n'
-                    f'{Fore.CYAN}Ativo:{Style.RESET_ALL} {faq.get("ativo", "")}\n'
-                    f'{Fore.CYAN}Atualizado em:{Style.RESET_ALL} {faq.get("atualizado_em", "")}\n'
-                    f'{Fore.CYAN}Categoria:{Style.RESET_ALL} {faq.get("categoria", "")}\n'
-                    + '-'
-                    * 30
+                    f'{Fore.MAGENTA}ID:{Style.RESET_ALL} {faq["id"]}\n'
+                    f'{Fore.MAGENTA}Pergunta:{Style.RESET_ALL} {faq["pergunta"]}\n'
+                    f'{Fore.MAGENTA}Resposta:{Style.RESET_ALL} {faq.get("resposta", "")}\n'
+                    f'{Fore.MAGENTA}Ativo:{Style.RESET_ALL} {ativo_texto}\n'
+                    f'{Fore.MAGENTA}Atualizado em:{Style.RESET_ALL} {faq.get("atualizado_em", "")}\n'
+                    f'{Fore.MAGENTA}Categoria:{Style.RESET_ALL} {faq.get("categoria", "")}\n'
+                    f'{Fore.CYAN}{"-" * 30}{Style.RESET_ALL}'
                 )
             print(
                 f'{Fore.GREEN}Total de FAQs em memória{" nesta categoria" if categoria else ""}: {len(faqs_filtrados)}{Style.RESET_ALL}'
