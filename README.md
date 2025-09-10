@@ -127,7 +127,6 @@ CREATE INDEX idx_faq_categoria ON FAQ(categoria);
 -- Índice para otimizar pesquisas por status de ativação
 CREATE INDEX idx_faq_ativo ON FAQ(ativo);
 
--- Comentários nas colunas para documentação
 COMMENT ON TABLE FAQ IS 'Tabela que armazena as perguntas frequentes do sistema';
 COMMENT ON COLUMN FAQ.id IS 'Identificador único do FAQ (gerado automaticamente)';
 COMMENT ON COLUMN FAQ.pergunta IS 'Texto da pergunta (máximo 150 caracteres)';
