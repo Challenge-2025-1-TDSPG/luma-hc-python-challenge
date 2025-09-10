@@ -7,10 +7,10 @@ def remover_faq_memoria(lista):
 
     try:
         id_str = input(
-            f'{Fore.CYAN}ID do FAQ a remover: {Style.RESET_ALL}'
+            f'{Fore.CYAN}Digite o ID do FAQ a deletar: {Style.RESET_ALL}'
         ).strip()
         if not id_str.isdigit():
-            print(f'{Fore.RED}ID deve ser número.{Style.RESET_ALL}')
+            print(f'{Fore.RED}ID deve ser um número inteiro.{Style.RESET_ALL}')
             return
         id = int(id_str)
         if not any(item['id'] == id for item in lista):

@@ -6,9 +6,9 @@ def buscar_faq_memoria(lista):
     operacao_iniciada = False
 
     try:
-        id_str = input(f'{Fore.CYAN}ID do FAQ a buscar: {Style.RESET_ALL}').strip()
+        id_str = input(f'{Fore.CYAN}Digite o ID do FAQ: {Style.RESET_ALL}').strip()
         if not id_str.isdigit():
-            print(f'{Fore.RED}ID deve ser número.{Style.RESET_ALL}')
+            print(f'{Fore.RED}ID deve ser um número inteiro.{Style.RESET_ALL}')
             return
         id = int(id_str)
 
@@ -24,12 +24,17 @@ def buscar_faq_memoria(lista):
                     f'{Fore.CYAN}Ativo:{Style.RESET_ALL} {faq.get("ativo", "")}\n'
                     f'{Fore.CYAN}Atualizado em:{Style.RESET_ALL} {faq.get("atualizado_em", "")}\n'
                     f'{Fore.CYAN}Categoria:{Style.RESET_ALL} {faq.get("categoria", "")}\n'
-                    + '-' * 30
+                    + '-'
+                    * 30
                 )
         else:
-            print(f'{Fore.YELLOW}Nenhum FAQ encontrado com esse ID.{Style.RESET_ALL}')
+            print(
+                f'{Fore.YELLOW}FAQ com ID {id} não encontrado em memória.{Style.RESET_ALL}'
+            )
     except Exception as e:
         print(f'{Fore.RED}Erro ao buscar FAQ em memória: {e}{Style.RESET_ALL}')
     finally:
         if operacao_iniciada:
-            print(f'{Fore.GREEN}[LOG] Operação de busca em memória finalizada.{Style.RESET_ALL}')
+            print(
+                f'{Fore.GREEN}[LOG] Operação de busca em memória finalizada.{Style.RESET_ALL}'
+            )
