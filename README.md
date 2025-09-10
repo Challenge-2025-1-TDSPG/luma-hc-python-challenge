@@ -6,7 +6,7 @@
 
 - **Linguagem:** Python 3.8+
 - **Banco de Dados:** Oracle Database 12c ou superior (requer suporte a `IDENTITY`)
-- **Cliente Oracle:** Oracle Instant Client 19+ (Basic Package)
+- **Driver Oracle:** Modo Thin do oracledb
 - **Driver Oracle:** oracledb 1.4.1
 - **API REST:** Flask 3.1.2
 - **Interface de Terminal:** Colorama 0.4.6
@@ -209,10 +209,6 @@ curl -X DELETE http://localhost:5000/faqs/1
    # Windows
    python -m venv venv
    venv\Scripts\activate
-
-   # Linux/Mac
-   python3 -m venv venv
-   source venv/bin/activate
    ```
 
    O prompt deve mostrar `(venv)` indicando que o ambiente está ativo.
@@ -238,20 +234,7 @@ curl -X DELETE http://localhost:5000/faqs/1
 
    ```
 
-### 2. Instalação do Oracle Instant Client
-
-O driver oracledb (assim como o antigo cx_Oracle) exige a biblioteca nativa Oracle Instant Client instalada na máquina.
-
-**Windows:**
-1. Baixe o Oracle Instant Client 64-bit para Windows:
-   - [Download Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client/winx64-64-downloads.html)
-   - Baixe o pacote "Basic" (ZIP).
-2. Extraia o ZIP em uma pasta, por exemplo: `C:\oracle\instantclient_21_13`
-3. Adicione o caminho dessa pasta à variável de ambiente `PATH` do Windows:
-   - Pesquise por "variáveis de ambiente" no menu iniciar.
-   - Edite a variável `PATH` e adicione o caminho da pasta do Instant Client.
-
-### 3. Configuração do Arquivo .env
+### 2. Configuração do Arquivo .env
 
 Crie um arquivo `.env` na pasta `menu_interativo/` com as seguintes variáveis:
 
@@ -263,7 +246,7 @@ DB_URL=localhost:1521/xepdb1
 # DB_URL segue o formato: hostname:porta/service_name ou usando tnsnames.ora
 ```
 
-### 4. Execução do Sistema
+### 3. Execução do Sistema
 
 1. **Menu Interativo:**
    ```cmd

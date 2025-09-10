@@ -33,6 +33,7 @@ class FaqDB:
                     user=oracle_config['user'],
                     password=oracle_config['password'],
                     dsn=oracle_config['dsn'],
+                    thick_mode=False  # Define explicitamente para usar o modo Thin
                 )
                 if not silent:
                     print('[INFO] Conexão com o banco de dados Oracle estabelecida.')
