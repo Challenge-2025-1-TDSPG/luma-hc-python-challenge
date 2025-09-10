@@ -1,6 +1,21 @@
 from datetime import datetime
 
+try:
+    from colorama import Fore, Style
+
+    HAS_COLORAMA = True
+except ImportError:
+    HAS_COLORAMA = False
+
 from .models import FAQ
+
+# Constantes para os valores SQL
+FAQ_TABLE_NAME = 'FAQ'
+MAX_PERGUNTA_LEN = 150
+MAX_RESPOSTA_LEN = 600
+MAX_CATEGORIA_LEN = 50
+ATIVO_TYPE = 'NUMBER(1)'
+DATE_COLUMN_TYPE = 'VARCHAR2(50)'
 
 
 class FaqDB:
@@ -39,9 +54,14 @@ class FaqDB:
                     dsn=oracle_config['dsn'],
                 )
                 if not silent:
-                    print(
-                        '[INFO] Conexão com o banco de dados Oracle estabelecida.'
-                    )
+                    if HAS_COLORAMA:
+                        print(
+                            f'{Fore.BLUE}[INFO] Conexão com o banco de dados Oracle estabelecida (modo Thin).{Style.RESET_ALL}'
+                        )
+                    else:
+                        print(
+                            '[INFO] Conexão com o banco de dados Oracle estabelecida (modo Thin).'
+                        )
             else:
                 raise Exception('oracle_config deve ser fornecido para Oracle')
             self.cursor = self.conn.cursor()
@@ -65,6 +85,24 @@ class FaqDB:
         self.close(silent=True)
         return False  # Propaga exceções se houverem
 
+    # SQL para criar a tabela FAQ
+    SQL_CREATE_TABLE = f"""
+        BEGIN
+            EXECUTE IMMEDIATE 'CREATE TABLE {FAQ_TABLE_NAME} (
+                id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                pergunta VARCHAR2({MAX_PERGUNTA_LEN}) NOT NULL,
+                resposta VARCHAR2({MAX_RESPOSTA_LEN}) NOT NULL,
+                ativo {ATIVO_TYPE} NOT NULL,
+                atualizado_em {DATE_COLUMN_TYPE} NOT NULL,
+                categoria VARCHAR2({MAX_CATEGORIA_LEN}) NOT NULL
+            )';
+        EXCEPTION
+            WHEN OTHERS THEN
+                -- SQLCODE -955 significa que a tabela já existe
+                IF SQLCODE != -955 THEN RAISE; END IF;
+        END;
+    """
+
     def create_table_oracle(self):
         """Cria a tabela FAQ no banco de dados Oracle se ela não existir.
 
@@ -74,27 +112,12 @@ class FaqDB:
         """
         try:
             # Criação da tabela com IDENTITY (Oracle 12c+)
-            self.cursor.execute("""
-                BEGIN
-                    EXECUTE IMMEDIATE 'CREATE TABLE FAQ (
-                        id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                        pergunta VARCHAR2(150) NOT NULL,
-                        resposta VARCHAR2(600) NOT NULL,
-                        ativo NUMBER(1) NOT NULL,
-                        atualizado_em VARCHAR2(50) NOT NULL,
-                        categoria VARCHAR2(50) NOT NULL
-                    )';
-                EXCEPTION
-                    WHEN OTHERS THEN
-                        -- SQLCODE -955 significa que a tabela já existe
-                        IF SQLCODE != -955 THEN RAISE; END IF;
-                END;
-            """)
+            self.cursor.execute(self.SQL_CREATE_TABLE)
             self.conn.commit()
 
             # Verifica se a tabela existe (não emite mensagem se silent=True)
             self.cursor.execute(
-                "SELECT COUNT(*) FROM USER_TABLES WHERE TABLE_NAME = 'FAQ'"
+                f"SELECT COUNT(*) FROM USER_TABLES WHERE TABLE_NAME = '{FAQ_TABLE_NAME}'"
             )
             if self.cursor.fetchone()[0] > 0:
                 if not self.silent:
@@ -103,6 +126,13 @@ class FaqDB:
                 print('[AVISO] Não foi possível confirmar a existência da tabela FAQ.')
         except Exception as e:
             print(f'[ERRO] Problema ao verificar/criar tabela Oracle: {e}')
+
+    # SQL para operações de inserção
+    SQL_INSERT = f"""
+        INSERT INTO {FAQ_TABLE_NAME} 
+        (pergunta, resposta, ativo, atualizado_em, categoria) 
+        VALUES (:1, :2, :3, :4, :5)
+    """
 
     def adicionar(self, pergunta, resposta, ativo, categoria):
         """Adiciona um novo registro FAQ na tabela.
@@ -118,9 +148,8 @@ class FaqDB:
         """
         atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
-            sql = 'INSERT INTO FAQ (pergunta, resposta, ativo, atualizado_em, categoria) VALUES (:1, :2, :3, :4, :5)'
             self.cursor.execute(
-                sql, (pergunta, resposta, ativo, atualizado_em, categoria)
+                self.SQL_INSERT, (pergunta, resposta, ativo, atualizado_em, categoria)
             )
             self.conn.commit()
             print('FAQ adicionada com sucesso!')
@@ -130,6 +159,14 @@ class FaqDB:
                 self.conn.rollback()  # Desfaz a transação em caso de erro
             print(f'Erro ao adicionar FAQ: {e}')
             return False
+
+    # SQL templates para consultas
+    SQL_SELECT_ALL = f'SELECT * FROM {FAQ_TABLE_NAME}'
+    SQL_SELECT_BY_CATEGORY = f'SELECT * FROM {FAQ_TABLE_NAME} WHERE categoria = :1'
+    SQL_SELECT_WITH_LIMIT = f'SELECT * FROM {FAQ_TABLE_NAME} WHERE ROWNUM <= :1'
+    SQL_SELECT_BY_CATEGORY_WITH_LIMIT = (
+        f'SELECT * FROM {FAQ_TABLE_NAME} WHERE categoria = :1 AND ROWNUM <= :2'
+    )
 
     def listar(self, categoria=None, limit=None):
         """Lista todos os FAQs ou filtra por categoria, com opção de limitar o número de resultados.
@@ -146,24 +183,29 @@ class FaqDB:
         try:
             if categoria:
                 if limit:
-                    sql = 'SELECT * FROM FAQ WHERE categoria = :1 AND ROWNUM <= :2'
-                    self.cursor.execute(sql, (categoria, limit))
+                    self.cursor.execute(
+                        self.SQL_SELECT_BY_CATEGORY_WITH_LIMIT, (categoria, limit)
+                    )
                 else:
-                    sql = 'SELECT * FROM FAQ WHERE categoria = :1'
-                    self.cursor.execute(sql, (categoria,))
+                    self.cursor.execute(self.SQL_SELECT_BY_CATEGORY, (categoria,))
             else:
                 if limit:
-                    sql = 'SELECT * FROM FAQ WHERE ROWNUM <= :1'
-                    self.cursor.execute(sql, (limit,))
+                    self.cursor.execute(self.SQL_SELECT_WITH_LIMIT, (limit,))
                 else:
-                    sql = 'SELECT * FROM FAQ'
-                    self.cursor.execute(sql)
+                    self.cursor.execute(self.SQL_SELECT_ALL)
             rows = self.cursor.fetchall()
             perguntas = [FAQ(*row) for row in rows]
             return perguntas
         except Exception as e:
             print(f'Erro ao listar FAQ: {e}')
             return []
+
+    # SQL para operações de atualização
+    SQL_UPDATE = f"""
+        UPDATE {FAQ_TABLE_NAME} 
+        SET pergunta=:1, resposta=:2, ativo=:3, atualizado_em=:4, categoria=:5 
+        WHERE id=:6
+    """
 
     def atualizar(self, id, pergunta, resposta, ativo, categoria):
         """Atualiza um FAQ existente pelo ID.
@@ -180,9 +222,9 @@ class FaqDB:
         """
         atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
-            sql = 'UPDATE FAQ SET pergunta=:1, resposta=:2, ativo=:3, atualizado_em=:4, categoria=:5 WHERE id=:6'
             self.cursor.execute(
-                sql, (pergunta, resposta, ativo, atualizado_em, categoria, id)
+                self.SQL_UPDATE,
+                (pergunta, resposta, ativo, atualizado_em, categoria, id),
             )
             rows_affected = self.cursor.rowcount
             self.conn.commit()
@@ -192,6 +234,11 @@ class FaqDB:
                 self.conn.rollback()  # Desfaz a transação em caso de erro
             print(f'Erro ao atualizar FAQ: {e}')
             return False
+
+    # SQL para operações de deleção e consulta
+    SQL_DELETE = f'DELETE FROM {FAQ_TABLE_NAME} WHERE id=:1'
+    SQL_SELECT_BY_ID = f'SELECT * FROM {FAQ_TABLE_NAME} WHERE id=:1'
+    SQL_SELECT_DISTINCT_CATEGORIES = f'SELECT DISTINCT categoria FROM {FAQ_TABLE_NAME}'
 
     def deletar(self, id):
         """Remove um FAQ pelo seu ID.
@@ -203,8 +250,7 @@ class FaqDB:
             bool: True se a remoção foi bem-sucedida, False caso contrário
         """
         try:
-            sql = 'DELETE FROM FAQ WHERE id=:1'
-            self.cursor.execute(sql, (id,))
+            self.cursor.execute(self.SQL_DELETE, (id,))
             rows_affected = self.cursor.rowcount
             self.conn.commit()
             print('FAQ deletada com sucesso!')
@@ -225,8 +271,7 @@ class FaqDB:
             FAQ: Objeto FAQ encontrado, ou None se não encontrado
         """
         try:
-            sql = 'SELECT * FROM FAQ WHERE id=:1'
-            self.cursor.execute(sql, (id,))
+            self.cursor.execute(self.SQL_SELECT_BY_ID, (id,))
             row = self.cursor.fetchone()
             if row:
                 return FAQ(*row)
@@ -243,8 +288,7 @@ class FaqDB:
             list: Lista de strings com os nomes das categorias
         """
         try:
-            sql = 'SELECT DISTINCT categoria FROM FAQ'
-            self.cursor.execute(sql)
+            self.cursor.execute(self.SQL_SELECT_DISTINCT_CATEGORIES)
             rows = self.cursor.fetchall()
             return [row[0] for row in rows]
         except Exception as e:
@@ -259,23 +303,27 @@ class FaqDB:
                                     Se None, usa o valor definido no construtor.
         """
         # Se silent não for explicitamente fornecido, use o valor da instância
-        if silent is None:
-            silent = self.silent
+        should_be_silent = self.silent if silent is None else silent
 
         try:
             if self.cursor:
                 self.cursor.close()
                 self.cursor = None
         except Exception as e:
-            if not silent:
+            if not should_be_silent:
                 print(f'Erro ao fechar o cursor: {e}')
 
         try:
             if self.conn:
                 self.conn.close()
                 self.conn = None
-                if not silent:
-                    print('[LOG] Conexão com o banco de dados fechada.')
+                if not should_be_silent:
+                    if HAS_COLORAMA:
+                        print(
+                            f'{Fore.BLUE}[INFO] Conexão com o banco Oracle fechada com sucesso.{Style.RESET_ALL}'
+                        )
+                    else:
+                        print('[INFO] Conexão com o banco de dados fechada.')
         except Exception as e:
-            if not silent:
+            if not should_be_silent:
                 print(f'Erro ao fechar a conexão com o banco: {e}')

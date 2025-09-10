@@ -64,13 +64,10 @@ class Menu:
             elif opcao == '0':
                 print(f'{Fore.YELLOW}Saindo...{Style.RESET_ALL}')
                 if self.db:
-                    self.db.close()
+                    # Fecha a conexão com silent=False para exibir mensagem de fechamento
+                    self.db.close(silent=False)
                 break
             else:
                 print(
                     f'{Fore.RED}Opção inválida! Digite o número da opção desejada.{Style.RESET_ALL}'
                 )
-
-
-# Remover este bloco, pois ele tentaria iniciar o Menu sem os parâmetros corretos
-# O ponto de entrada deve ser sempre o main.py
