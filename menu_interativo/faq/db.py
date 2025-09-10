@@ -18,7 +18,7 @@ class FaqDB:
             silent (bool): Se True, suprime mensagens de log durante a inicialização
 
         Raises:
-            ImportError: Se o módulo cx_Oracle não estiver instalado
+            ImportError: Se o módulo oracledb não estiver instalado
             Exception: Se oracle_config não for fornecido ou se a conexão falhar
         """
         self.conn = None
@@ -26,10 +26,10 @@ class FaqDB:
         self.silent = silent
 
         try:
-            import cx_Oracle
+            import oracledb
 
             if oracle_config:
-                self.conn = cx_Oracle.connect(
+                self.conn = oracledb.connect(
                     user=oracle_config['user'],
                     password=oracle_config['password'],
                     dsn=oracle_config['dsn'],
@@ -41,7 +41,7 @@ class FaqDB:
             self.cursor = self.conn.cursor()
             self.create_table_oracle()
         except ImportError:
-            print('cx_Oracle não instalado. Instale com: pip install cx_Oracle')
+            print('oracledb não instalado. Instale com: pip install oracledb')
             raise
 
     # Implementando o protocolo de contexto para uso com 'with'
