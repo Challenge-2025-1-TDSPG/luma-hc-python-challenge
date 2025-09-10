@@ -7,7 +7,12 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, abort, jsonify, request
 
-from ...menu_interativo.faq.db import FaqDB
+import sys
+from pathlib import Path
+
+# Adiciona o diretório pai ao caminho de importação
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from faq.db import FaqDB
 
 app = Flask(__name__)
 
@@ -54,10 +59,10 @@ def adicionar_faq():
     """Adiciona um novo FAQ."""
     data = request.get_json()
     if not data or not all(
-        k in data for k in ('pergunta', 'resposta', 'ativo', 'pasta')
+        k in data for k in ('pergunta', 'resposta', 'ativo', 'categoria')
     ):
         abort(400, description='Dados inválidos')
-    db.adicionar(data['pergunta'], data['resposta'], data['ativo'], data['pasta'])
+    db.adicionar(data['pergunta'], data['resposta'], data['ativo'], data['categoria'])
     return jsonify({'mensagem': 'FAQ adicionado com sucesso!'}), 201
 
 
@@ -66,11 +71,11 @@ def atualizar_faq(faq_id):
     """Atualiza um FAQ existente."""
     data = request.get_json()
     if not data or not all(
-        k in data for k in ('pergunta', 'resposta', 'ativo', 'pasta')
+        k in data for k in ('pergunta', 'resposta', 'ativo', 'categoria')
     ):
         abort(400, description='Dados inválidos')
     db.atualizar(
-        faq_id, data['pergunta'], data['resposta'], data['ativo'], data['pasta']
+        faq_id, data['pergunta'], data['resposta'], data['ativo'], data['categoria']
     )
     return jsonify({'mensagem': 'FAQ atualizado com sucesso!'})
 
