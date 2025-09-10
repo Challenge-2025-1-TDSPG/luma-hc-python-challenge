@@ -223,7 +223,7 @@ curl -X DELETE http://localhost:5000/faqs/1
     blinker==1.9.0
     click==8.2.1
     colorama==0.4.6
-    oracledb==1.4.1
+    oracledb==3.3.0
     Flask==3.1.2
     flask-cors==3.0.10
     itsdangerous==2.2.0
