@@ -37,7 +37,7 @@ def buscar_faq(db):
             print(faq)
         else:
             print(
-                f'{Fore.YELLOW}FAQ com ID {id} não encontrado no banco de dados.{Style.RESET_ALL}'
+                f'{Fore.RED}FAQ com ID {id} não encontrado no banco de dados.{Style.RESET_ALL}'
             )
     except Exception as e:
         print(f'{Fore.RED}Erro ao buscar FAQ: {e}{Style.RESET_ALL}')

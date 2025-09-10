@@ -41,7 +41,7 @@ def buscar_faq_memoria(lista):
                 )
         else:
             print(
-                f'{Fore.YELLOW}FAQ com ID {id} não encontrado em memória.{Style.RESET_ALL}'
+                f'{Fore.RED}FAQ com ID {id} não encontrado em memória.{Style.RESET_ALL}'
             )
     except Exception as e:
         print(f'{Fore.RED}Erro ao buscar FAQ em memória: {e}{Style.RESET_ALL}')

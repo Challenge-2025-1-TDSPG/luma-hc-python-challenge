@@ -29,7 +29,7 @@ def remover_faq_memoria(lista):
 
         confirmacao = (
             input(
-                f'{Fore.RED}{Style.BRIGHT}Pressione Enter para confirmar a exclusão ou C para cancelar: {Style.RESET_ALL}'
+                f'{Fore.YELLOW}{Style.BRIGHT}Pressione Enter para confirmar a exclusão ou C para cancelar: {Style.RESET_ALL}'
             )
             .strip()
             .upper()
@@ -37,7 +37,7 @@ def remover_faq_memoria(lista):
 
         if confirmacao == 'C':
             print(
-                f'{Fore.YELLOW}Operação cancelada. Nenhuma alteração foi feita.{Style.RESET_ALL}'
+                f'{Fore.GREEN}Operação cancelada. Nenhuma alteração foi feita.{Style.RESET_ALL}'
             )
             return
 
