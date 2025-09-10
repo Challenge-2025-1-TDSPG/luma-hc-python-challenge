@@ -28,21 +28,32 @@ class FaqDB:
         try:
             import oracledb
 
+            # Configurando para usar o modo Thin
+            # Este modo não requer o Client instalado
+            oracledb.defaults.config_dir = None
+
             if oracle_config:
                 self.conn = oracledb.connect(
                     user=oracle_config['user'],
                     password=oracle_config['password'],
                     dsn=oracle_config['dsn'],
-                    thick_mode=False  # Define explicitamente para usar o modo Thin
                 )
                 if not silent:
-                    print('[INFO] Conexão com o banco de dados Oracle estabelecida.')
+                    print(
+                        '[INFO] Conexão com o banco de dados Oracle estabelecida.'
+                    )
             else:
                 raise Exception('oracle_config deve ser fornecido para Oracle')
             self.cursor = self.conn.cursor()
             self.create_table_oracle()
         except ImportError:
             print('oracledb não instalado. Instale com: pip install oracledb')
+            raise
+        except Exception as e:
+            print(
+                '[ERRO] Não foi possível conectar ao banco Oracle. Verifique as credenciais e o DSN.'
+            )
+            print(f'Detalhes: {e}')
             raise
 
     # Implementando o protocolo de contexto para uso com 'with'
