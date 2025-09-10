@@ -9,12 +9,13 @@ class FaqDB:
     Implementa o protocolo de contexto para garantir o fechamento da conexão.
     """
 
-    def __init__(self, oracle_config):
+    def __init__(self, oracle_config, silent=False):
         """Inicializa a conexão com o banco de dados Oracle.
 
         Args:
             oracle_config (dict): Configuração de conexão ao banco Oracle,
                                  contendo as chaves 'user', 'password' e 'dsn'
+            silent (bool): Se True, suprime mensagens de log durante a inicialização
 
         Raises:
             ImportError: Se o módulo cx_Oracle não estiver instalado
@@ -22,6 +23,7 @@ class FaqDB:
         """
         self.conn = None
         self.cursor = None
+        self.silent = silent
 
         try:
             import cx_Oracle
@@ -32,6 +34,8 @@ class FaqDB:
                     password=oracle_config['password'],
                     dsn=oracle_config['dsn'],
                 )
+                if not silent:
+                    print('[INFO] Conexão com o banco de dados Oracle estabelecida.')
             else:
                 raise Exception('oracle_config deve ser fornecido para Oracle')
             self.cursor = self.conn.cursor()
@@ -75,8 +79,18 @@ class FaqDB:
                 END;
             """)
             self.conn.commit()
+
+            # Verifica se a tabela existe (não emite mensagem se silent=True)
+            self.cursor.execute(
+                "SELECT COUNT(*) FROM USER_TABLES WHERE TABLE_NAME = 'FAQ'"
+            )
+            if self.cursor.fetchone()[0] > 0:
+                if not self.silent:
+                    print('[INFO] Tabela FAQ verificada e pronta para uso.')
+            else:
+                print('[AVISO] Não foi possível confirmar a existência da tabela FAQ.')
         except Exception as e:
-            print(f'Erro ao criar tabela Oracle: {e}')
+            print(f'[ERRO] Problema ao verificar/criar tabela Oracle: {e}')
 
     def adicionar(self, pergunta, resposta, ativo, categoria):
         """Adiciona um novo registro FAQ na tabela.
@@ -105,23 +119,33 @@ class FaqDB:
             print(f'Erro ao adicionar FAQ: {e}')
             return False
 
-    def listar(self, categoria=None):
-        """Lista todos os FAQs ou filtra por categoria.
+    def listar(self, categoria=None, limit=None):
+        """Lista todos os FAQs ou filtra por categoria, com opção de limitar o número de resultados.
 
         Args:
             categoria (str, optional): Categoria para filtrar.
                                        Se None, retorna todos os FAQs.
+            limit (int, optional): Limita o número de resultados.
+                                  Se None, retorna todos os resultados.
 
         Returns:
             list: Lista de objetos FAQ encontrados
         """
         try:
             if categoria:
-                sql = 'SELECT * FROM FAQ WHERE categoria = :1'
-                self.cursor.execute(sql, (categoria,))
+                if limit:
+                    sql = 'SELECT * FROM FAQ WHERE categoria = :1 AND ROWNUM <= :2'
+                    self.cursor.execute(sql, (categoria, limit))
+                else:
+                    sql = 'SELECT * FROM FAQ WHERE categoria = :1'
+                    self.cursor.execute(sql, (categoria,))
             else:
-                sql = 'SELECT * FROM FAQ'
-                self.cursor.execute(sql)
+                if limit:
+                    sql = 'SELECT * FROM FAQ WHERE ROWNUM <= :1'
+                    self.cursor.execute(sql, (limit,))
+                else:
+                    sql = 'SELECT * FROM FAQ'
+                    self.cursor.execute(sql)
             rows = self.cursor.fetchall()
             perguntas = [FAQ(*row) for row in rows]
             return perguntas
@@ -215,24 +239,31 @@ class FaqDB:
             print(f'Erro ao listar categorias: {e}')
             return []
 
-    def close(self, silent=False):
+    def close(self, silent=None):
         """Fecha a conexão com o banco de dados de forma segura.
 
         Args:
-            silent (bool): Se True, não exibe mensagens de log ao fechar a conexão.
+            silent (bool, optional): Se True, não exibe mensagens de log ao fechar a conexão.
+                                    Se None, usa o valor definido no construtor.
         """
+        # Se silent não for explicitamente fornecido, use o valor da instância
+        if silent is None:
+            silent = self.silent
+
         try:
             if self.cursor:
                 self.cursor.close()
+                self.cursor = None
         except Exception as e:
             if not silent:
                 print(f'Erro ao fechar o cursor: {e}')
-        finally:
-            try:
-                if self.conn:
-                    self.conn.close()
-                    if not silent:
-                        print('[LOG] Conexão com o banco de dados fechada com sucesso.')
-            except Exception as e:
+
+        try:
+            if self.conn:
+                self.conn.close()
+                self.conn = None
                 if not silent:
-                    print(f'Erro ao fechar a conexão com o banco: {e}')
+                    print('[LOG] Conexão com o banco de dados fechada.')
+        except Exception as e:
+            if not silent:
+                print(f'Erro ao fechar a conexão com o banco: {e}')

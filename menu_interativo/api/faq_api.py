@@ -5,22 +5,31 @@ API RESTful para gerenciamento de FAQs usando Flask.
 import logging
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Flask, abort, jsonify, request
+from flask_cors import CORS
 
 # Adiciona o diretório pai ao caminho de importação
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from faq.db import FaqDB
 
 # Configurar logging
+# Nível INFO para produção, DEBUG apenas em desenvolvimento
+if os.environ.get('API_DEBUG') == '1':
+    log_level = logging.DEBUG
+else:
+    log_level = logging.WARNING  # Reduzindo o nível para diminuir mensagens
+
 logging.basicConfig(
-    level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=log_level, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger('faq_api')
 
 app = Flask(__name__)
+CORS(app)  # Habilita CORS para todas as rotas
 
 # Constantes para validação
 MAX_PERGUNTA_LEN = 500
@@ -34,11 +43,12 @@ oracle_config = {
     'password': os.environ.get('DB_PASS'),
     'dsn': os.environ.get('DB_URL'),
 }
-# Validação das credenciais Oracle
+# Inicialização do banco de dados
 try:
-    test_db = FaqDB(oracle_config)
-    test_db.close()
-    logger.info('Conexão com o banco de dados Oracle estabelecida com sucesso')
+    # Inicialização silenciosa para evitar mensagens duplicadas
+    db = FaqDB(
+        oracle_config, silent=True
+    )  # Usar silent=True para evitar mensagens duplicadas
 except Exception as e:
     logger.critical(f'Falha na conexão com o banco Oracle. Detalhes: {e}')
     print(
@@ -46,7 +56,6 @@ except Exception as e:
     )
     print(f'Detalhes: {e}')
     sys.exit(1)
-db = FaqDB(oracle_config)
 
 
 @app.errorhandler(400)
@@ -267,17 +276,39 @@ def listar_categorias():
 
 @app.route('/status', methods=['GET'])
 def status():
-    """Endpoint para verificar o status da API."""
+    """Verifica o status da API e da conexão com o banco."""
     try:
-        # Tentar obter a primeira FAQ para verificar a conexão com o banco
-        faqs = db.listar()
-        db_status = 'conectado' if faqs is not None else 'erro'
-
-        return jsonify({'status': 'online', 'database': db_status, 'version': '1.0.0'})
+        # Tenta executar uma consulta simples para verificar a conexão
+        db.listar(limit=1)
+        return jsonify(
+            {
+                'status': 'online',
+                'database': 'connected',
+                'timestamp': datetime.now().isoformat(),
+                'api_version': '1.0.0',
+            }
+        )
     except Exception as e:
         logger.error(f'Erro ao verificar status: {e}')
-        return jsonify({'status': 'online', 'database': 'erro', 'error': str(e)})
+        return jsonify(
+            {
+                'status': 'degraded',
+                'database': 'error',
+                'error': str(e),
+                'timestamp': datetime.now().isoformat(),
+            }
+        ), 500
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    print('\n' + '=' * 60)
+    print('        API FAQ v1.0 - INICIANDO SERVIDOR')
+    print('=' * 60)
+    print('• Servidor: http://localhost:5000')
+    print('• Endpoints: /faqs, /status, /categorias')
+    print('• CORS: Habilitado para todos os domínios')
+    print('• Banco de dados: Oracle')
+    print('=' * 60)
+
+    # Usa threaded=True para melhor desempenho e use_reloader=False para evitar reinicializações duplicadas
+    app.run(debug=True, host='0.0.0.0', port=5000, threaded=True, use_reloader=False)

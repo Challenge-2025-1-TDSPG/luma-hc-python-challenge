@@ -16,18 +16,20 @@ class Menu:
     Classe responsável pelo menu principal e submenus do sistema FAQ.
     """
 
-    def __init__(self, oracle_config):
+    def __init__(self, db_or_config):
         """Inicializa o menu principal e os submenus do sistema.
 
         Args:
-            oracle_config (dict): Configuração de conexão ao banco Oracle,
-                                 contendo as chaves 'user', 'password' e 'dsn'
+            db_or_config: Pode ser uma instância de FaqDB já inicializada ou
+                         um dicionário de configuração Oracle com as chaves
+                         'user', 'password' e 'dsn'
         """
-        # Armazena a configuração para uso futuro
-        self.oracle_config = oracle_config
-
-        # Inicializa a conexão com o banco de dados
-        self.db = FaqDB(oracle_config)
+        # Verifica se recebeu uma instância de FaqDB ou uma configuração
+        if isinstance(db_or_config, FaqDB):
+            self.db = db_or_config
+        else:
+            # Caso contrário, assume que é uma configuração Oracle
+            self.db = FaqDB(db_or_config)
 
         # Inicializa a lista de FAQs em memória
         faqs_memoria = []

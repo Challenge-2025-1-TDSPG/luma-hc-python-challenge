@@ -28,12 +28,11 @@ if __name__ == '__main__':
     }
 
     try:
-        # Testa a conexão com o banco de dados utilizando o gerenciador de contexto
-        # O bloco with garante que a conexão será fechada corretamente após o teste
-        with FaqDB(oracle_config) as test_db:
-            print(
-                f'{Fore.BLUE}[INFO] Conexão com banco Oracle estabelecida com sucesso.{Style.RESET_ALL}'
-            )
+        # Inicializa a conexão com o banco de dados com silent=True para suprimir mensagens automáticas
+        db = FaqDB(oracle_config, silent=True)
+        print(
+            f'{Fore.BLUE}[INFO] Conexão com banco Oracle estabelecida com sucesso.{Style.RESET_ALL}'
+        )
     except Exception as e:
         # Em caso de falha na conexão, exibe mensagem de erro detalhada e encerra o programa
         print(
@@ -42,7 +41,7 @@ if __name__ == '__main__':
         print(f'{Fore.YELLOW}Detalhes: {e}{Style.RESET_ALL}')
         exit(1)
 
-    # Inicializa o menu principal passando a configuração do banco de dados
-    menu = Menu(oracle_config)
+    # Inicializa o menu principal passando a instância FaqDB já criada
+    menu = Menu(db)
     # Exibe o menu interativo e inicia o fluxo do programa
     menu.exibir_menu()
