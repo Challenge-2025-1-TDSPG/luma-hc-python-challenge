@@ -28,7 +28,7 @@ def adicionar(conn, pergunta, resposta, ativo, categoria):
     # Normalização de entrada (remove espaços em branco extras)
     pergunta = pergunta.strip()
     resposta = resposta.strip()
-    categoria = categoria.strip()
+    categoria = categoria.strip().upper()  # Converte para maiúsculo para consistência
 
     # Validações básicas
     if ativo not in (0, 1):

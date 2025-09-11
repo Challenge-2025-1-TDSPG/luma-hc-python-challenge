@@ -144,6 +144,13 @@ def atualizar_categoria(db, id):
         )
         return
     if nova_categoria:
+        # A conversão para UPPER já acontece na camada do banco, mas também fazemos aqui
+        # para informar ao usuário o formato que será salvo
+        nova_categoria = nova_categoria.upper()
+        print(
+            f'{Fore.BLUE}Categoria será salva como: {nova_categoria}{Style.RESET_ALL}'
+        )
+
         faq = db.buscar_por_id(id)
         if not faq:
             print(
@@ -198,11 +205,14 @@ def ativar_desativar_faq(db, id):
         )
         return
 
-    if ativo_str not in ['1', '0']:
+    # Loop até receber uma opção válida
+    while ativo_str not in ['1', '0', 'C']:
         print(
             f'{Fore.RED}Valor para status deve ser 1 (Ativar), 0 (Desativar) ou C (Cancelar).{Style.RESET_ALL}'
         )
-        return
+        ativo_str = (
+            input(f'{Fore.CYAN}Escolha uma opção: {Style.RESET_ALL}').strip().upper()
+        )
 
     novo_ativo = int(ativo_str)
 

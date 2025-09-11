@@ -22,20 +22,24 @@ def adicionar_faq_memoria(lista):
         categoria = input(
             f'{Fore.CYAN}Digite o nome da categoria: {Style.RESET_ALL}'
         ).strip()
+        # Informa ao usuário que a categoria será armazenada em maiúsculo
+        if categoria:
+            print(f'{Fore.BLUE}Categoria será salva como: {categoria.upper()}{Style.RESET_ALL}')
         ativo_str = input(
             f'{Fore.CYAN}Ativo? (1-Sim, 0-Não): {Style.RESET_ALL}'
         ).strip()
-        if not (
-            id_str.isdigit()
-            and pergunta
-            and resposta
-            and categoria
-            and ativo_str in ['0', '1']
-        ):
-            print(
-                f'{Fore.RED}Todos os campos são obrigatórios e "Ativo" deve ser 1 ou 0.{Style.RESET_ALL}'
-            )
+        if not (id_str.isdigit() and pergunta and resposta and categoria):
+            print(f'{Fore.RED}Todos os campos são obrigatórios!{Style.RESET_ALL}')
             return
+            
+        # Verifica e solicita o valor de ativo até receber uma entrada válida
+        while ativo_str not in ['0', '1']:
+            print(
+                f'{Fore.RED}Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).{Style.RESET_ALL}'
+            )
+            ativo_str = input(
+                f'{Fore.CYAN}Ativo? (1-Sim, 0-Não): {Style.RESET_ALL}'
+            ).strip()
 
         try:
             id = int(id_str)
@@ -51,13 +55,14 @@ def adicionar_faq_memoria(lista):
         operacao_iniciada = True
         ativo = int(ativo_str)
         atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # Converte categoria para maiúsculo para manter consistência com o banco de dados
         novo_faq = {
             'id': id,
             'pergunta': pergunta,
             'resposta': resposta,
             'ativo': ativo,
             'atualizado_em': atualizado_em,
-            'categoria': categoria,
+            'categoria': categoria.upper(),  # Converte para maiúsculo
         }
 
         # Registrar dados no final do bloco try

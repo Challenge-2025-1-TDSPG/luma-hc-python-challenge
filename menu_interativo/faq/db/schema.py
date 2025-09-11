@@ -72,7 +72,7 @@ def check_faq_schema(cursor):
             )
         else:
             logger.info(
-                f'{Fore.GREEN}FAQ: schema OK (UNIQUE, CHECK, índice).{Style.RESET_ALL}'
+                f'{Fore.GREEN}FAQ: schema OK (UNIQUE, CHECK, ÍNDICE).{Style.RESET_ALL}'
             )
     except Exception as e:
         logger.warning(

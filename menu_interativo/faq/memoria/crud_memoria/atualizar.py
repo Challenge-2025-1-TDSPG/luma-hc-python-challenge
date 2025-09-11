@@ -150,9 +150,11 @@ def atualizar_categoria_memoria(lista, id):
         print(f'{Fore.YELLOW}Atualização de categoria cancelada.{Style.RESET_ALL}')
         return
     if nova_categoria:
+        # Informa ao usuário que a categoria será armazenada em maiúsculo
+        print(f'{Fore.BLUE}Categoria será salva como: {nova_categoria.upper()}{Style.RESET_ALL}')
         for item in lista:
             if item['id'] == id:
-                item['categoria'] = nova_categoria
+                item['categoria'] = nova_categoria.upper()  # Converte para maiúsculo
                 item['atualizado_em'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 print(f'{Fore.GREEN}Categoria atualizada com sucesso!{Style.RESET_ALL}')
                 break
@@ -193,21 +195,25 @@ def ativar_desativar_faq_memoria(lista, id):
     print(
         f'{Fore.WHITE}Opções: {Fore.GREEN}1-Ativar FAQ | {Fore.RED}0-Desativar FAQ | {Fore.YELLOW}C-Cancelar{Style.RESET_ALL}'
     )
-    ativo_str = (
-        input(f'{Fore.CYAN}Escolha uma opção: {Style.RESET_ALL}').strip().upper()
-    )
-
-    if ativo_str == 'C':
-        print(
-            f'{Fore.YELLOW}Operação cancelada. Nenhuma alteração foi feita.{Style.RESET_ALL}'
+    
+    # Loop para garantir entrada válida
+    while True:
+        ativo_str = (
+            input(f'{Fore.CYAN}Escolha uma opção: {Style.RESET_ALL}').strip().upper()
         )
-        return
 
-    if ativo_str not in ['1', '0']:
+        if ativo_str == 'C':
+            print(
+                f'{Fore.YELLOW}Operação cancelada. Nenhuma alteração foi feita.{Style.RESET_ALL}'
+            )
+            return
+        
+        if ativo_str in ['1', '0']:
+            break
+            
         print(
             f'{Fore.RED}Valor para status deve ser 1 (Ativar), 0 (Desativar) ou C (Cancelar).{Style.RESET_ALL}'
         )
-        return
 
     novo_ativo = int(ativo_str)
 

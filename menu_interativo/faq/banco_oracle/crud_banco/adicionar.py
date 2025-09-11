@@ -19,17 +19,25 @@ def adicionar_faq(db):
         categoria = input(
             f'{Fore.CYAN}Digite o nome da categoria: {Style.RESET_ALL}'
         ).strip()
+        # Informa ao usuário que a categoria será armazenada em maiúsculo
+        if categoria:
+            print(
+                f'{Fore.BLUE}Categoria será salva como: {categoria.upper()}{Style.RESET_ALL}'
+            )
         ativo_str = input(
             f'{Fore.CYAN}Ativo? (1-Sim, 0-Não): {Style.RESET_ALL}'
         ).strip()
         if not (pergunta and resposta and categoria):
             print(f'{Fore.RED}Todos os campos são obrigatórios!{Style.RESET_ALL}')
             return
-        if ativo_str not in ['0', '1']:
+        # Verifica se o valor de ativo é válido e repete até obter um valor válido
+        while ativo_str not in ['0', '1']:
             print(
                 f'{Fore.RED}Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).{Style.RESET_ALL}'
             )
-            return
+            ativo_str = input(
+                f'{Fore.CYAN}Ativo? (1-Sim, 0-Não): {Style.RESET_ALL}'
+            ).strip()
 
         operacao_iniciada = True
 
