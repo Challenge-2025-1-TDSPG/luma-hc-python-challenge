@@ -1,5 +1,3 @@
-from datetime import datetime
-
 try:
     from colorama import Fore, Style
 
@@ -7,7 +5,14 @@ try:
 except ImportError:
     HAS_COLORAMA = False
 
+import logging
+
 from .models import FAQ
+
+# Configuração de logging
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
 
 # Constantes para os valores SQL
 FAQ_TABLE_NAME = 'FAQ'
@@ -15,7 +20,6 @@ MAX_PERGUNTA_LEN = 150
 MAX_RESPOSTA_LEN = 600
 MAX_CATEGORIA_LEN = 50
 ATIVO_TYPE = 'NUMBER(1)'
-DATE_COLUMN_TYPE = 'VARCHAR2(50)'
 
 
 class FaqDB:
@@ -65,7 +69,7 @@ class FaqDB:
             else:
                 raise Exception('oracle_config deve ser fornecido para Oracle')
             self.cursor = self.conn.cursor()
-            self.create_table_oracle()
+            self._check_faq_schema()
         except ImportError:
             print('oracledb não instalado. Instale com: pip install oracledb')
             raise
@@ -85,53 +89,70 @@ class FaqDB:
         self.close(silent=True)
         return False  # Propaga exceções se houverem
 
-    # SQL para criar a tabela FAQ
-    SQL_CREATE_TABLE = f"""
-        BEGIN
-            EXECUTE IMMEDIATE 'CREATE TABLE {FAQ_TABLE_NAME} (
-                id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                pergunta VARCHAR2({MAX_PERGUNTA_LEN}) NOT NULL,
-                resposta VARCHAR2({MAX_RESPOSTA_LEN}) NOT NULL,
-                ativo {ATIVO_TYPE} NOT NULL,
-                atualizado_em {DATE_COLUMN_TYPE} NOT NULL,
-                categoria VARCHAR2({MAX_CATEGORIA_LEN}) NOT NULL
-            )';
-        EXCEPTION
-            WHEN OTHERS THEN
-                -- SQLCODE -955 significa que a tabela já existe
-                IF SQLCODE != -955 THEN RAISE; END IF;
-        END;
-    """
+    def _check_faq_schema(self):
+        """Valida presença de constraints/índice essenciais da FAQ. Não altera o banco.
 
-    def create_table_oracle(self):
-        """Cria a tabela FAQ no banco de dados Oracle se ela não existir.
+        Este método realiza um health check para verificar se:
+        1. A tabela FAQ existe no schema atual
+        2. As constraints necessárias (CHECK, UNIQUE) estão presentes
+        3. O índice para busca case-insensitive por categoria está criado
 
-        Utiliza o recurso de auto-incremento IDENTITY do Oracle 12c ou superior.
-        A exceção ORA-00955 ("nome já usado por um objeto existente") é ignorada
-        pois indica que a tabela já existe.
+        Se algo estiver faltando, apenas registra um aviso no log, sem tentar corrigir.
         """
         try:
-            # Criação da tabela com IDENTITY (Oracle 12c+)
-            self.cursor.execute(self.SQL_CREATE_TABLE)
-            self.conn.commit()
-
-            # Verifica se a tabela existe (não emite mensagem se silent=True)
+            # Verifica se a tabela FAQ existe no dicionário de dados Oracle
             self.cursor.execute(
-                f"SELECT COUNT(*) FROM USER_TABLES WHERE TABLE_NAME = '{FAQ_TABLE_NAME}'"
+                'SELECT 1 FROM USER_TABLES WHERE TABLE_NAME = :t',
+                {'t': FAQ_TABLE_NAME.upper()},
             )
-            if self.cursor.fetchone()[0] > 0:
-                if not self.silent:
-                    print('[INFO] Tabela FAQ verificada e pronta para uso.')
+            if not self.cursor.fetchone():
+                logger.error('Tabela %s não encontrada no schema.', FAQ_TABLE_NAME)
+                return
+
+            # Helper function: verifica se uma constraint específica existe na tabela
+            def exists_constraint(name: str) -> bool:
+                self.cursor.execute(
+                    """
+                    SELECT 1 FROM USER_CONSTRAINTS
+                    WHERE TABLE_NAME = :t AND CONSTRAINT_NAME = :c
+                """,
+                    {'t': FAQ_TABLE_NAME.upper(), 'c': name},
+                )
+                return bool(self.cursor.fetchone())
+
+            # Helper function: verifica se um índice específico existe no schema
+            def exists_index(name: str) -> bool:
+                self.cursor.execute(
+                    """
+                    SELECT 1 FROM USER_INDEXES WHERE INDEX_NAME = :i
+                """,
+                    {'i': name},
+                )
+                return bool(self.cursor.fetchone())
+
+            # Coleta itens do modelo físico que estão faltando
+            missing = []
+            if not exists_constraint('FAQ_PERGUNTA_UN'):
+                missing.append('UNIQUE( PERGUNTA ) -> FAQ_PERGUNTA_UN')
+            if not exists_constraint('CK_FAQ_ATIVO'):
+                missing.append('CHECK ATIVO IN (0,1) -> CK_FAQ_ATIVO')
+            if not exists_index('IDX_FAQ_CATEG_UP'):
+                missing.append('INDEX UPPER(CATEGORIA) -> IDX_FAQ_CATEG_UP')
+
+            # Reporta resultado da verificação
+            if missing:
+                logger.warning('FAQ: itens ausentes: %s', '; '.join(missing))
             else:
-                print('[AVISO] Não foi possível confirmar a existência da tabela FAQ.')
+                logger.info('FAQ: schema OK (UNIQUE, CHECK, índice).')
         except Exception as e:
-            print(f'[ERRO] Problema ao verificar/criar tabela Oracle: {e}')
+            logger.warning('Falha ao checar schema da FAQ: %s', e)
 
     # SQL para operações de inserção
+    # Não inclui ATUALIZADO_EM pois o banco define automaticamente via DEFAULT SYSDATE
     SQL_INSERT = f"""
-        INSERT INTO {FAQ_TABLE_NAME} 
-        (pergunta, resposta, ativo, atualizado_em, categoria) 
-        VALUES (:1, :2, :3, :4, :5)
+        INSERT INTO {FAQ_TABLE_NAME}
+        (PERGUNTA, RESPOSTA, ATIVO, CATEGORIA)
+        VALUES (:1, :2, :3, :4)
     """
 
     def adicionar(self, pergunta, resposta, ativo, categoria):
@@ -146,27 +167,81 @@ class FaqDB:
         Returns:
             bool: True se a operação foi bem-sucedida, False caso contrário
         """
-        atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # Normalização de entrada (remove espaços em branco extras)
+        pergunta = pergunta.strip()
+        resposta = resposta.strip()
+        categoria = categoria.strip()
+
+        # Validações básicas
+        if ativo not in (0, 1):
+            raise ValueError('ativo deve ser 0 ou 1')
+        if len(pergunta) > MAX_PERGUNTA_LEN:
+            raise ValueError(f'pergunta excede {MAX_PERGUNTA_LEN} caracteres')
+        if len(resposta) > MAX_RESPOSTA_LEN:
+            raise ValueError(f'resposta excede {MAX_RESPOSTA_LEN} caracteres')
+        if len(categoria) > MAX_CATEGORIA_LEN:
+            raise ValueError(f'categoria excede {MAX_CATEGORIA_LEN} caracteres')
         try:
-            self.cursor.execute(
-                self.SQL_INSERT, (pergunta, resposta, ativo, atualizado_em, categoria)
-            )
+            # Executa o INSERT com os parâmetros validados
+            self.cursor.execute(self.SQL_INSERT, (pergunta, resposta, ativo, categoria))
+            # Confirma a transação no banco
             self.conn.commit()
-            print('FAQ adicionada com sucesso!')
+            logger.info('FAQ adicionada com sucesso!')
             return True
         except Exception as e:
             if self.conn:
                 self.conn.rollback()  # Desfaz a transação em caso de erro
-            print(f'Erro ao adicionar FAQ: {e}')
+            # Tratamento específico para erros comuns do Oracle
+            msg = str(e)
+            if 'ORA-00001' in msg:
+                logger.warning('Pergunta já cadastrada (violação de UNIQUE).')
+            elif 'ORA-12899' in msg:
+                logger.warning(
+                    'Valor excede o tamanho permitido para a coluna (ORA-12899).'
+                )
+            else:
+                logger.error(f'Erro ao adicionar FAQ: {e}')
             return False
 
     # SQL templates para consultas
-    SQL_SELECT_ALL = f'SELECT * FROM {FAQ_TABLE_NAME}'
-    SQL_SELECT_BY_CATEGORY = f'SELECT * FROM {FAQ_TABLE_NAME} WHERE categoria = :1'
-    SQL_SELECT_WITH_LIMIT = f'SELECT * FROM {FAQ_TABLE_NAME} WHERE ROWNUM <= :1'
-    SQL_SELECT_BY_CATEGORY_WITH_LIMIT = (
-        f'SELECT * FROM {FAQ_TABLE_NAME} WHERE categoria = :1 AND ROWNUM <= :2'
-    )
+    # Consulta básica: lista todos FAQs, mais recentes primeiro
+    SQL_SELECT_ALL = f"""
+      SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA
+      FROM {FAQ_TABLE_NAME}
+      ORDER BY ID_FAQ DESC
+    """
+
+    # Consulta com filtro por categoria (case-insensitive usando UPPER)
+    # Aproveita o índice IDX_FAQ_CATEG_UP criado em UPPER(CATEGORIA)
+    # Mantém consistência com ordenação (mais recentes primeiro)
+    SQL_SELECT_BY_CATEGORY = f"""
+      SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA
+      FROM {FAQ_TABLE_NAME}
+      WHERE UPPER(CATEGORIA) = UPPER(:1)
+      ORDER BY ID_FAQ DESC
+    """
+
+    # Consulta paginada (N primeiros registros)
+    # Usa subconsulta porque em Oracle, ROWNUM é aplicado antes do ORDER BY
+    # Isso garante que os N registros mais recentes são retornados, não os primeiros N do banco
+    SQL_SELECT_WITH_LIMIT = f"""
+        SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA FROM (
+            SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA FROM {FAQ_TABLE_NAME}
+            ORDER BY ID_FAQ DESC
+        )
+        WHERE ROWNUM <= :1
+    """
+
+    # Consulta combinada: filtro por categoria + paginação
+    # A estrutura de subconsulta garante que a ordem é aplicada antes do limite
+    SQL_SELECT_BY_CATEGORY_WITH_LIMIT = f"""
+        SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA FROM (
+            SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA FROM {FAQ_TABLE_NAME}
+            WHERE UPPER(CATEGORIA) = UPPER(:1)
+            ORDER BY ID_FAQ DESC
+        )
+        WHERE ROWNUM <= :2
+    """
 
     def listar(self, categoria=None, limit=None):
         """Lista todos os FAQs ou filtra por categoria, com opção de limitar o número de resultados.
@@ -197,14 +272,20 @@ class FaqDB:
             perguntas = [FAQ(*row) for row in rows]
             return perguntas
         except Exception as e:
-            print(f'Erro ao listar FAQ: {e}')
+            logger.error(f'Erro ao listar FAQ: {e}')
             return []
 
     # SQL para operações de atualização
+    # Utiliza SYSDATE diretamente no Oracle para atualizar o timestamp
+    # Os placeholders :1, :2, etc. correspondem à ordem dos parâmetros no execute()
     SQL_UPDATE = f"""
-        UPDATE {FAQ_TABLE_NAME} 
-        SET pergunta=:1, resposta=:2, ativo=:3, atualizado_em=:4, categoria=:5 
-        WHERE id=:6
+        UPDATE {FAQ_TABLE_NAME}
+        SET PERGUNTA = :1,
+            RESPOSTA = :2,
+            ATIVO = :3,
+            ATUALIZADO_EM = SYSDATE,
+            CATEGORIA = :4
+        WHERE ID_FAQ = :5
     """
 
     def atualizar(self, id, pergunta, resposta, ativo, categoria):
@@ -220,25 +301,57 @@ class FaqDB:
         Returns:
             bool: True se a atualização foi bem-sucedida, False caso contrário
         """
-        atualizado_em = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # Normalização de entrada (remove espaços em branco extras)
+        pergunta = pergunta.strip()
+        resposta = resposta.strip()
+        categoria = categoria.strip()
+
+        # Validações básicas
+        if ativo not in (0, 1):
+            raise ValueError('ativo deve ser 0 ou 1')
+        if len(pergunta) > MAX_PERGUNTA_LEN:
+            raise ValueError(f'pergunta excede {MAX_PERGUNTA_LEN} caracteres')
+        if len(resposta) > MAX_RESPOSTA_LEN:
+            raise ValueError(f'resposta excede {MAX_RESPOSTA_LEN} caracteres')
+        if len(categoria) > MAX_CATEGORIA_LEN:
+            raise ValueError(f'categoria excede {MAX_CATEGORIA_LEN} caracteres')
         try:
+            # Executa o UPDATE com todos os parâmetros na ordem correta (:1, :2, ...)
+            # A ordem é: pergunta, resposta, ativo, categoria, id
             self.cursor.execute(
                 self.SQL_UPDATE,
-                (pergunta, resposta, ativo, atualizado_em, categoria, id),
+                (pergunta, resposta, ativo, categoria, id),
             )
+            # rowcount indica quantas linhas foram afetadas (deve ser 1 para sucesso)
             rows_affected = self.cursor.rowcount
             self.conn.commit()
+            if rows_affected > 0:
+                logger.info(f'FAQ ID {id} atualizada com sucesso.')
             return rows_affected > 0  # Retorna True se algum registro foi atualizado
         except Exception as e:
             if self.conn:
                 self.conn.rollback()  # Desfaz a transação em caso de erro
-            print(f'Erro ao atualizar FAQ: {e}')
+            # Tratamento específico para erros comuns do Oracle
+            msg = str(e)
+            if 'ORA-00001' in msg:
+                logger.warning('Pergunta já cadastrada (violação de UNIQUE).')
+            elif 'ORA-12899' in msg:
+                logger.warning(
+                    'Valor excede o tamanho permitido para a coluna (ORA-12899).'
+                )
+            else:
+                logger.error(f'Erro ao atualizar FAQ: {e}')
             return False
 
     # SQL para operações de deleção e consulta
-    SQL_DELETE = f'DELETE FROM {FAQ_TABLE_NAME} WHERE id=:1'
-    SQL_SELECT_BY_ID = f'SELECT * FROM {FAQ_TABLE_NAME} WHERE id=:1'
-    SQL_SELECT_DISTINCT_CATEGORIES = f'SELECT DISTINCT categoria FROM {FAQ_TABLE_NAME}'
+    # Comando para excluir um FAQ pelo ID
+    SQL_DELETE = f'DELETE FROM {FAQ_TABLE_NAME} WHERE ID_FAQ=:1'
+
+    # Busca completa de um FAQ pelo ID (todas as colunas listadas explicitamente)
+    SQL_SELECT_BY_ID = f'SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA FROM {FAQ_TABLE_NAME} WHERE ID_FAQ=:1'
+
+    # Lista todas as categorias distintas para popular menus/filtros
+    SQL_SELECT_DISTINCT_CATEGORIES = f'SELECT DISTINCT CATEGORIA FROM {FAQ_TABLE_NAME}'
 
     def deletar(self, id):
         """Remove um FAQ pelo seu ID.
@@ -253,12 +366,15 @@ class FaqDB:
             self.cursor.execute(self.SQL_DELETE, (id,))
             rows_affected = self.cursor.rowcount
             self.conn.commit()
-            print('FAQ deletada com sucesso!')
+            if rows_affected > 0:
+                logger.info(f'FAQ ID {id} deletada com sucesso.')
+            else:
+                logger.warning(f'FAQ ID {id} não encontrada para exclusão.')
             return rows_affected > 0  # Retorna True se algum registro foi excluído
         except Exception as e:
             if self.conn:
                 self.conn.rollback()  # Desfaz a transação em caso de erro
-            print(f'Erro ao deletar FAQ: {e}')
+            logger.error(f'Erro ao deletar FAQ: {e}')
             return False
 
     def buscar_por_id(self, id):
@@ -278,7 +394,7 @@ class FaqDB:
             else:
                 return None
         except Exception as e:
-            print(f'Erro ao buscar FAQ: {e}')
+            logger.error(f'Erro ao buscar FAQ: {e}')
             return None
 
     def listar_categorias(self):
@@ -292,7 +408,7 @@ class FaqDB:
             rows = self.cursor.fetchall()
             return [row[0] for row in rows]
         except Exception as e:
-            print(f'Erro ao listar categorias: {e}')
+            logger.error(f'Erro ao listar categorias: {e}')
             return []
 
     def close(self, silent=None):
@@ -311,19 +427,14 @@ class FaqDB:
                 self.cursor = None
         except Exception as e:
             if not should_be_silent:
-                print(f'Erro ao fechar o cursor: {e}')
+                logger.warning(f'Erro ao fechar o cursor: {e}')
 
         try:
             if self.conn:
                 self.conn.close()
                 self.conn = None
                 if not should_be_silent:
-                    if HAS_COLORAMA:
-                        print(
-                            f'{Fore.BLUE}[INFO] Conexão com o banco Oracle fechada com sucesso.{Style.RESET_ALL}'
-                        )
-                    else:
-                        print('[INFO] Conexão com o banco de dados fechada.')
+                    logger.info('Conexão com o banco Oracle fechada com sucesso.')
         except Exception as e:
             if not should_be_silent:
-                print(f'Erro ao fechar a conexão com o banco: {e}')
+                logger.warning(f'Erro ao fechar a conexão com o banco: {e}')
