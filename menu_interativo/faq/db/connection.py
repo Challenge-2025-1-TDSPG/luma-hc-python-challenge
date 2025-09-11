@@ -5,12 +5,7 @@ Implementa o protocolo de contexto para garantir o fechamento da conexão.
 
 import logging
 
-try:
-    from colorama import Fore, Style
-
-    HAS_COLORAMA = True
-except ImportError:
-    HAS_COLORAMA = False
+from colorama import Fore, Style
 
 from .schema import check_faq_schema
 
@@ -29,6 +24,9 @@ def configurar_conexao(config):
     """
     global _oracle_config
     _oracle_config = config
+    logger.info(
+        f'{Fore.BLUE}Configuração de conexão Oracle definida com sucesso.{Style.RESET_ALL}'
+    )
 
 
 def obter_conexao(silent=False):
@@ -44,7 +42,8 @@ def obter_conexao(silent=False):
         ValueError: Se a configuração não tiver sido definida
     """
     if _oracle_config is None:
-        raise ValueError('Conexão não configurada. Chame configurar_conexao antes.')
+        error_msg = f'{Fore.RED}Conexão não configurada. Chame configurar_conexao antes.{Style.RESET_ALL}'
+        raise ValueError(error_msg)
     return OracleConnection(_oracle_config, silent)
 
 
@@ -81,27 +80,25 @@ class OracleConnection:
                     dsn=oracle_config['dsn'],
                 )
                 if not silent:
-                    if HAS_COLORAMA:
-                        print(
-                            f'{Fore.BLUE}[INFO] Conexão com o banco de dados Oracle estabelecida (modo Thin).{Style.RESET_ALL}'
-                        )
-                    else:
-                        print(
-                            '[INFO] Conexão com o banco de dados Oracle estabelecida (modo Thin).'
-                        )
+                    print(
+                        f'{Fore.BLUE}[INFO] Conexão com o banco de dados Oracle estabelecida (modo Thin).{Style.RESET_ALL}'
+                    )
             else:
-                raise Exception('oracle_config deve ser fornecido para Oracle')
+                error_msg = f'{Fore.RED}oracle_config deve ser fornecido para Oracle{Style.RESET_ALL}'
+                raise Exception(error_msg)
             self.cursor = self.conn.cursor()
             # Verifica o schema após estabelecer conexão
             check_faq_schema(self.cursor)
         except ImportError:
-            print('oracledb não instalado. Instale com: pip install oracledb')
+            print(
+                f'{Fore.RED}oracledb não instalado. Instale com: pip install oracledb{Style.RESET_ALL}'
+            )
             raise
         except Exception as e:
             print(
-                '[ERRO] Não foi possível conectar ao banco Oracle. Verifique as credenciais e o DSN.'
+                f'{Fore.RED}[ERRO] Não foi possível conectar ao banco Oracle. Verifique as credenciais e o DSN.{Style.RESET_ALL}'
             )
-            print(f'Detalhes: {e}')
+            print(f'{Fore.RED}Detalhes: {e}{Style.RESET_ALL}')
             raise
 
     # Implementando o protocolo de contexto para uso com 'with'
@@ -129,14 +126,20 @@ class OracleConnection:
                 self.cursor = None
         except Exception as e:
             if not should_be_silent:
-                logger.warning(f'Erro ao fechar o cursor: {e}')
+                logger.warning(
+                    f'{Fore.YELLOW}Erro ao fechar o cursor: {e}{Style.RESET_ALL}'
+                )
 
         try:
             if self.conn:
                 self.conn.close()
                 self.conn = None
                 if not should_be_silent:
-                    logger.info('Conexão com o banco Oracle fechada com sucesso.')
+                    logger.info(
+                        f'{Fore.GREEN}Conexão com o banco Oracle fechada com sucesso.{Style.RESET_ALL}'
+                    )
         except Exception as e:
             if not should_be_silent:
-                logger.warning(f'Erro ao fechar a conexão com o banco: {e}')
+                logger.warning(
+                    f'{Fore.RED}Erro ao fechar a conexão com o banco: {e}{Style.RESET_ALL}'
+                )

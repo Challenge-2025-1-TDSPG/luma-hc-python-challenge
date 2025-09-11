@@ -24,7 +24,7 @@ def exportar_faqs_memoria(faqs_memoria):
     try:
         # Determina o caminho para o diretório de exportação da memória
         pasta_memoria = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'memoria')
+            os.path.join(os.path.dirname(__file__), '..', '..', 'json', 'memoria')
         )
         # Cria o diretório se não existir
         os.makedirs(pasta_memoria, exist_ok=True)

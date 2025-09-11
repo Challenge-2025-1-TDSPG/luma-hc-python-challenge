@@ -4,6 +4,8 @@ Operações de leitura (Read) para FAQ.
 
 import logging
 
+from colorama import Fore, Style
+
 from ...models import FAQ
 from ..queries import (
     SQL_SELECT_ALL,
@@ -48,7 +50,7 @@ def listar(conn, categoria=None, limit=None):
         perguntas = [FAQ(*row) for row in rows]
         return perguntas
     except Exception as e:
-        logger.error(f'Erro ao listar FAQ: {e}')
+        logger.error(f'{Fore.RED}Erro ao listar FAQ: {e}{Style.RESET_ALL}')
         return []
 
 
@@ -70,7 +72,7 @@ def buscar_por_id(conn, id):
         else:
             return None
     except Exception as e:
-        logger.error(f'Erro ao buscar FAQ: {e}')
+        logger.error(f'{Fore.RED}Erro ao buscar FAQ: {e}{Style.RESET_ALL}')
         return None
 
 
@@ -88,5 +90,5 @@ def listar_categorias(conn):
         rows = conn.cursor.fetchall()
         return [row[0] for row in rows]
     except Exception as e:
-        logger.error(f'Erro ao listar categorias: {e}')
+        logger.error(f'{Fore.RED}Erro ao listar categorias: {e}{Style.RESET_ALL}')
         return []

@@ -6,6 +6,8 @@ utiliza os componentes modularizados internamente.
 
 import logging
 
+from colorama import Fore, Style
+
 from .connection import OracleConnection
 from .crud import (
     adicionar,
@@ -72,7 +74,7 @@ class FaqDB:
             result = adicionar(self.conn, pergunta, resposta, ativo, categoria)
             return result
         except Exception as e:
-            logger.error(f'Erro ao adicionar FAQ: {e}')
+            logger.error(f'{Fore.RED}Erro ao adicionar FAQ: {e}{Style.RESET_ALL}')
             return False
 
     def listar(self, categoria=None, limit=None):
@@ -90,7 +92,7 @@ class FaqDB:
         try:
             return listar(self.conn, categoria, limit)
         except Exception as e:
-            logger.error(f'Erro ao listar FAQ: {e}')
+            logger.error(f'{Fore.RED}Erro ao listar FAQ: {e}{Style.RESET_ALL}')
             return []
 
     def atualizar(self, id, pergunta, resposta, ativo, categoria):
@@ -109,7 +111,7 @@ class FaqDB:
         try:
             return atualizar(self.conn, id, pergunta, resposta, ativo, categoria)
         except Exception as e:
-            logger.error(f'Erro ao atualizar FAQ: {e}')
+            logger.error(f'{Fore.RED}Erro ao atualizar FAQ: {e}{Style.RESET_ALL}')
             return False
 
     def deletar(self, id):
@@ -124,7 +126,7 @@ class FaqDB:
         try:
             return deletar(self.conn, id)
         except Exception as e:
-            logger.error(f'Erro ao deletar FAQ: {e}')
+            logger.error(f'{Fore.RED}Erro ao deletar FAQ: {e}{Style.RESET_ALL}')
             return False
 
     def buscar_por_id(self, id):
@@ -139,7 +141,7 @@ class FaqDB:
         try:
             return buscar_por_id(self.conn, id)
         except Exception as e:
-            logger.error(f'Erro ao buscar FAQ por ID: {e}')
+            logger.error(f'{Fore.RED}Erro ao buscar FAQ por ID: {e}{Style.RESET_ALL}')
             return None
 
     def listar_categorias(self):
@@ -151,7 +153,7 @@ class FaqDB:
         try:
             return listar_categorias(self.conn)
         except Exception as e:
-            logger.error(f'Erro ao listar categorias: {e}')
+            logger.error(f'{Fore.RED}Erro ao listar categorias: {e}{Style.RESET_ALL}')
             return []
 
     def close(self, silent=None):

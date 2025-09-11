@@ -23,7 +23,7 @@ def importar_faqs_memoria():
     try:
         # Determina o caminho para o diretório onde está o arquivo JSON
         pasta_memoria = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'memoria')
+            os.path.join(os.path.dirname(__file__), '..', '..', 'json', 'memoria')
         )
         # Define o caminho completo para o arquivo JSON
         caminho_json = os.path.join(pasta_memoria, 'faq_export.json')

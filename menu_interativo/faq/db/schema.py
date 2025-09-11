@@ -4,6 +4,8 @@ Módulo para verificação e validação do schema do banco de dados FAQ.
 
 import logging
 
+from colorama import Fore, Style
+
 from .queries import FAQ_TABLE_NAME
 
 # Configuração de logging
@@ -65,8 +67,14 @@ def check_faq_schema(cursor):
 
         # Reporta resultado da verificação
         if missing:
-            logger.warning('FAQ: itens ausentes: %s', '; '.join(missing))
+            logger.warning(
+                f'{Fore.YELLOW}FAQ: itens ausentes: {"; ".join(missing)}{Style.RESET_ALL}'
+            )
         else:
-            logger.info('FAQ: schema OK (UNIQUE, CHECK, índice).')
+            logger.info(
+                f'{Fore.GREEN}FAQ: schema OK (UNIQUE, CHECK, índice).{Style.RESET_ALL}'
+            )
     except Exception as e:
-        logger.warning('Falha ao checar schema da FAQ: %s', e)
+        logger.warning(
+            f'{Fore.RED}Falha ao checar schema da FAQ: {str(e)}{Style.RESET_ALL}'
+        )

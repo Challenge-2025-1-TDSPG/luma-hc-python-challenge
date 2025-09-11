@@ -23,7 +23,7 @@ def exportar_faqs_banco(lista_dict):
     try:
         # Determina o caminho para o diretório de exportação
         pasta_banco = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'banco')
+            os.path.join(os.path.dirname(__file__), '..', '..', 'json', 'banco')
         )
         # Cria o diretório se não existir
         os.makedirs(pasta_banco, exist_ok=True)
