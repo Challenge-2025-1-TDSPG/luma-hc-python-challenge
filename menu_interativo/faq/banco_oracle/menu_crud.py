@@ -6,7 +6,7 @@ e listar categorias.
 
 from colorama import Fore, Style
 
-from .crud import (
+from .crud_banco import (
     adicionar_faq,
     atualizar_faq,
     buscar_faq,

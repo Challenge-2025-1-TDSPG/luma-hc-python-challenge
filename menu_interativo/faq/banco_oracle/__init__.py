@@ -8,7 +8,7 @@ __all__ = [
     'listar_categorias',
 ]
 
-from .crud import (
+from .crud_banco import (
     adicionar_faq,
     atualizar_faq,
     buscar_faq,
