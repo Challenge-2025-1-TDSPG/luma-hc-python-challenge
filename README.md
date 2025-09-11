@@ -285,8 +285,8 @@ Estes scripts configuram automaticamente a codificação para UTF-8 (para exibir
 
 ## Contato
 
-| Nome                           | GitHub                                        | LinkedIn                                                                |
-| ------------------------------ | --------------------------------------------- | ----------------------------------------------------------------------- |
-| Alexander Dennis Isidro Mamani | [alex-isidro](https://github.com/alex-isidro) | [LinkedIn](https://www.linkedin.com/in/alexander-dennis-a3b48824b/)     |
-| Kelson Zhang                   | [KelsonZh0](https://github.com/KelsonZh0)     | [LinkedIn](https://www.linkedin.com/in/kelson-zhang-211456323/)         |
-| Lucas Rossoni Dieder           | [PxS00](https://github.com/PxS00)             | [LinkedIn](https://www.linkedin.com/in/lucas-rossoni-dieder-32242a353/) |
+| Nome                           | RM      | GitHub                                        | LinkedIn                                                                |
+| ------------------------------ | ------- | --------------------------------------------- | ----------------------------------------------------------------------- |
+| Alexander Dennis Isidro Mamani | 565554  | [alex-isidro](https://github.com/alex-isidro) | [LinkedIn](https://www.linkedin.com/in/alexander-dennis-a3b48824b/)     |
+| Kelson Zhang                   | 563748  | [KelsonZh0](https://github.com/KelsonZh0)     | [LinkedIn](https://www.linkedin.com/in/kelson-zhang-211456323/)         |
+| Lucas Rossoni Dieder           | 563770  | [PxS00](https://github.com/PxS00)             | [LinkedIn](https://www.linkedin.com/in/lucas-rossoni-dieder-32242a353/) |
