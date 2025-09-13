@@ -1,3 +1,8 @@
+"""
+Módulo de adição de FAQ ao banco Oracle.
+Solicita dados ao usuário, valida e persiste no banco.
+"""
+
 from colorama import Fore, Style
 
 

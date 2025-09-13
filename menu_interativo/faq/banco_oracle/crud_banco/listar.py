@@ -1,3 +1,8 @@
+"""
+Módulo de listagem de FAQs no banco Oracle.
+Permite listar todos os FAQs ou filtrar por categoria.
+"""
+
 from colorama import Fore, Style
 
 

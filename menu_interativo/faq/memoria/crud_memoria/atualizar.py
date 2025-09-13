@@ -151,7 +151,9 @@ def atualizar_categoria_memoria(lista, id):
         return
     if nova_categoria:
         # Informa ao usuário que a categoria será armazenada em maiúsculo
-        print(f'{Fore.BLUE}Categoria será salva como: {nova_categoria.upper()}{Style.RESET_ALL}')
+        print(
+            f'{Fore.BLUE}Categoria será salva como: {nova_categoria.upper()}{Style.RESET_ALL}'
+        )
         for item in lista:
             if item['id'] == id:
                 item['categoria'] = nova_categoria.upper()  # Converte para maiúsculo
@@ -195,7 +197,7 @@ def ativar_desativar_faq_memoria(lista, id):
     print(
         f'{Fore.WHITE}Opções: {Fore.GREEN}1-Ativar FAQ | {Fore.RED}0-Desativar FAQ | {Fore.YELLOW}C-Cancelar{Style.RESET_ALL}'
     )
-    
+
     # Loop para garantir entrada válida
     while True:
         ativo_str = (
@@ -207,10 +209,10 @@ def ativar_desativar_faq_memoria(lista, id):
                 f'{Fore.YELLOW}Operação cancelada. Nenhuma alteração foi feita.{Style.RESET_ALL}'
             )
             return
-        
+
         if ativo_str in ['1', '0']:
             break
-            
+
         print(
             f'{Fore.RED}Valor para status deve ser 1 (Ativar), 0 (Desativar) ou C (Cancelar).{Style.RESET_ALL}'
         )

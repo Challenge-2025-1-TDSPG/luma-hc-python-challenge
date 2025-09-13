@@ -3,6 +3,12 @@ from datetime import datetime
 from colorama import Fore, Style
 
 
+"""
+Módulo de adição de FAQ em memória.
+Solicita dados ao usuário, valida e adiciona à lista em memória.
+"""
+
+
 def adicionar_faq_memoria(lista):
     """Adiciona um novo FAQ na lista em memória.
 
@@ -24,14 +30,16 @@ def adicionar_faq_memoria(lista):
         ).strip()
         # Informa ao usuário que a categoria será armazenada em maiúsculo
         if categoria:
-            print(f'{Fore.BLUE}Categoria será salva como: {categoria.upper()}{Style.RESET_ALL}')
+            print(
+                f'{Fore.BLUE}Categoria será salva como: {categoria.upper()}{Style.RESET_ALL}'
+            )
         ativo_str = input(
             f'{Fore.CYAN}Ativo? (1-Sim, 0-Não): {Style.RESET_ALL}'
         ).strip()
         if not (id_str.isdigit() and pergunta and resposta and categoria):
             print(f'{Fore.RED}Todos os campos são obrigatórios!{Style.RESET_ALL}')
             return
-            
+
         # Verifica e solicita o valor de ativo até receber uma entrada válida
         while ativo_str not in ['0', '1']:
             print(

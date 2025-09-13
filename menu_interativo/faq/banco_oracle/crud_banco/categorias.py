@@ -1,3 +1,8 @@
+"""
+Módulo de listagem de categorias de FAQ no banco Oracle.
+Exibe todas as categorias distintas cadastradas no banco.
+"""
+
 from colorama import Fore, Style
 
 

@@ -1,3 +1,8 @@
+"""
+Módulo de atualização de FAQ no banco Oracle.
+Permite atualizar pergunta, resposta, categoria e status de ativação de um FAQ existente.
+"""
+
 from colorama import Fore, Style
 
 

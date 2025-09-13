@@ -1,3 +1,8 @@
+"""
+Módulo de exclusão de FAQ no banco Oracle.
+Solicita o ID do FAQ, confirma e executa a exclusão no banco.
+"""
+
 from colorama import Fore, Style
 
 

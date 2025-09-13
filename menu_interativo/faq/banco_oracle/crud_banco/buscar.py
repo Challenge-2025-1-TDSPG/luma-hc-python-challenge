@@ -1,3 +1,8 @@
+"""
+Módulo de busca de FAQ no banco Oracle.
+Permite buscar e exibir um FAQ pelo ID informado pelo usuário.
+"""
+
 from colorama import Fore, Style
 
 
