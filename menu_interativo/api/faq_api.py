@@ -14,7 +14,7 @@ from flask_cors import CORS
 
 # Adiciona o diretório pai ao caminho de importação
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from faq.db import FaqDB
+from banco import FaqDB
 
 # Configurar logging
 # Nível INFO para produção, DEBUG apenas em desenvolvimento

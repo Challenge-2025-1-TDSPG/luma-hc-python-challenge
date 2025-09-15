@@ -10,9 +10,10 @@ que devem estar definidas em um arquivo .env na raiz do projeto.
 import logging
 import os
 
+from banco import FaqDB
 from colorama import Fore, Style, init
 from dotenv import load_dotenv
-from faq import FaqDB, Menu
+from menu import Menu
 
 # Configuração de logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
