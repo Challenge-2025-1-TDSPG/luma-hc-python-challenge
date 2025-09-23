@@ -47,6 +47,11 @@ from models import FAQ
 
 # --- Funções CRUD em memória ---
 def adicionar_faq_memoria(lista):
+    """
+    Adiciona um novo FAQ à lista em memória.
+    Args:
+        lista (list): Lista de objetos FAQ.
+    """
     operacao_iniciada = False
     try:
         id = input_id()
@@ -80,6 +85,11 @@ def adicionar_faq_memoria(lista):
 
 
 def listar_faqs_memoria(lista):
+    """
+    Lista todos os FAQs em memória, com opção de filtrar por categoria.
+    Args:
+        lista (list): Lista de objetos FAQ.
+    """
     operacao_iniciada = False
     try:
         categoria = input(PROMPT_FILTRAR_CATEGORIA).strip()
@@ -111,6 +121,11 @@ def listar_faqs_memoria(lista):
 
 
 def atualizar_faq_memoria(lista):
+    """
+    Atualiza um FAQ existente em memória, permitindo alterar pergunta, resposta, categoria ou status.
+    Args:
+        lista (list): Lista de objetos FAQ.
+    """
     operacao_iniciada = False
     try:
         id = input_id(f'{COLOR_PROMPT}Digite o ID do FAQ a atualizar: {COLOR_RESET}')
@@ -153,6 +168,12 @@ def atualizar_faq_memoria(lista):
 
 
 def atualizar_pergunta_memoria(lista, id):
+    """
+    Atualiza a pergunta de um FAQ específico.
+    Args:
+        lista (list): Lista de objetos FAQ.
+        id (int): ID do FAQ a ser atualizado.
+    """
     nova_pergunta = input(
         f'{COLOR_PROMPT}Digite a nova pergunta (ou 0 para cancelar): {COLOR_RESET}'
     ).strip()
@@ -171,6 +192,12 @@ def atualizar_pergunta_memoria(lista, id):
 
 
 def atualizar_resposta_memoria(lista, id):
+    """
+    Atualiza a resposta de um FAQ específico.
+    Args:
+        lista (list): Lista de objetos FAQ.
+        id (int): ID do FAQ a ser atualizado.
+    """
     nova_resposta = input(
         f'{COLOR_PROMPT}Digite a nova resposta (ou 0 para cancelar): {COLOR_RESET}'
     ).strip()
@@ -189,6 +216,12 @@ def atualizar_resposta_memoria(lista, id):
 
 
 def atualizar_categoria_memoria(lista, id):
+    """
+    Atualiza a categoria de um FAQ específico.
+    Args:
+        lista (list): Lista de objetos FAQ.
+        id (int): ID do FAQ a ser atualizado.
+    """
     nova_categoria = input(
         f'{COLOR_PROMPT}Digite a nova categoria (ou 0 para cancelar): {COLOR_RESET}'
     ).strip()
@@ -208,6 +241,12 @@ def atualizar_categoria_memoria(lista, id):
 
 
 def ativar_desativar_faq_memoria(lista, id):
+    """
+    Ativa ou desativa um FAQ em memória.
+    Args:
+        lista (list): Lista de objetos FAQ.
+        id (int): ID do FAQ a ser alterado.
+    """
     faq = None
     for item in lista:
         if item.id == id:
@@ -239,6 +278,11 @@ def ativar_desativar_faq_memoria(lista, id):
 
 
 def remover_faq_memoria(lista):
+    """
+    Remove um FAQ da lista em memória pelo ID informado.
+    Args:
+        lista (list): Lista de objetos FAQ.
+    """
     operacao_iniciada = False
     try:
         id = input_id(f'{COLOR_PROMPT}Digite o ID do FAQ a deletar: {COLOR_RESET}')
@@ -264,6 +308,11 @@ def remover_faq_memoria(lista):
 
 
 def buscar_faq_memoria(lista):
+    """
+    Busca e exibe um FAQ pelo ID informado.
+    Args:
+        lista (list): Lista de objetos FAQ.
+    """
     operacao_iniciada = False
     try:
         id = input_id()
@@ -284,7 +333,16 @@ def buscar_faq_memoria(lista):
 
 # --- Menu interativo de memória ---
 class MenuMemoria:
+    """
+    Classe para o menu interativo do CRUD de FAQs em memória.
+    Permite executar operações de adicionar, listar, atualizar, remover e buscar FAQs.
+    """
     def __init__(self, faqs_memoria=None):
+        """
+        Inicializa o menu de memória com uma lista de FAQs.
+        Args:
+            faqs_memoria (list, opcional): Lista inicial de FAQs. Se None, inicia vazia.
+        """
         self.faqs_memoria = faqs_memoria if faqs_memoria is not None else []
         pasta_memoria = os.path.abspath(
             os.path.join(os.path.dirname(__file__), 'data', 'memoria')
@@ -293,6 +351,9 @@ class MenuMemoria:
         self.caminho_json = os.path.join(pasta_memoria, 'faq_export.json')
 
     def menu_memoria(self):
+        """
+        Exibe o menu interativo para operações CRUD em memória.
+        """
         while True:
             print(
                 f'\n{COLOR_MAGENTA}{COLOR_TITLE}--- CRUD FAQ EM MEMÓRIA ---{COLOR_RESET}'
@@ -327,16 +388,31 @@ class MenuMemoria:
                 show_message(MENU_INVALID_OPTION, 'error')
 
     def listar_faqs_memoria(self):
+        """
+        Lista todos os FAQs em memória.
+        """
         listar_faqs_memoria(self.faqs_memoria)
 
     def adicionar_faq_memoria(self):
+        """
+        Adiciona um novo FAQ em memória.
+        """
         adicionar_faq_memoria(self.faqs_memoria)
 
     def atualizar_faq_memoria(self):
+        """
+        Atualiza um FAQ existente em memória.
+        """
         atualizar_faq_memoria(self.faqs_memoria)
 
     def remover_faq_memoria(self):
+        """
+        Remove um FAQ em memória.
+        """
         remover_faq_memoria(self.faqs_memoria)
 
     def buscar_faq_memoria(self):
+        """
+        Busca um FAQ em memória pelo ID.
+        """
         buscar_faq_memoria(self.faqs_memoria)

@@ -71,20 +71,8 @@ def is_not_empty(value):
     return bool(value and str(value).strip())
 
 
-# Função para obter configuração Oracle
-
-
-def get_oracle_config():
-    return {
-        'user': os.environ.get('DB_USER'),
-        'password': os.environ.get('DB_PASS'),
-        'dsn': os.environ.get('DB_URL'),
-    }
-
-
 # Caminhos padrão
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-JSON_BANCO_PATH = os.path.join(BASE_DIR, 'json', 'banco', 'faq_export.json')
 JSON_MEMORIA_PATH = os.path.join(BASE_DIR, 'json', 'memoria', 'faq_export.json')
 
 
@@ -94,7 +82,6 @@ ERROR = f'{Fore.RED}Ocorreu um erro!{Style.RESET_ALL}'
 WARNING = f'{Fore.YELLOW}Atenção!{Style.RESET_ALL}'
 
 # Mensagens de exportação/importação
-MSG_EXPORT_BANCO_OK = 'Exportação realizada com sucesso para {path}!'
 MSG_EXPORT_MEMORIA_OK = 'Exportação realizada com sucesso para {path}!'
 MSG_EXPORT_JSON_ERROR = 'Erro ao exportar para JSON: {erro}'
 MSG_EXPORT_MEMORIA_ERROR = 'Erro ao exportar FAQs para JSON: {erro}'
