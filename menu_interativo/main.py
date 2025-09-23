@@ -12,6 +12,7 @@ import logging
 from banco import FaqDB
 from colorama import init
 from config.settings import get_oracle_config, show_message
+
 from menu_interativo.menu_crud import Menu
 
 # Configuração de logging
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 # Inicializa o colorama para formatação colorida no terminal (necessário para Windows)
 init(autoreset=True)
+
 
 if __name__ == '__main__':
     # Configura os parâmetros de conexão com o banco Oracle a partir do módulo de configuração

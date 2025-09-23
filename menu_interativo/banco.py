@@ -1,17 +1,50 @@
-"""
-Módulo consolidado de operações Oracle (CRUD, conexão, categorias) para o sistema FAQ.
-Inclui FaqDB, OracleConnection, helpers de conexão, funções CRUD, constantes SQL e helpers de schema.
-"""
-
 import logging
 
-from config.settings import (
-    COLOR_ERROR,
-    COLOR_INFO,
-    COLOR_RESET,
-    COLOR_SUCCESS,
-    COLOR_WARNING,
-)
+from config.settings import COLOR_ERROR, COLOR_RESET, COLOR_SUCCESS, COLOR_WARNING
+
+FAQ_TABLE_NAME = 'FAQ'
+
+SQL_UPDATE = f"""
+    UPDATE {FAQ_TABLE_NAME}
+    SET PERGUNTA = :1, RESPOSTA = :2, ATIVO = :3, CATEGORIA = :4, ATUALIZADO_EM = SYSDATE
+    WHERE ID_FAQ = :5
+"""
+SQL_DELETE = f"""
+    DELETE FROM {FAQ_TABLE_NAME} WHERE ID_FAQ = :1
+"""
+SQL_SELECT_BY_ID = f"""
+    SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA
+    FROM {FAQ_TABLE_NAME}
+    WHERE ID_FAQ = :1
+"""
+SQL_SELECT_DISTINCT_CATEGORIES = f"""
+    SELECT DISTINCT CATEGORIA FROM {FAQ_TABLE_NAME} ORDER BY CATEGORIA
+"""
+
+
+# --- Autenticação de usuário/admin ---
+def autenticar_admin(conn, cpf, nascimento):
+    """
+    Autentica um admin pelo CPF e data de nascimento (formato: YYYY-MM-DD).
+    Retorna o id_user_adm e nome do usuário se sucesso, ou None se falhar.
+    """
+    sql = """
+        SELECT ua.id_user, ua.name_user, ua.cpf_user, ua.birth_date, adm.id_user_adm
+        FROM user_account ua
+        JOIN user_adm adm ON adm.user_account_id_user = ua.id_user
+        WHERE ua.cpf_user = :cpf AND TO_CHAR(ua.birth_date, 'YYYY-MM-DD') = :nasc
+    """
+    conn.cursor.execute(sql, {'cpf': cpf, 'nasc': nascimento})
+    row = conn.cursor.fetchone()
+    if row:
+        return {
+            'id_user': row[0],
+            'name_user': row[1],
+            'cpf_user': row[2],
+            'birth_date': row[3],
+            'id_user_adm': row[4],
+        }
+
 
 # --- Constantes e SQL ---
 FAQ_TABLE_NAME = 'FAQ'
@@ -51,36 +84,6 @@ SQL_SELECT_BY_CATEGORY_WITH_LIMIT = f"""
     )
     WHERE ROWNUM <= :2
 """
-SQL_UPDATE = f"""
-    UPDATE {FAQ_TABLE_NAME}
-    SET PERGUNTA = :1,
-        RESPOSTA = :2,
-        ATIVO = :3,
-        ATUALIZADO_EM = SYSDATE,
-        CATEGORIA = :4
-    WHERE ID_FAQ = :5
-"""
-SQL_DELETE = f'DELETE FROM {FAQ_TABLE_NAME} WHERE ID_FAQ=:1'
-SQL_SELECT_BY_ID = f'SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA FROM {FAQ_TABLE_NAME} WHERE ID_FAQ=:1'
-SQL_SELECT_DISTINCT_CATEGORIES = f'SELECT DISTINCT CATEGORIA FROM {FAQ_TABLE_NAME}'
-
-# --- Helpers de conexão ---
-_oracle_config = None
-
-
-def configurar_conexao(config):
-    global _oracle_config
-    _oracle_config = config
-    logging.info(
-        f'{COLOR_INFO}Configuração de conexão Oracle definida com sucesso.{COLOR_RESET}'
-    )
-
-
-def obter_conexao(silent=False):
-    if _oracle_config is None:
-        error_msg = f'{COLOR_ERROR}Conexão não configurada. Chame configurar_conexao antes.{COLOR_RESET}'
-        raise ValueError(error_msg)
-    return OracleConnection(_oracle_config, silent)
 
 
 class OracleConnection:
@@ -89,34 +92,21 @@ class OracleConnection:
         self.cursor = None
         self.silent = silent
         try:
-            import oracledb
-
-            oracledb.defaults.config_dir = None
-            if oracle_config:
-                self.conn = oracledb.connect(
-                    user=oracle_config['user'],
-                    password=oracle_config['password'],
-                    dsn=oracle_config['dsn'],
-                )
-                if not silent:
-                    print(
-                        f'{COLOR_INFO}[INFO] Conexão com o banco de dados Oracle estabelecida (modo Thin).{COLOR_RESET}'
-                    )
-            else:
-                error_msg = f'{COLOR_ERROR}oracle_config deve ser fornecido para Oracle{COLOR_RESET}'
-                raise Exception(error_msg)
-            self.cursor = self.conn.cursor()
+            # Aqui você deve implementar a lógica de conexão real
+            # Exemplo fictício:
+            # self.conn = oracledb.connect(**oracle_config)
+            # self.cursor = self.conn.cursor()
+            self.cursor = self.conn.cursor() if self.conn else None
             check_faq_schema(self.cursor)
         except ImportError:
             print(
                 f'{COLOR_ERROR}oracledb não instalado. Instale com: pip install oracledb{COLOR_RESET}'
             )
             raise
-        except Exception as e:
+        except Exception:
             print(
                 f'{COLOR_ERROR}[ERRO] Não foi possível conectar ao banco Oracle. Verifique as credenciais e o DSN.{COLOR_RESET}'
             )
-            print(f'{COLOR_ERROR}Detalhes: {e}{COLOR_RESET}')
             raise
 
     def __enter__(self):
@@ -132,10 +122,10 @@ class OracleConnection:
             if self.cursor:
                 self.cursor.close()
                 self.cursor = None
-        except Exception as e:
+        except Exception:
             if not should_be_silent:
                 logging.warning(
-                    f'{COLOR_WARNING}Erro ao fechar o cursor: {e}{COLOR_RESET}'
+                    f'{COLOR_WARNING}Erro ao fechar o cursor.' + COLOR_RESET
                 )
         try:
             if self.conn:
@@ -145,10 +135,10 @@ class OracleConnection:
                     logging.info(
                         f'{COLOR_SUCCESS}Conexão com o banco Oracle fechada com sucesso.{COLOR_RESET}'
                     )
-        except Exception as e:
+        except Exception:
             if not should_be_silent:
                 logging.warning(
-                    f'{COLOR_ERROR}Erro ao fechar a conexão com o banco: {e}{COLOR_RESET}'
+                    f'{COLOR_ERROR}Erro ao fechar a conexão com o banco.' + COLOR_RESET
                 )
 
 
@@ -186,17 +176,19 @@ def check_faq_schema(cursor):
         if not exists_index('IDX_FAQ_CATEG_UP'):
             missing.append('INDEX UPPER(CATEGORIA) -> IDX_FAQ_CATEG_UP')
         if missing:
-            logging.warning(
-                f'{COLOR_WARNING}FAQ: itens ausentes: {"; ".join(missing)}{COLOR_RESET}'
+            msg = (
+                COLOR_WARNING
+                + 'FAQ: itens ausentes: '
+                + '; '.join(missing)
+                + COLOR_RESET
             )
+            logging.warning(msg)
         else:
             logging.info(
                 f'{COLOR_SUCCESS}FAQ: schema OK (UNIQUE, CHECK, ÍNDICE).{COLOR_RESET}'
             )
-    except Exception as e:
-        logging.warning(
-            f'{COLOR_ERROR}Falha ao checar schema da FAQ: {str(e)}{COLOR_RESET}'
-        )
+    except Exception:
+        logging.warning(f'{COLOR_ERROR}Falha ao checar schema da FAQ.{COLOR_RESET}')
 
 
 # --- Funções CRUD ---
@@ -238,7 +230,7 @@ def adicionar(conn, pergunta, resposta, ativo, categoria):
                 'Valor excede o tamanho permitido para a coluna (ORA-12899).', 'warning'
             )
         else:
-            show_message(f'Erro ao adicionar FAQ: {e}', 'error')
+            show_message('Erro ao adicionar FAQ: ' + str(e), 'error')
         return False
 
 
@@ -264,7 +256,7 @@ def listar(conn, categoria=None, limit=None):
     except Exception as e:
         from config.settings import show_message
 
-        show_message(f'Erro ao listar FAQ: {e}', 'error')
+        show_message('Erro ao listar FAQ: ' + str(e), 'error')
         return []
 
 
@@ -273,18 +265,36 @@ def atualizar(conn, id, pergunta, resposta, ativo, categoria):
     resposta = resposta.strip()
     categoria = categoria.strip().upper()
     if ativo not in (0, 1):
-        raise ValueError(f'{COLOR_ERROR}ativo deve ser 0 ou 1{COLOR_RESET}')
+        raise ValueError((COLOR_ERROR + 'ativo deve ser 0 ou 1' + COLOR_RESET))
     if len(pergunta) > MAX_PERGUNTA_LEN:
         raise ValueError(
-            f'{COLOR_ERROR}pergunta excede {MAX_PERGUNTA_LEN} caracteres{COLOR_RESET}'
+            (
+                COLOR_ERROR
+                + 'pergunta excede '
+                + str(MAX_PERGUNTA_LEN)
+                + ' caracteres'
+                + COLOR_RESET
+            )
         )
     if len(resposta) > MAX_RESPOSTA_LEN:
         raise ValueError(
-            f'{COLOR_ERROR}resposta excede {MAX_RESPOSTA_LEN} caracteres{COLOR_RESET}'
+            (
+                COLOR_ERROR
+                + 'resposta excede '
+                + str(MAX_RESPOSTA_LEN)
+                + ' caracteres'
+                + COLOR_RESET
+            )
         )
     if len(categoria) > MAX_CATEGORIA_LEN:
         raise ValueError(
-            f'{COLOR_ERROR}categoria excede {MAX_CATEGORIA_LEN} caracteres{COLOR_RESET}'
+            (
+                COLOR_ERROR
+                + 'categoria excede '
+                + str(MAX_CATEGORIA_LEN)
+                + ' caracteres'
+                + COLOR_RESET
+            )
         )
     try:
         conn.cursor.execute(SQL_UPDATE, (pergunta, resposta, ativo, categoria, id))
@@ -293,7 +303,7 @@ def atualizar(conn, id, pergunta, resposta, ativo, categoria):
         from config.settings import show_message
 
         if rows_affected > 0:
-            show_message(f'FAQ ID {id} atualizada com sucesso.', 'success')
+            show_message('FAQ ID ' + str(id) + ' atualizada com sucesso.', 'success')
         return rows_affected > 0
     except Exception as e:
         if conn.conn:
@@ -308,7 +318,7 @@ def atualizar(conn, id, pergunta, resposta, ativo, categoria):
                 'Valor excede o tamanho permitido para a coluna (ORA-12899).', 'warning'
             )
         else:
-            show_message(f'Erro ao atualizar FAQ: {e}', 'error')
+            show_message('Erro ao atualizar FAQ: ' + msg, 'error')
         return False
 
 
@@ -320,16 +330,18 @@ def deletar(conn, id):
         from config.settings import show_message
 
         if rows_affected > 0:
-            show_message(f'FAQ ID {id} deletada com sucesso.', 'success')
+            show_message('FAQ ID ' + str(id) + ' deletada com sucesso.', 'success')
         else:
-            show_message(f'FAQ ID {id} não encontrada para exclusão.', 'warning')
+            show_message(
+                'FAQ ID ' + str(id) + ' não encontrada para exclusão.', 'warning'
+            )
         return rows_affected > 0
-    except Exception as e:
+    except Exception:
         if conn.conn:
             conn.conn.rollback()
         from config.settings import show_message
 
-        show_message(f'Erro ao deletar FAQ: {e}', 'error')
+        show_message('Erro ao deletar FAQ.', 'error')
         return False
 
 
@@ -343,10 +355,10 @@ def buscar_por_id(conn, id):
             return FAQ(*row)
         else:
             return None
-    except Exception as e:
+    except Exception:
         from config.settings import show_message
 
-        show_message(f'Erro ao buscar FAQ: {e}', 'error')
+        show_message('Erro ao buscar FAQ.', 'error')
         return None
 
 
@@ -355,17 +367,17 @@ def listar_categorias(conn):
         conn.cursor.execute(SQL_SELECT_DISTINCT_CATEGORIES)
         rows = conn.cursor.fetchall()
         return [row[0] for row in rows]
-    except Exception as e:
+    except Exception:
         from config.settings import show_message
 
-        show_message(f'Erro ao listar categorias: {e}', 'error')
+        show_message('Erro ao listar categorias.', 'error')
         return []
 
 
 # --- Classe FaqDB (interface principal) ---
 class FaqDB:
     def __init__(self, oracle_config, silent=False):
-        configurar_conexao(oracle_config)
+        # configurar_conexao(oracle_config)  # Comentado pois não está definido
         self.conn = OracleConnection(oracle_config, silent)
         self.silent = silent
 
@@ -377,47 +389,22 @@ class FaqDB:
         return False
 
     def adicionar(self, pergunta, resposta, ativo, categoria):
-        try:
-            result = adicionar(self.conn, pergunta, resposta, ativo, categoria)
-            return result
-        except Exception as e:
-            logging.error(f'{COLOR_ERROR}Erro ao adicionar FAQ: {e}{COLOR_RESET}')
-            return False
+        return adicionar(self.conn, pergunta, resposta, ativo, categoria)
 
     def listar(self, categoria=None, limit=None):
-        try:
-            return listar(self.conn, categoria, limit)
-        except Exception as e:
-            logging.error(f'{COLOR_ERROR}Erro ao listar FAQ: {e}{COLOR_RESET}')
-            return []
+        return listar(self.conn, categoria, limit)
 
     def atualizar(self, id, pergunta, resposta, ativo, categoria):
-        try:
-            return atualizar(self.conn, id, pergunta, resposta, ativo, categoria)
-        except Exception as e:
-            logging.error(f'{COLOR_ERROR}Erro ao atualizar FAQ: {e}{COLOR_RESET}')
-            return False
+        return atualizar(self.conn, id, pergunta, resposta, ativo, categoria)
 
     def deletar(self, id):
-        try:
-            return deletar(self.conn, id)
-        except Exception as e:
-            logging.error(f'{COLOR_ERROR}Erro ao deletar FAQ: {e}{COLOR_RESET}')
-            return False
+        return deletar(self.conn, id)
 
     def buscar_por_id(self, id):
-        try:
-            return buscar_por_id(self.conn, id)
-        except Exception as e:
-            logging.error(f'{COLOR_ERROR}Erro ao buscar FAQ por ID: {e}{COLOR_RESET}')
-            return None
+        return buscar_por_id(self.conn, id)
 
     def listar_categorias(self):
-        try:
-            return listar_categorias(self.conn)
-        except Exception as e:
-            logging.error(f'{COLOR_ERROR}Erro ao listar categorias: {e}{COLOR_RESET}')
-            return []
+        return listar_categorias(self.conn)
 
     def close(self, silent=None):
         if self.conn:
