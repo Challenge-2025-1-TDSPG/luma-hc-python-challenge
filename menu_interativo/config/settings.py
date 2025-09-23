@@ -51,10 +51,11 @@ MSG_FAQ_REMOVIDO = 'FAQ removido em memória!'
 MSG_FAQ_ADICIONADO = 'FAQ adicionado com sucesso!'
 MSG_FAQ_ATUALIZADO = 'FAQ atualizado com sucesso!'
 MSG_FAQ_STATUS_ATUALIZADO = 'Status de ativação atualizado com sucesso!'
-MSG_FAQ_LISTA_VAZIA = 'Nenhum FAQ em memória.'  # Pode ser customizado por categoria
+MSG_FAQ_LISTA_VAZIA = 'Nenhum FAQ em memória.'
 
-# Carrega variáveis de ambiente do .env
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+load_dotenv(
+    dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
+)
 
 
 # --- Funções utilitárias de validação ---

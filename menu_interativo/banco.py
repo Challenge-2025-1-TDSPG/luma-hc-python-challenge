@@ -87,7 +87,7 @@ SQL_SELECT_BY_CATEGORY_WITH_LIMIT = f"""
 
 
 class OracleConnection:
-    def __init__(self, silent=False):
+    def __init__(self, oracle_config, silent=False):
         self.conn = None
         self.cursor = None
         self.silent = silent
@@ -95,9 +95,7 @@ class OracleConnection:
 
         try:
             import oracledb
-            from config.settings import get_oracle_config
 
-            oracle_config = get_oracle_config()
             self.conn = oracledb.connect(**oracle_config)
             self.cursor = self.conn.cursor()
             check_faq_schema(self.cursor)
@@ -242,7 +240,7 @@ def adicionar(conn, pergunta, resposta, ativo, categoria, user_adm_id_user_adm):
 
 
 def listar(conn, categoria=None, limit=None):
-    from .models import FAQ
+    from models import FAQ
 
     try:
         if categoria:
@@ -355,7 +353,7 @@ def deletar(conn, id):
 
 
 def buscar_por_id(conn, id):
-    from .models import FAQ
+    from models import FAQ
 
     try:
         conn.cursor.execute(SQL_SELECT_BY_ID, (id,))
@@ -481,8 +479,8 @@ class FaqDB:
             else:
                 show_message('Opção inválida.', 'error')
 
-    def __init__(self, silent=False):
-        self.conn = OracleConnection(silent)
+    def __init__(self, oracle_config, silent=False):
+        self.conn = OracleConnection(oracle_config, silent)
         self.silent = silent
 
     def __enter__(self):

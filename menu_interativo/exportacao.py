@@ -18,8 +18,7 @@ from config.settings import (
     MSG_IMPORT_MEMORIA_WARN,
     show_message,
 )
-
-from menu_interativo.models import FAQ
+from models import FAQ
 
 
 # --- Exportação do banco para JSON ---

@@ -42,8 +42,7 @@ from config.settings import (
     show_message,
     validar_campos_obrigatorios,
 )
-
-from menu_interativo.models import FAQ
+from models import FAQ
 
 
 # --- Funções CRUD em memória ---
