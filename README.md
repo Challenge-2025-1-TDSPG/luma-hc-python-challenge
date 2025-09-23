@@ -17,7 +17,6 @@
 
 ## Menus e Submenus
 
-
 ### Menu Principal
 
 ```
@@ -37,8 +36,6 @@
 4. Listar FAQs
 0. Voltar ao menu principal
 ```
-
-
 
 ### Exportação
 
