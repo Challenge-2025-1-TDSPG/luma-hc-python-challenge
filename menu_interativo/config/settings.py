@@ -86,10 +86,20 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 JSON_BANCO_PATH = os.path.join(BASE_DIR, 'json', 'banco', 'faq_export.json')
 JSON_MEMORIA_PATH = os.path.join(BASE_DIR, 'json', 'memoria', 'faq_export.json')
 
+
 # Mensagens padrão
 SUCCESS = f'{Fore.GREEN}Operação realizada com sucesso!{Style.RESET_ALL}'
 ERROR = f'{Fore.RED}Ocorreu um erro!{Style.RESET_ALL}'
 WARNING = f'{Fore.YELLOW}Atenção!{Style.RESET_ALL}'
+
+# Mensagens de exportação/importação
+MSG_EXPORT_BANCO_OK = 'Exportação realizada com sucesso para {path}!'
+MSG_EXPORT_MEMORIA_OK = 'Exportação realizada com sucesso para {path}!'
+MSG_EXPORT_JSON_ERROR = 'Erro ao exportar para JSON: {erro}'
+MSG_EXPORT_MEMORIA_ERROR = 'Erro ao exportar FAQs para JSON: {erro}'
+MSG_IMPORT_MEMORIA_OK = 'FAQs importados do JSON com sucesso!'
+MSG_IMPORT_MEMORIA_WARN = 'Nenhum arquivo JSON válido encontrado para importar.'
+MSG_IMPORT_MEMORIA_ERROR = 'Erro ao importar FAQs do JSON: {erro}'
 
 # Strings de navegação e atalhos de menus
 MENU_BACK_KEYS = '0/v para voltar'

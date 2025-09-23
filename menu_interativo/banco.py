@@ -91,6 +91,8 @@ class OracleConnection:
         self.conn = None
         self.cursor = None
         self.silent = silent
+        from config.settings import show_message
+
         try:
             import oracledb
             from config.settings import get_oracle_config
@@ -100,15 +102,16 @@ class OracleConnection:
             self.cursor = self.conn.cursor()
             check_faq_schema(self.cursor)
         except ImportError:
-            print(
-                f'{COLOR_ERROR}oracledb não instalado. Instale com: pip install oracledb{COLOR_RESET}'
+            show_message(
+                'oracledb não instalado. Instale com: pip install oracledb', 'error'
             )
             raise
         except Exception as e:
-            print(
-                f'{COLOR_ERROR}[ERRO] Não foi possível conectar ao banco Oracle. Verifique as credenciais e o DSN.{COLOR_RESET}'
+            show_message(
+                '[ERRO] Não foi possível conectar ao banco Oracle. Verifique as credenciais e o DSN.',
+                'error',
             )
-            print(f'{COLOR_ERROR}Detalhes: {e}{COLOR_RESET}')
+            show_message(f'Detalhes: {e}', 'error')
             raise
 
     def __enter__(self):
@@ -392,6 +395,13 @@ class FaqDB:
         )
 
         while True:
+            from config.settings import (
+                PROMPT_ATIVO,
+                PROMPT_CATEGORIA,
+                PROMPT_PERGUNTA,
+                PROMPT_RESPOSTA,
+            )
+
             print(f'\n{COLOR_TITLE}--- CRUD FAQ (Banco Oracle) ---{COLOR_RESET}')
             print(f'{COLOR_OPTION}1. Adicionar FAQ{COLOR_RESET}')
             print(f'{COLOR_OPTION}2. Atualizar FAQ{COLOR_RESET}')
@@ -403,10 +413,10 @@ class FaqDB:
                 from config.settings import input_id, validar_campos_obrigatorios
 
                 try:
-                    pergunta = input('Pergunta: ').strip()
-                    resposta = input('Resposta: ').strip()
-                    ativo_str = input('Ativo (1=Sim, 0=Não): ').strip()
-                    categoria = input('Categoria: ').strip()
+                    pergunta = input(PROMPT_PERGUNTA).strip()
+                    resposta = input(PROMPT_RESPOSTA).strip()
+                    ativo_str = input(PROMPT_ATIVO).strip()
+                    categoria = input(PROMPT_CATEGORIA).strip()
                     user_adm_id_user_adm = input_id('ID do admin responsável: ')
                     if not validar_campos_obrigatorios(pergunta, resposta, categoria):
                         return
@@ -414,7 +424,7 @@ class FaqDB:
                         show_message(
                             'Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).', 'error'
                         )
-                        ativo_str = input('Ativo (1=Sim, 0=Não): ').strip()
+                        ativo_str = input(PROMPT_ATIVO).strip()
                     ativo = int(ativo_str)
                     self.adicionar(
                         pergunta, resposta, ativo, categoria, user_adm_id_user_adm
@@ -426,10 +436,10 @@ class FaqDB:
 
                 try:
                     id_faq = input_id('ID do FAQ a atualizar: ')
-                    pergunta = input('Nova pergunta: ').strip()
-                    resposta = input('Nova resposta: ').strip()
-                    ativo_str = input('Ativo (1=Sim, 0=Não): ').strip()
-                    categoria = input('Nova categoria: ').strip()
+                    pergunta = input(PROMPT_PERGUNTA).strip()
+                    resposta = input(PROMPT_RESPOSTA).strip()
+                    ativo_str = input(PROMPT_ATIVO).strip()
+                    categoria = input(PROMPT_CATEGORIA).strip()
                     user_adm_id_user_adm = input_id('ID do admin responsável: ')
                     if not validar_campos_obrigatorios(pergunta, resposta, categoria):
                         return
@@ -437,7 +447,7 @@ class FaqDB:
                         show_message(
                             'Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).', 'error'
                         )
-                        ativo_str = input('Ativo (1=Sim, 0=Não): ').strip()
+                        ativo_str = input(PROMPT_ATIVO).strip()
                     ativo = int(ativo_str)
                     self.atualizar(
                         id_faq,
@@ -459,8 +469,13 @@ class FaqDB:
                     show_message(f'Erro ao deletar FAQ: {e}', 'error')
             elif opcao == '4':
                 faqs = self.listar()
-                for faq in faqs:
-                    print(faq)
+                from config.settings import show_message
+
+                if not faqs:
+                    show_message('Nenhum FAQ encontrado.', 'warning')
+                else:
+                    for faq in faqs:
+                        show_message(str(faq), 'info')
             elif opcao == '0':
                 break
             else:

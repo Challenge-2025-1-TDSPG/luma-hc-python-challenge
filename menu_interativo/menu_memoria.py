@@ -43,6 +43,8 @@ from config.settings import (
     validar_campos_obrigatorios,
 )
 
+from menu_interativo.models import FAQ
+
 
 # --- Funções CRUD em memória ---
 def adicionar_faq_memoria(lista):
@@ -60,38 +62,19 @@ def adicionar_faq_memoria(lista):
         while ativo_str not in ['0', '1']:
             show_message(MSG_ATIVO_INVALIDO, 'error')
             ativo_str = input(PROMPT_ATIVO).strip()
-        if any(item['id'] == id for item in lista):
+        if any(item.id == id for item in lista):
             show_message(MSG_FAQ_JA_EXISTE, 'warning')
             return
         operacao_iniciada = True
         ativo = int(ativo_str)
         atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
-        novo_faq = {
-            'id': id,
-            'pergunta': pergunta,
-            'resposta': resposta,
-            'ativo': ativo,
-            'atualizado_em': atualizado_em,
-            'categoria': categoria.upper(),
-        }
+        novo_faq = FAQ(id, pergunta, resposta, ativo, atualizado_em, categoria.upper())
         lista.append(novo_faq)
     except Exception as e:
         show_message(f'Erro ao adicionar FAQ em memória: {e}', 'error')
     else:
         show_message(MSG_FAQ_ADICIONADO, 'success')
-        ativo_texto = (
-            f'{COLOR_SUCCESS}Sim{COLOR_RESET}'
-            if novo_faq['ativo'] == 1
-            else f'{COLOR_ERROR}Não{COLOR_RESET}'
-        )
-        print(
-            f'{COLOR_MAGENTA}ID:{COLOR_RESET} {novo_faq["id"]}\n'
-            f'{COLOR_MAGENTA}Pergunta:{COLOR_RESET} {novo_faq["pergunta"]}\n'
-            f'{COLOR_MAGENTA}Resposta:{COLOR_RESET} {novo_faq["resposta"]}\n'
-            f'{COLOR_MAGENTA}Ativo:{COLOR_RESET} {ativo_texto}\n'
-            f'{COLOR_MAGENTA}Atualizado em:{COLOR_RESET} {novo_faq["atualizado_em"]}\n'
-            f'{COLOR_MAGENTA}Categoria:{COLOR_RESET} {novo_faq["categoria"]}'
-        )
+        print(novo_faq)
     finally:
         if operacao_iniciada:
             show_message('[LOG] Operação de inserção em memória finalizada.', 'success')
@@ -104,9 +87,7 @@ def listar_faqs_memoria(lista):
         operacao_iniciada = True
         if categoria:
             faqs_filtrados = [
-                faq
-                for faq in lista
-                if faq.get('categoria', '').lower() == categoria.lower()
+                faq for faq in lista if faq.categoria.lower() == categoria.lower()
             ]
         else:
             faqs_filtrados = lista
@@ -119,28 +100,12 @@ def listar_faqs_memoria(lista):
                 'warning',
             )
         else:
-            try:
-                for faq in faqs_filtrados:
-                    ativo_texto = (
-                        f'{COLOR_SUCCESS}Sim{COLOR_RESET}'
-                        if faq.get('ativo') == 1
-                        else f'{COLOR_ERROR}Não{COLOR_RESET}'
-                    )
-                    print(
-                        f'{COLOR_MAGENTA}ID:{COLOR_RESET} {faq["id"]}\n'
-                        f'{COLOR_MAGENTA}Pergunta:{COLOR_RESET} {faq["pergunta"]}\n'
-                        f'{COLOR_MAGENTA}Resposta:{COLOR_RESET} {faq.get("resposta", "")}\n'
-                        f'{COLOR_MAGENTA}Ativo:{COLOR_RESET} {ativo_texto}\n'
-                        f'{COLOR_MAGENTA}Atualizado em:{COLOR_RESET} {faq.get("atualizado_em", "")}\n'
-                        f'{COLOR_MAGENTA}Categoria:{COLOR_RESET} {faq.get("categoria", "")}\n'
-                        f'{COLOR_INFO}{"-" * 30}{COLOR_RESET}'
-                    )
-                show_message(
-                    f'Total de FAQs em memória{" nesta categoria" if categoria else ""}: {len(faqs_filtrados)}',
-                    'success',
-                )
-            except KeyError as e:
-                show_message(f'Erro ao exibir FAQ: chave ausente - {e}', 'error')
+            for faq in faqs_filtrados:
+                print(faq)
+            show_message(
+                f'Total de FAQs em memória{" nesta categoria" if categoria else ""}: {len(faqs_filtrados)}',
+                'success',
+            )
     finally:
         if operacao_iniciada:
             show_message('[LOG] Operação de listagem em memória finalizada.', 'success')
@@ -150,7 +115,7 @@ def atualizar_faq_memoria(lista):
     operacao_iniciada = False
     try:
         id = input_id(f'{COLOR_PROMPT}Digite o ID do FAQ a atualizar: {COLOR_RESET}')
-        if not any(item['id'] == id for item in lista):
+        if not any(item.id == id for item in lista):
             show_message(MSG_FAQ_NAO_ENCONTRADO, 'warning')
             return
         operacao_iniciada = True
@@ -197,9 +162,9 @@ def atualizar_pergunta_memoria(lista, id):
         return
     if is_not_empty(nova_pergunta):
         for item in lista:
-            if item['id'] == id:
-                item['pergunta'] = nova_pergunta
-                item['atualizado_em'] = datetime.now().strftime(DATETIME_FORMAT)
+            if item.id == id:
+                item.pergunta = nova_pergunta
+                item.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
                 show_message('Pergunta atualizada com sucesso!', 'success')
                 break
     else:
@@ -215,9 +180,9 @@ def atualizar_resposta_memoria(lista, id):
         return
     if is_not_empty(nova_resposta):
         for item in lista:
-            if item['id'] == id:
-                item['resposta'] = nova_resposta
-                item['atualizado_em'] = datetime.now().strftime(DATETIME_FORMAT)
+            if item.id == id:
+                item.resposta = nova_resposta
+                item.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
                 show_message('Resposta atualizada com sucesso!', 'success')
                 break
     else:
@@ -234,9 +199,9 @@ def atualizar_categoria_memoria(lista, id):
     if is_not_empty(nova_categoria):
         show_message(f'Categoria será salva como: {nova_categoria.upper()}', 'info')
         for item in lista:
-            if item['id'] == id:
-                item['categoria'] = nova_categoria.upper()
-                item['atualizado_em'] = datetime.now().strftime(DATETIME_FORMAT)
+            if item.id == id:
+                item.categoria = nova_categoria.upper()
+                item.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
                 show_message('Categoria atualizada com sucesso!', 'success')
                 break
     else:
@@ -246,14 +211,14 @@ def atualizar_categoria_memoria(lista, id):
 def ativar_desativar_faq_memoria(lista, id):
     faq = None
     for item in lista:
-        if item['id'] == id:
+        if item.id == id:
             faq = item
             break
     if not faq:
         show_message(f'Erro: FAQ com ID {id} não está mais disponível.', 'error')
         return
-    status_atual = 'ativado' if faq['ativo'] == 1 else 'desativado'
-    status_cor = COLOR_SUCCESS if faq['ativo'] == 1 else COLOR_ERROR
+    status_atual = 'ativado' if faq.ativo == 1 else 'desativado'
+    status_cor = COLOR_SUCCESS if faq.ativo == 1 else COLOR_ERROR
     print(f'\n{COLOR_INFO}Status atual do FAQ: {status_cor}{status_atual}{COLOR_RESET}')
     print(
         f'{COLOR_OPTION}Opções: {COLOR_SUCCESS}1-Ativar FAQ | {COLOR_ERROR}0-Desativar FAQ | {COLOR_WARNING}C-Cancelar{COLOR_RESET}'
@@ -266,11 +231,11 @@ def ativar_desativar_faq_memoria(lista, id):
         show_message('Opção inválida. Status não foi alterado.', 'error')
         return
     novo_status = int(escolha)
-    if faq['ativo'] == novo_status:
+    if faq.ativo == novo_status:
         show_message('O FAQ já está com este status.', 'warning')
         return
-    faq['ativo'] = novo_status
-    faq['atualizado_em'] = datetime.now().strftime(DATETIME_FORMAT)
+    faq.ativo = novo_status
+    faq.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
     show_message(MSG_FAQ_STATUS_ATUALIZADO, 'success')
 
 
@@ -278,7 +243,7 @@ def remover_faq_memoria(lista):
     operacao_iniciada = False
     try:
         id = input_id(f'{COLOR_PROMPT}Digite o ID do FAQ a deletar: {COLOR_RESET}')
-        if not any(item['id'] == id for item in lista):
+        if not any(item.id == id for item in lista):
             show_message(MSG_FAQ_NAO_ENCONTRADO, 'warning')
             return
         operacao_iniciada = True
@@ -287,7 +252,7 @@ def remover_faq_memoria(lista):
             show_message(MSG_CANCELADO, 'success')
             return
         lista_original = lista.copy()
-        lista[:] = [item for item in lista if item['id'] != id]
+        lista[:] = [item for item in lista if item.id != id]
         if len(lista) == len(lista_original):
             raise ValueError(f'Não foi possível remover o FAQ com ID {id}')
     except Exception as e:
@@ -304,29 +269,13 @@ def buscar_faq_memoria(lista):
     try:
         id = input_id()
         operacao_iniciada = True
-        encontrados = [item for item in lista if item['id'] == id]
+        encontrados = [item for item in lista if item.id == id]
     except Exception as e:
         show_message(f'Erro ao buscar FAQ em memória: {e}', 'error')
     else:
         if encontrados:
             for faq in encontrados:
-                try:
-                    ativo_texto = (
-                        f'{COLOR_SUCCESS}Sim{COLOR_RESET}'
-                        if faq.get('ativo') == 1
-                        else f'{COLOR_ERROR}Não{COLOR_RESET}'
-                    )
-                    print(
-                        f'{COLOR_MAGENTA}ID:{COLOR_RESET} {faq["id"]}\n'
-                        f'{COLOR_MAGENTA}Pergunta:{COLOR_RESET} {faq["pergunta"]}\n'
-                        f'{COLOR_MAGENTA}Resposta:{COLOR_RESET} {faq.get("resposta", "")}\n'
-                        f'{COLOR_MAGENTA}Ativo:{COLOR_RESET} {ativo_texto}\n'
-                        f'{COLOR_MAGENTA}Atualizado em:{COLOR_RESET} {faq.get("atualizado_em", "")}\n'
-                        f'{COLOR_MAGENTA}Categoria:{COLOR_RESET} {faq.get("categoria", "")}\n'
-                        f'{COLOR_INFO}{"-" * 30}{COLOR_RESET}'
-                    )
-                except KeyError as e:
-                    show_message(f'Erro ao exibir FAQ: chave ausente - {e}', 'error')
+                print(faq)
         else:
             show_message(f'FAQ com ID {id} não encontrado em memória.', 'error')
     finally:

@@ -3,19 +3,38 @@ from config.settings import COLOR_ERROR, COLOR_MAGENTA, COLOR_RESET, COLOR_SUCCE
 
 class FAQ:
     """
-    Classe que representa um item de FAQ (pergunta e resposta).
+    Representa um item de FAQ (pergunta e resposta).
+
+    Args:
+        id (int): Identificador único do FAQ.
+        pergunta (str): Texto da pergunta.
+        resposta (str): Texto da resposta.
+        ativo (int): Status de ativação (1 para ativo, 0 para inativo).
+        atualizado_em (str): Data/hora da última atualização (YYYY-MM-DD HH:MM:SS).
+        categoria (str): Categoria do FAQ.
+
+    Example:
+        >>> faq = FAQ(1, 'O que é Python?', 'Uma linguagem de programação.', 1, '2025-09-23 10:00:00', 'Programação')
+        >>> print(faq)
+        ID: 1
+        Pergunta: O que é Python?
+        Resposta: Uma linguagem de programação.
+        Ativo: Sim
+        Atualizado em: 2025-09-23 10:00:00
+        Categoria: Programação
     """
 
     def __init__(self, id, pergunta, resposta, ativo, atualizado_em, categoria):
-        """Inicializa um objeto FAQ com as informações fornecidas.
+        """
+        Inicializa um objeto FAQ.
 
         Args:
-                id (int): Identificador único do FAQ
-                pergunta (str): Texto da pergunta
-                resposta (str): Texto da resposta
-                ativo (int): Status de ativação (1 para ativo, 0 para inativo)
-                atualizado_em (str): Data e hora da última atualização no formato 'YYYY-MM-DD HH:MM:SS'
-                categoria (str): Categoria do FAQ para agrupamento
+            id (int): Identificador único do FAQ.
+            pergunta (str): Texto da pergunta.
+            resposta (str): Texto da resposta.
+            ativo (int): 1 para ativo, 0 para inativo.
+            atualizado_em (str): Data/hora da última atualização.
+            categoria (str): Categoria do FAQ.
         """
         self.id = id
         self.pergunta = pergunta
@@ -25,10 +44,11 @@ class FAQ:
         self.categoria = categoria
 
     def __str__(self):
-        """Retorna uma representação formatada e colorida do FAQ.
+        """
+        Retorna uma representação formatada e colorida do FAQ.
 
         Returns:
-                str: Representação do FAQ formatada com cores usando Colorama
+            str: Representação do FAQ formatada com cores usando Colorama.
         """
         ativo_texto = (
             f'{COLOR_SUCCESS}Sim{COLOR_RESET}'
