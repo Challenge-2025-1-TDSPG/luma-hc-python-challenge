@@ -17,13 +17,13 @@
 
 ## Menus e Submenus
 
+
 ### Menu Principal
 
 ```
 --- MENU FAQ ---
 1. CRUD de FAQs (Banco Oracle)
-2. CRUD de FAQs em memória
-3. Exportar FAQs do banco para JSON
+2. Exportar FAQs do banco para JSON
 0/s para sair
 ```
 
@@ -38,17 +38,7 @@
 0. Voltar ao menu principal
 ```
 
-### Submenu CRUD (Memória)
 
-```
---- CRUD FAQ em Memória ---
-1. Adicionar FAQ
-2. Listar FAQs
-3. Atualizar FAQ
-4. Deletar FAQ
-5. Buscar FAQ por ID
-0/v para voltar
-```
 
 ### Exportação
 
@@ -81,7 +71,7 @@ ALTER TABLE FAQ ADD CONSTRAINT CK_FAQ_ATIVO CHECK (active_faq IN (0,1));
 
 ## Exportação e Integração
 
-- Os dados podem ser exportados para JSON na pasta `json/banco/` (banco) e `json/memoria/` (memória).
+- Os dados podem ser exportados para JSON na pasta `json/banco/` (banco).
 - A API RESTful permite integração total com front-ends, sistemas legados e automações.
 
 ---

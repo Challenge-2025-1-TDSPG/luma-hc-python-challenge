@@ -16,7 +16,6 @@ from config.settings import (
     MENU_INVALID_OPTION,
     show_message,
 )
-from menu_memoria import MenuMemoria
 
 
 class Menu:
@@ -33,8 +32,8 @@ class Menu:
         """
         self.oracle_config = oracle_config
         self.db = None  # Conexão será criada sob demanda
-        faqs_memoria = []
-        self.menu_memoria = MenuMemoria(faqs_memoria)
+        # faqs_memoria = []  # Removed
+        # self.menu_memoria = MenuMemoria(faqs_memoria)  # Removed
 
     def _conectar_banco_se_necessario(self):
         """Conecta ao banco Oracle sob demanda, apenas quando necessário."""
@@ -72,8 +71,7 @@ class Menu:
         while True:
             print(f'\n{COLOR_TITLE}--- MENU FAQ ---{COLOR_RESET}')
             print(f'{COLOR_OPTION}1. CRUD de FAQs (Banco Oracle)')
-            print(f'{COLOR_OPTION}2. CRUD de FAQs em memória')
-            print(f'{COLOR_OPTION}3. Exportar FAQs do banco para JSON')
+            print(f'{COLOR_OPTION}2. Exportar FAQs do banco para JSON')
             print(f'{COLOR_WARNING}{MENU_EXIT_KEYS}{COLOR_RESET}')
             opcao = (
                 input(
@@ -93,8 +91,6 @@ class Menu:
                             'warning',
                         )
             elif opcao == '2':
-                self.menu_memoria.menu_memoria()
-            elif opcao == '3':
                 # Conecta ao banco sob demanda antes de exportar
                 self._exportar_banco_json()
             elif opcao in ['0', 's']:
