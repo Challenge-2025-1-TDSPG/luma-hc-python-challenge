@@ -6,14 +6,14 @@ FAQ_TABLE_NAME = 'faq'
 
 SQL_UPDATE = f"""
     UPDATE {FAQ_TABLE_NAME}
-    SET question_faq = :1, answer_faq = :2, active_faq = :3, category_faq = :4, faq_updated_at = SYSDATE, user_adm_id_user_adm = :5
+    SET question_faq = :1, answer_faq = :2, active_faq = :3, category_faq = :4, faq_updated_at = SYSDATE, user_account_id_user = :5
     WHERE id_faq = :6
 """
 SQL_DELETE = f"""
     DELETE FROM {FAQ_TABLE_NAME} WHERE id_faq = :1
 """
 SQL_SELECT_BY_ID = f"""
-    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm
+    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user
     FROM {FAQ_TABLE_NAME}
     WHERE id_faq = :1
 """
@@ -47,7 +47,7 @@ def autenticar_admin(conn, cpf, nascimento):
 
 
 # --- Constantes e SQL ---
-FAQ_TABLE_NAME = 'FAQ'
+FAQ_TABLE_NAME = 'faq'
 MAX_PERGUNTA_LEN = 150
 MAX_RESPOSTA_LEN = 600
 MAX_CATEGORIA_LEN = 50
@@ -55,30 +55,30 @@ ATIVO_TYPE = 'NUMBER(1)'
 
 SQL_INSERT = f"""
     INSERT INTO {FAQ_TABLE_NAME}
-    (question_faq, answer_faq, active_faq, category_faq, user_adm_id_user_adm)
+    (question_faq, answer_faq, active_faq, category_faq, user_account_id_user)
     VALUES (:1, :2, :3, :4, :5)
 """
 SQL_SELECT_ALL = f"""
-  SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm
+  SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user
   FROM {FAQ_TABLE_NAME}
   ORDER BY id_faq DESC
 """
 SQL_SELECT_BY_CATEGORY = f"""
-  SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm
+  SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user
   FROM {FAQ_TABLE_NAME}
   WHERE UPPER(category_faq) = UPPER(:1)
   ORDER BY id_faq DESC
 """
 SQL_SELECT_WITH_LIMIT = f"""
-    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm FROM (
-        SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm FROM {FAQ_TABLE_NAME}
+    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM (
+        SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM {FAQ_TABLE_NAME}
         ORDER BY id_faq DESC
     )
     WHERE ROWNUM <= :1
 """
 SQL_SELECT_BY_CATEGORY_WITH_LIMIT = f"""
-    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm FROM (
-        SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm FROM {FAQ_TABLE_NAME}
+    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM (
+        SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM {FAQ_TABLE_NAME}
         WHERE UPPER(category_faq) = UPPER(:1)
         ORDER BY id_faq DESC
     )
@@ -98,7 +98,6 @@ class OracleConnection:
 
             self.conn = oracledb.connect(**oracle_config)
             self.cursor = self.conn.cursor()
-            check_faq_schema(self.cursor)
         except ImportError:
             show_message(
                 'oracledb não instalado. Instale com: pip install oracledb', 'error'
@@ -145,53 +144,7 @@ class OracleConnection:
                 )
 
 
-# --- Helpers de schema ---
-def check_faq_schema(cursor):
-    try:
-        cursor.execute(
-            'SELECT 1 FROM USER_TABLES WHERE TABLE_NAME = :t',
-            {'t': FAQ_TABLE_NAME.upper()},
-        )
-        if not cursor.fetchone():
-            logging.error(
-                f'{COLOR_ERROR}Tabela {FAQ_TABLE_NAME} não encontrada no schema.{COLOR_RESET}'
-            )
-            return
 
-        def exists_constraint(name: str) -> bool:
-            cursor.execute(
-                'SELECT 1 FROM USER_CONSTRAINTS WHERE TABLE_NAME = :t AND CONSTRAINT_NAME = :c',
-                {'t': FAQ_TABLE_NAME.upper(), 'c': name},
-            )
-            return bool(cursor.fetchone())
-
-        def exists_index(name: str) -> bool:
-            cursor.execute(
-                'SELECT 1 FROM USER_INDEXES WHERE INDEX_NAME = :i', {'i': name}
-            )
-            return bool(cursor.fetchone())
-
-        missing = []
-        if not exists_constraint('FAQ_PERGUNTA_UN'):
-            missing.append('UNIQUE( PERGUNTA ) -> FAQ_PERGUNTA_UN')
-        if not exists_constraint('CK_FAQ_ATIVO'):
-            missing.append('CHECK ATIVO IN (0,1) -> CK_FAQ_ATIVO')
-        if not exists_index('IDX_FAQ_CATEG_UP'):
-            missing.append('INDEX UPPER(CATEGORIA) -> IDX_FAQ_CATEG_UP')
-        if missing:
-            msg = (
-                COLOR_WARNING
-                + 'FAQ: itens ausentes: '
-                + '; '.join(missing)
-                + COLOR_RESET
-            )
-            logging.warning(msg)
-        else:
-            logging.info(
-                f'{COLOR_SUCCESS}FAQ: schema OK (UNIQUE, CHECK, ÍNDICE).{COLOR_RESET}'
-            )
-    except Exception:
-        logging.warning(f'{COLOR_ERROR}Falha ao checar schema da FAQ.{COLOR_RESET}')
 
 
 # --- Funções CRUD ---
@@ -244,6 +197,7 @@ def listar(conn, categoria=None, limit=None):
 
     try:
         if categoria:
+            categoria = categoria.strip().upper()
             if limit:
                 conn.cursor.execute(
                     SQL_SELECT_BY_CATEGORY_WITH_LIMIT, (categoria, limit)
