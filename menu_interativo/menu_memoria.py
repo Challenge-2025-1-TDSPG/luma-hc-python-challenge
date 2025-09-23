@@ -20,7 +20,6 @@ from config.settings import (
     MENU_BACK_KEYS,
     MENU_INVALID_OPTION,
     MSG_ATIVO_INVALIDO,
-    MSG_CAMPOS_OBRIGATORIOS,
     MSG_CANCELADO,
     MSG_CONFIRMA_CANCELA_CATEGORIA,
     MSG_CONFIRMA_CANCELA_PERGUNTA,
@@ -32,17 +31,16 @@ from config.settings import (
     MSG_FAQ_NAO_ENCONTRADO,
     MSG_FAQ_REMOVIDO,
     MSG_FAQ_STATUS_ATUALIZADO,
-    MSG_ID_INVALIDO,
     PROMPT_ATIVO,
     PROMPT_CATEGORIA,
     PROMPT_CONFIRMA_EXCLUSAO,
     PROMPT_FILTRAR_CATEGORIA,
-    PROMPT_ID,
     PROMPT_PERGUNTA,
     PROMPT_RESPOSTA,
-    is_int,
+    input_id,
     is_not_empty,
     show_message,
+    validar_campos_obrigatorios,
 )
 
 
@@ -50,25 +48,18 @@ from config.settings import (
 def adicionar_faq_memoria(lista):
     operacao_iniciada = False
     try:
-        id_str = input(PROMPT_ID).strip()
+        id = input_id()
         pergunta = input(PROMPT_PERGUNTA).strip()
         resposta = input(PROMPT_RESPOSTA).strip()
         categoria = input(PROMPT_CATEGORIA).strip()
         if categoria:
             show_message(f'Categoria será salva como: {categoria.upper()}', 'info')
         ativo_str = input(PROMPT_ATIVO).strip()
-        if not (
-            is_int(id_str)
-            and is_not_empty(pergunta)
-            and is_not_empty(resposta)
-            and is_not_empty(categoria)
-        ):
-            show_message(MSG_CAMPOS_OBRIGATORIOS, 'error')
+        if not validar_campos_obrigatorios(pergunta, resposta, categoria):
             return
         while ativo_str not in ['0', '1']:
             show_message(MSG_ATIVO_INVALIDO, 'error')
             ativo_str = input(PROMPT_ATIVO).strip()
-        id = int(id_str)
         if any(item['id'] == id for item in lista):
             show_message(MSG_FAQ_JA_EXISTE, 'warning')
             return
@@ -158,13 +149,7 @@ def listar_faqs_memoria(lista):
 def atualizar_faq_memoria(lista):
     operacao_iniciada = False
     try:
-        id_str = input(
-            f'{COLOR_PROMPT}Digite o ID do FAQ a atualizar: {COLOR_RESET}'
-        ).strip()
-        if not is_int(id_str):
-            show_message(MSG_ID_INVALIDO, 'error')
-            return
-        id = int(id_str)
+        id = input_id(f'{COLOR_PROMPT}Digite o ID do FAQ a atualizar: {COLOR_RESET}')
         if not any(item['id'] == id for item in lista):
             show_message(MSG_FAQ_NAO_ENCONTRADO, 'warning')
             return
@@ -292,13 +277,7 @@ def ativar_desativar_faq_memoria(lista, id):
 def remover_faq_memoria(lista):
     operacao_iniciada = False
     try:
-        id_str = input(
-            f'{COLOR_PROMPT}Digite o ID do FAQ a deletar: {COLOR_RESET}'
-        ).strip()
-        if not is_int(id_str):
-            show_message(MSG_ID_INVALIDO, 'error')
-            return
-        id = int(id_str)
+        id = input_id(f'{COLOR_PROMPT}Digite o ID do FAQ a deletar: {COLOR_RESET}')
         if not any(item['id'] == id for item in lista):
             show_message(MSG_FAQ_NAO_ENCONTRADO, 'warning')
             return
@@ -323,11 +302,7 @@ def remover_faq_memoria(lista):
 def buscar_faq_memoria(lista):
     operacao_iniciada = False
     try:
-        id_str = input(PROMPT_ID).strip()
-        if not is_int(id_str):
-            show_message(MSG_ID_INVALIDO, 'error')
-            return
-        id = int(id_str)
+        id = input_id()
         operacao_iniciada = True
         encontrados = [item for item in lista if item['id'] == id]
     except Exception as e:

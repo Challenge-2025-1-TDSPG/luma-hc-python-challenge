@@ -2,23 +2,23 @@ import logging
 
 from config.settings import COLOR_ERROR, COLOR_RESET, COLOR_SUCCESS, COLOR_WARNING
 
-FAQ_TABLE_NAME = 'FAQ'
+FAQ_TABLE_NAME = 'faq'
 
 SQL_UPDATE = f"""
     UPDATE {FAQ_TABLE_NAME}
-    SET PERGUNTA = :1, RESPOSTA = :2, ATIVO = :3, CATEGORIA = :4, ATUALIZADO_EM = SYSDATE
-    WHERE ID_FAQ = :5
+    SET question_faq = :1, answer_faq = :2, active_faq = :3, category_faq = :4, faq_updated_at = SYSDATE, user_adm_id_user_adm = :5
+    WHERE id_faq = :6
 """
 SQL_DELETE = f"""
-    DELETE FROM {FAQ_TABLE_NAME} WHERE ID_FAQ = :1
+    DELETE FROM {FAQ_TABLE_NAME} WHERE id_faq = :1
 """
 SQL_SELECT_BY_ID = f"""
-    SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA
+    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm
     FROM {FAQ_TABLE_NAME}
-    WHERE ID_FAQ = :1
+    WHERE id_faq = :1
 """
 SQL_SELECT_DISTINCT_CATEGORIES = f"""
-    SELECT DISTINCT CATEGORIA FROM {FAQ_TABLE_NAME} ORDER BY CATEGORIA
+    SELECT DISTINCT category_faq FROM {FAQ_TABLE_NAME} ORDER BY category_faq
 """
 
 
@@ -55,58 +55,60 @@ ATIVO_TYPE = 'NUMBER(1)'
 
 SQL_INSERT = f"""
     INSERT INTO {FAQ_TABLE_NAME}
-    (PERGUNTA, RESPOSTA, ATIVO, CATEGORIA)
-    VALUES (:1, :2, :3, :4)
+    (question_faq, answer_faq, active_faq, category_faq, user_adm_id_user_adm)
+    VALUES (:1, :2, :3, :4, :5)
 """
 SQL_SELECT_ALL = f"""
-  SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA
+  SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm
   FROM {FAQ_TABLE_NAME}
-  ORDER BY ID_FAQ DESC
+  ORDER BY id_faq DESC
 """
 SQL_SELECT_BY_CATEGORY = f"""
-  SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA
+  SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm
   FROM {FAQ_TABLE_NAME}
-  WHERE UPPER(CATEGORIA) = UPPER(:1)
-  ORDER BY ID_FAQ DESC
+  WHERE UPPER(category_faq) = UPPER(:1)
+  ORDER BY id_faq DESC
 """
 SQL_SELECT_WITH_LIMIT = f"""
-    SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA FROM (
-        SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA FROM {FAQ_TABLE_NAME}
-        ORDER BY ID_FAQ DESC
+    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm FROM (
+        SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm FROM {FAQ_TABLE_NAME}
+        ORDER BY id_faq DESC
     )
     WHERE ROWNUM <= :1
 """
 SQL_SELECT_BY_CATEGORY_WITH_LIMIT = f"""
-    SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA FROM (
-        SELECT ID_FAQ, PERGUNTA, RESPOSTA, ATIVO, ATUALIZADO_EM, CATEGORIA FROM {FAQ_TABLE_NAME}
-        WHERE UPPER(CATEGORIA) = UPPER(:1)
-        ORDER BY ID_FAQ DESC
+    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm FROM (
+        SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_adm_id_user_adm FROM {FAQ_TABLE_NAME}
+        WHERE UPPER(category_faq) = UPPER(:1)
+        ORDER BY id_faq DESC
     )
     WHERE ROWNUM <= :2
 """
 
 
 class OracleConnection:
-    def __init__(self, oracle_config, silent=False):
+    def __init__(self, silent=False):
         self.conn = None
         self.cursor = None
         self.silent = silent
         try:
-            # Aqui você deve implementar a lógica de conexão real
-            # Exemplo fictício:
-            # self.conn = oracledb.connect(**oracle_config)
-            # self.cursor = self.conn.cursor()
-            self.cursor = self.conn.cursor() if self.conn else None
+            import oracledb
+            from config.settings import get_oracle_config
+
+            oracle_config = get_oracle_config()
+            self.conn = oracledb.connect(**oracle_config)
+            self.cursor = self.conn.cursor()
             check_faq_schema(self.cursor)
         except ImportError:
             print(
                 f'{COLOR_ERROR}oracledb não instalado. Instale com: pip install oracledb{COLOR_RESET}'
             )
             raise
-        except Exception:
+        except Exception as e:
             print(
                 f'{COLOR_ERROR}[ERRO] Não foi possível conectar ao banco Oracle. Verifique as credenciais e o DSN.{COLOR_RESET}'
             )
+            print(f'{COLOR_ERROR}Detalhes: {e}{COLOR_RESET}')
             raise
 
     def __enter__(self):
@@ -192,7 +194,7 @@ def check_faq_schema(cursor):
 
 
 # --- Funções CRUD ---
-def adicionar(conn, pergunta, resposta, ativo, categoria):
+def adicionar(conn, pergunta, resposta, ativo, categoria, user_adm_id_user_adm):
     pergunta = pergunta.strip()
     resposta = resposta.strip()
     categoria = categoria.strip().upper()
@@ -211,7 +213,9 @@ def adicionar(conn, pergunta, resposta, ativo, categoria):
             f'{COLOR_ERROR}categoria excede {MAX_CATEGORIA_LEN} caracteres{COLOR_RESET}'
         )
     try:
-        conn.cursor.execute(SQL_INSERT, (pergunta, resposta, ativo, categoria))
+        conn.cursor.execute(
+            SQL_INSERT, (pergunta, resposta, ativo, categoria, user_adm_id_user_adm)
+        )
         conn.conn.commit()
         from config.settings import show_message
 
@@ -260,7 +264,7 @@ def listar(conn, categoria=None, limit=None):
         return []
 
 
-def atualizar(conn, id, pergunta, resposta, ativo, categoria):
+def atualizar(conn, id, pergunta, resposta, ativo, categoria, user_adm_id_user_adm):
     pergunta = pergunta.strip()
     resposta = resposta.strip()
     categoria = categoria.strip().upper()
@@ -297,7 +301,9 @@ def atualizar(conn, id, pergunta, resposta, ativo, categoria):
             )
         )
     try:
-        conn.cursor.execute(SQL_UPDATE, (pergunta, resposta, ativo, categoria, id))
+        conn.cursor.execute(
+            SQL_UPDATE, (pergunta, resposta, ativo, categoria, user_adm_id_user_adm, id)
+        )
         rows_affected = conn.cursor.rowcount
         conn.conn.commit()
         from config.settings import show_message
@@ -376,9 +382,92 @@ def listar_categorias(conn):
 
 # --- Classe FaqDB (interface principal) ---
 class FaqDB:
-    def __init__(self, oracle_config, silent=False):
-        # configurar_conexao(oracle_config)  # Comentado pois não está definido
-        self.conn = OracleConnection(oracle_config, silent)
+    def menu_crud(self):
+        from config.settings import (
+            COLOR_OPTION,
+            COLOR_PROMPT,
+            COLOR_RESET,
+            COLOR_TITLE,
+            show_message,
+        )
+
+        while True:
+            print(f'\n{COLOR_TITLE}--- CRUD FAQ (Banco Oracle) ---{COLOR_RESET}')
+            print(f'{COLOR_OPTION}1. Adicionar FAQ{COLOR_RESET}')
+            print(f'{COLOR_OPTION}2. Atualizar FAQ{COLOR_RESET}')
+            print(f'{COLOR_OPTION}3. Deletar FAQ{COLOR_RESET}')
+            print(f'{COLOR_OPTION}4. Listar FAQs{COLOR_RESET}')
+            print(f'{COLOR_OPTION}0. Voltar ao menu principal{COLOR_RESET}')
+            opcao = input(f'{COLOR_PROMPT}Escolha uma opção: {COLOR_RESET}').strip()
+            if opcao == '1':
+                from config.settings import input_id, validar_campos_obrigatorios
+
+                try:
+                    pergunta = input('Pergunta: ').strip()
+                    resposta = input('Resposta: ').strip()
+                    ativo_str = input('Ativo (1=Sim, 0=Não): ').strip()
+                    categoria = input('Categoria: ').strip()
+                    user_adm_id_user_adm = input_id('ID do admin responsável: ')
+                    if not validar_campos_obrigatorios(pergunta, resposta, categoria):
+                        return
+                    while ativo_str not in ['0', '1']:
+                        show_message(
+                            'Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).', 'error'
+                        )
+                        ativo_str = input('Ativo (1=Sim, 0=Não): ').strip()
+                    ativo = int(ativo_str)
+                    self.adicionar(
+                        pergunta, resposta, ativo, categoria, user_adm_id_user_adm
+                    )
+                except Exception as e:
+                    show_message(f'Erro ao adicionar FAQ: {e}', 'error')
+            elif opcao == '2':
+                from config.settings import input_id, validar_campos_obrigatorios
+
+                try:
+                    id_faq = input_id('ID do FAQ a atualizar: ')
+                    pergunta = input('Nova pergunta: ').strip()
+                    resposta = input('Nova resposta: ').strip()
+                    ativo_str = input('Ativo (1=Sim, 0=Não): ').strip()
+                    categoria = input('Nova categoria: ').strip()
+                    user_adm_id_user_adm = input_id('ID do admin responsável: ')
+                    if not validar_campos_obrigatorios(pergunta, resposta, categoria):
+                        return
+                    while ativo_str not in ['0', '1']:
+                        show_message(
+                            'Valor para "Ativo" deve ser 1 (Sim) ou 0 (Não).', 'error'
+                        )
+                        ativo_str = input('Ativo (1=Sim, 0=Não): ').strip()
+                    ativo = int(ativo_str)
+                    self.atualizar(
+                        id_faq,
+                        pergunta,
+                        resposta,
+                        ativo,
+                        categoria,
+                        user_adm_id_user_adm,
+                    )
+                except Exception as e:
+                    show_message(f'Erro ao atualizar FAQ: {e}', 'error')
+            elif opcao == '3':
+                from config.settings import input_id
+
+                try:
+                    id_faq = input_id('ID do FAQ a deletar: ')
+                    self.deletar(id_faq)
+                except Exception as e:
+                    show_message(f'Erro ao deletar FAQ: {e}', 'error')
+            elif opcao == '4':
+                faqs = self.listar()
+                for faq in faqs:
+                    print(faq)
+            elif opcao == '0':
+                break
+            else:
+                show_message('Opção inválida.', 'error')
+
+    def __init__(self, silent=False):
+        self.conn = OracleConnection(silent)
         self.silent = silent
 
     def __enter__(self):
@@ -388,14 +477,18 @@ class FaqDB:
         self.close(silent=True)
         return False
 
-    def adicionar(self, pergunta, resposta, ativo, categoria):
-        return adicionar(self.conn, pergunta, resposta, ativo, categoria)
+    def adicionar(self, pergunta, resposta, ativo, categoria, user_adm_id_user_adm):
+        return adicionar(
+            self.conn, pergunta, resposta, ativo, categoria, user_adm_id_user_adm
+        )
 
     def listar(self, categoria=None, limit=None):
         return listar(self.conn, categoria, limit)
 
-    def atualizar(self, id, pergunta, resposta, ativo, categoria):
-        return atualizar(self.conn, id, pergunta, resposta, ativo, categoria)
+    def atualizar(self, id, pergunta, resposta, ativo, categoria, user_adm_id_user_adm):
+        return atualizar(
+            self.conn, id, pergunta, resposta, ativo, categoria, user_adm_id_user_adm
+        )
 
     def deletar(self, id):
         return deletar(self.conn, id)

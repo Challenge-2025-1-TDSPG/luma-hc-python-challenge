@@ -110,3 +110,27 @@ def show_message(msg, tipo='info'):
         print(f'{Fore.YELLOW}{msg}{Style.RESET_ALL}')
     else:
         print(f'{Fore.CYAN}{msg}{Style.RESET_ALL}')
+
+
+# --- Funções utilitárias para input e validação centralizada ---
+def input_id(prompt=PROMPT_ID):
+    """Solicita e valida um ID inteiro do usuário."""
+    id_str = input(prompt).strip()
+    while not is_int(id_str):
+        show_message(MSG_ID_INVALIDO, 'error')
+        id_str = input(prompt).strip()
+    return int(id_str)
+
+
+def confirmar_acao(msg=MENU_CONFIRM_EXIT):
+    """Solicita confirmação do usuário para uma ação (retorna True para 's')."""
+    confirm = input(f'{COLOR_WARNING}{msg}{COLOR_RESET}').strip().lower()
+    return confirm == 's'
+
+
+def validar_campos_obrigatorios(*args):
+    """Valida se todos os campos obrigatórios foram preenchidos."""
+    if not all(is_not_empty(arg) for arg in args):
+        show_message(MSG_CAMPOS_OBRIGATORIOS, 'error')
+        return False
+    return True
