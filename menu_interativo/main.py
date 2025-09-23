@@ -9,11 +9,10 @@ que devem estar definidas em um arquivo .env na raiz do projeto.
 
 import logging
 
+from banco import FaqDB
 from colorama import init
 from config.settings import get_oracle_config, show_message
-
-from menu_interativo.banco import FaqDB
-from menu_interativo.menu_crud import Menu
+from menu_crud import Menu
 
 # Configuração de logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
