@@ -1,4 +1,4 @@
-from colorama import Fore, Style
+from config.settings import COLOR_ERROR, COLOR_MAGENTA, COLOR_RESET, COLOR_SUCCESS
 
 
 class FAQ:
@@ -31,15 +31,15 @@ class FAQ:
                 str: Representação do FAQ formatada com cores usando Colorama
         """
         ativo_texto = (
-            f'{Fore.GREEN}Sim{Style.RESET_ALL}'
+            f'{COLOR_SUCCESS}Sim{COLOR_RESET}'
             if self.ativo
-            else f'{Fore.RED}Não{Style.RESET_ALL}'
+            else f'{COLOR_ERROR}Não{COLOR_RESET}'
         )
         return (
-            f'{Fore.MAGENTA}ID:{Style.RESET_ALL} {self.id}\n'
-            f'{Fore.MAGENTA}Pergunta:{Style.RESET_ALL} {self.pergunta}\n'
-            f'{Fore.MAGENTA}Resposta:{Style.RESET_ALL} {self.resposta}\n'
-            f'{Fore.MAGENTA}Ativo:{Style.RESET_ALL} {ativo_texto}\n'
-            f'{Fore.MAGENTA}Atualizado em:{Style.RESET_ALL} {self.atualizado_em}\n'
-            f'{Fore.MAGENTA}Categoria:{Style.RESET_ALL} {self.categoria}'
+            f'{COLOR_MAGENTA}ID:{COLOR_RESET} {self.id}\n'
+            f'{COLOR_MAGENTA}Pergunta:{COLOR_RESET} {self.pergunta}\n'
+            f'{COLOR_MAGENTA}Resposta:{COLOR_RESET} {self.resposta}\n'
+            f'{COLOR_MAGENTA}Ativo:{COLOR_RESET} {ativo_texto}\n'
+            f'{COLOR_MAGENTA}Atualizado em:{COLOR_RESET} {self.atualizado_em}\n'
+            f'{COLOR_MAGENTA}Categoria:{COLOR_RESET} {self.categoria}'
         )

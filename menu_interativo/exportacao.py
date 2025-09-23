@@ -6,64 +6,48 @@ Inclui funções para exportar FAQs do banco e da memória para JSON, importar d
 import json
 import os
 
-from colorama import Fore, Style
+from config.settings import JSON_BANCO_PATH, JSON_MEMORIA_PATH, show_message
 
 
 # --- Exportação do banco para JSON ---
 def exportar_faqs_banco(lista_dict):
     try:
-        pasta_banco = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 'json', 'banco')
-        )
-        os.makedirs(pasta_banco, exist_ok=True)
-        caminho = os.path.join(pasta_banco, 'faq_export.json')
-        with open(caminho, 'w', encoding='utf-8') as f:
+        os.makedirs(os.path.dirname(JSON_BANCO_PATH), exist_ok=True)
+        with open(JSON_BANCO_PATH, 'w', encoding='utf-8') as f:
             json.dump(lista_dict, f, ensure_ascii=False, indent=4)
-        print(
-            f'{Fore.GREEN}Exportação realizada com sucesso para {caminho}!{Style.RESET_ALL}'
+        show_message(
+            f'Exportação realizada com sucesso para {JSON_BANCO_PATH}!', 'success'
         )
     except Exception as e:
-        print(f'{Fore.RED}Erro ao exportar para JSON: {e}{Style.RESET_ALL}')
+        show_message(f'Erro ao exportar para JSON: {e}', 'error')
 
 
 # --- Exportação da memória para JSON ---
 def exportar_faqs_memoria(faqs_memoria):
     try:
-        pasta_memoria = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 'json', 'memoria')
-        )
-        os.makedirs(pasta_memoria, exist_ok=True)
-        caminho_json = os.path.join(pasta_memoria, 'faq_export.json')
-        with open(caminho_json, 'w', encoding='utf-8') as f:
+        os.makedirs(os.path.dirname(JSON_MEMORIA_PATH), exist_ok=True)
+        with open(JSON_MEMORIA_PATH, 'w', encoding='utf-8') as f:
             json.dump(faqs_memoria, f, ensure_ascii=False, indent=4)
-        print(
-            f'{Fore.GREEN}Exportação realizada com sucesso para {caminho_json}!{Style.RESET_ALL}'
+        show_message(
+            f'Exportação realizada com sucesso para {JSON_MEMORIA_PATH}!', 'success'
         )
     except Exception as e:
-        print(f'{Fore.RED}Erro ao exportar FAQs para JSON: {e}{Style.RESET_ALL}')
+        show_message(f'Erro ao exportar FAQs para JSON: {e}', 'error')
 
 
 # --- Importação da memória a partir de JSON ---
 def importar_faqs_memoria():
     try:
-        pasta_memoria = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 'json', 'memoria')
-        )
-        caminho_json = os.path.join(pasta_memoria, 'faq_export.json')
-        if os.path.exists(caminho_json):
-            with open(caminho_json, 'r', encoding='utf-8') as f:
+        if os.path.exists(JSON_MEMORIA_PATH):
+            with open(JSON_MEMORIA_PATH, 'r', encoding='utf-8') as f:
                 faqs = json.load(f)
                 if isinstance(faqs, list):
-                    print(
-                        f'{Fore.GREEN}FAQs importados do JSON com sucesso!{Style.RESET_ALL}'
-                    )
+                    show_message('FAQs importados do JSON com sucesso!', 'success')
                     return faqs
-        print(
-            f'{Fore.YELLOW}Nenhum arquivo JSON válido encontrado para importar.{Style.RESET_ALL}'
-        )
+        show_message('Nenhum arquivo JSON válido encontrado para importar.', 'warning')
         return []
     except Exception as e:
-        print(f'{Fore.RED}Erro ao importar FAQs do JSON: {e}{Style.RESET_ALL}')
+        show_message(f'Erro ao importar FAQs do JSON: {e}', 'error')
         return []
 
 
