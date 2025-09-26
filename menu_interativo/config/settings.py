@@ -90,6 +90,7 @@ MSG_IMPORT_MEMORIA_WARN = 'Nenhum arquivo JSON válido encontrado para importar.
 MSG_IMPORT_MEMORIA_ERROR = 'Erro ao importar FAQs do JSON: {erro}'
 
 # Strings de navegação e atalhos de menus
+MENU_BACK_KEYS_PRINCIPAL = '0/v para encerrar o programa'
 MENU_BACK_KEYS = '0/v para voltar'
 MENU_EXIT_KEYS = '0/s para sair'
 MENU_CONFIRM_EXIT = 'Tem certeza que deseja sair? (s/n): '

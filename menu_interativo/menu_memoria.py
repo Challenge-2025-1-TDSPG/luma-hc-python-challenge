@@ -17,6 +17,7 @@ from config.settings import (
     COLOR_WARNING,
     DATETIME_FORMAT,
     MENU_BACK_KEYS,
+    MENU_BACK_KEYS_PRINCIPAL,
     MENU_INVALID_OPTION,
     MSG_ATIVO_INVALIDO,
     MSG_CANCELADO,
@@ -45,14 +46,12 @@ from exportacao import exportar_faqs_memoria, importar_faqs_memoria
 from models import FAQ
 
 
-# --- Funções CRUD em memória ---
 def adicionar_faq_memoria(lista):
     """
     Adiciona um novo FAQ à lista em memória.
     Args:
         lista (list): Lista de objetos FAQ.
     """
-    # operacao_iniciada removida
     try:
         id = input_id()
         pergunta = input(PROMPT_PERGUNTA).strip()
@@ -69,7 +68,6 @@ def adicionar_faq_memoria(lista):
         if any(item.id == id for item in lista):
             show_message(MSG_FAQ_JA_EXISTE, 'warning')
             return
-        operacao_iniciada = True
         ativo = int(ativo_str)
         atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
         novo_faq = FAQ(id, pergunta, resposta, ativo, atualizado_em, categoria.upper())
@@ -79,7 +77,6 @@ def adicionar_faq_memoria(lista):
     else:
         show_message(MSG_FAQ_ADICIONADO, 'success')
         print(novo_faq)
-    # Log removido para não poluir interface
 
 
 def listar_faqs_memoria(lista):
@@ -88,10 +85,8 @@ def listar_faqs_memoria(lista):
     Args:
         lista (list): Lista de objetos FAQ.
     """
-    # operacao_iniciada removida
     try:
         categoria = input(PROMPT_FILTRAR_CATEGORIA).strip()
-        operacao_iniciada = True
         if categoria:
             faqs_filtrados = [
                 faq for faq in lista if faq.categoria.lower() == categoria.lower()
@@ -102,10 +97,10 @@ def listar_faqs_memoria(lista):
         show_message(f'Erro ao listar FAQs em memória: {e}', 'error')
     else:
         if not faqs_filtrados:
-            show_message(
-                f'{MSG_FAQ_LISTA_VAZIA + (" com esta categoria" if categoria else "")}',
-                'warning',
-            )
+            msg = MSG_FAQ_LISTA_VAZIA
+            if categoria:
+                msg = msg.replace('.', '') + ' com esta categoria'
+            show_message(msg, 'warning')
         else:
             for faq in faqs_filtrados:
                 print(faq)
@@ -114,7 +109,6 @@ def listar_faqs_memoria(lista):
                 f'Total de FAQs em memória{" nesta categoria" if categoria else ""}: {len(faqs_filtrados)}',
                 'success',
             )
-    # Log removido para não poluir interface
 
 
 def atualizar_faq_memoria(lista):
@@ -123,13 +117,11 @@ def atualizar_faq_memoria(lista):
     Args:
         lista (list): Lista de objetos FAQ.
     """
-    # operacao_iniciada removida
     try:
         id = input_id(f'{COLOR_PROMPT}Digite o ID do FAQ a atualizar: {COLOR_RESET}')
         if not any(item.id == id for item in lista):
             show_message(MSG_FAQ_NAO_ENCONTRADO, 'warning')
             return
-        operacao_iniciada = True
     except Exception as e:
         show_message(f'Erro ao iniciar atualização do FAQ em memória: {e}', 'error')
         return
@@ -141,7 +133,6 @@ def atualizar_faq_memoria(lista):
                 print(f'{COLOR_OPTION}2. Atualizar Resposta')
                 print(f'{COLOR_OPTION}3. Atualizar Categoria')
                 print(f'{COLOR_OPTION}4. Ativar/Desativar FAQ')
-                print(f'{COLOR_WARNING}0. Voltar{COLOR_RESET}')
                 opcao = input(
                     f'{COLOR_PROMPT}Escolha uma opção ({MENU_BACK_KEYS}): {COLOR_RESET}'
                 ).strip()
@@ -159,7 +150,6 @@ def atualizar_faq_memoria(lista):
                     show_message(MENU_INVALID_OPTION, 'error')
         except Exception as e:
             show_message(f'Erro ao atualizar FAQ em memória: {e}', 'error')
-    # Log removido para não poluir interface
 
 
 def atualizar_pergunta_memoria(lista, id):
@@ -178,9 +168,13 @@ def atualizar_pergunta_memoria(lista, id):
     if is_not_empty(nova_pergunta):
         for item in lista:
             if item.id == id:
-                item.pergunta = nova_pergunta
-                item.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
-                show_message('Pergunta atualizada com sucesso!', 'success')
+                if item.pergunta != nova_pergunta:
+                    item.pergunta = nova_pergunta
+                    item.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
+                    show_message('Pergunta atualizada com sucesso!', 'success')
+                    exportar_faqs_memoria(lista)
+                else:
+                    show_message('A pergunta já está com esse valor.', 'warning')
                 break
     else:
         show_message('Pergunta não pode ser vazia.', 'error')
@@ -202,9 +196,13 @@ def atualizar_resposta_memoria(lista, id):
     if is_not_empty(nova_resposta):
         for item in lista:
             if item.id == id:
-                item.resposta = nova_resposta
-                item.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
-                show_message('Resposta atualizada com sucesso!', 'success')
+                if item.resposta != nova_resposta:
+                    item.resposta = nova_resposta
+                    item.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
+                    show_message('Resposta atualizada com sucesso!', 'success')
+                    exportar_faqs_memoria(lista)
+                else:
+                    show_message('A resposta já está com esse valor.', 'warning')
                 break
     else:
         show_message('Resposta não pode ser vazia.', 'error')
@@ -227,9 +225,13 @@ def atualizar_categoria_memoria(lista, id):
         show_message(f'Categoria será salva como: {nova_categoria.upper()}', 'info')
         for item in lista:
             if item.id == id:
-                item.categoria = nova_categoria.upper()
-                item.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
-                show_message('Categoria atualizada com sucesso!', 'success')
+                if item.categoria != nova_categoria.upper():
+                    item.categoria = nova_categoria.upper()
+                    item.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
+                    show_message('Categoria atualizada com sucesso!', 'success')
+                    exportar_faqs_memoria(lista)
+                else:
+                    show_message('A categoria já está com esse valor.', 'warning')
                 break
     else:
         show_message('Categoria não pode ser vazia.', 'error')
@@ -270,6 +272,7 @@ def ativar_desativar_faq_memoria(lista, id):
     faq.ativo = novo_status
     faq.atualizado_em = datetime.now().strftime(DATETIME_FORMAT)
     show_message(MSG_FAQ_STATUS_ATUALIZADO, 'success')
+    exportar_faqs_memoria(lista)
 
 
 def remover_faq_memoria(lista):
@@ -278,13 +281,11 @@ def remover_faq_memoria(lista):
     Args:
         lista (list): Lista de objetos FAQ.
     """
-    # operacao_iniciada removida
     try:
         id = input_id(f'{COLOR_PROMPT}Digite o ID do FAQ a deletar: {COLOR_RESET}')
         if not any(item.id == id for item in lista):
             show_message(MSG_FAQ_NAO_ENCONTRADO, 'warning')
             return
-        operacao_iniciada = True
         confirmacao = input(PROMPT_CONFIRMA_EXCLUSAO).strip().upper()
         if confirmacao == 'C':
             show_message(MSG_CANCELADO, 'success')
@@ -297,7 +298,6 @@ def remover_faq_memoria(lista):
         show_message(f'Erro ao remover FAQ da memória: {e}', 'error')
     else:
         show_message(MSG_FAQ_REMOVIDO, 'success')
-    # Log removido para não poluir interface
 
 
 def buscar_faq_memoria(lista):
@@ -306,10 +306,8 @@ def buscar_faq_memoria(lista):
     Args:
         lista (list): Lista de objetos FAQ.
     """
-    # operacao_iniciada removida
     try:
         id = input_id()
-        operacao_iniciada = True
         encontrados = [item for item in lista if item.id == id]
     except Exception as e:
         show_message(f'Erro ao buscar FAQ em memória: {e}', 'error')
@@ -319,10 +317,8 @@ def buscar_faq_memoria(lista):
                 print(faq)
         else:
             show_message(f'FAQ com ID {id} não encontrado em memória.', 'error')
-    # Log removido para não poluir interface
 
 
-# --- Menu interativo de memória ---
 class MenuMemoria:
     """
     Classe para o menu interativo do CRUD de FAQs em memória.
@@ -352,10 +348,9 @@ class MenuMemoria:
             print(f'{COLOR_OPTION}3. Atualizar FAQ')
             print(f'{COLOR_OPTION}4. Deletar FAQ')
             print(f'{COLOR_OPTION}5. Buscar FAQ por ID')
-            # print(f'{COLOR_WARNING}{MENU_BACK_KEYS}{COLOR_RESET}')
             opcao = (
                 input(
-                    f'{COLOR_PROMPT}Escolha uma opção ({MENU_BACK_KEYS}): {COLOR_RESET}'
+                    f'{COLOR_PROMPT}Escolha uma opção ({MENU_BACK_KEYS_PRINCIPAL}): {COLOR_RESET}'
                 )
                 .strip()
                 .lower()

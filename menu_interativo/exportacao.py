@@ -17,7 +17,6 @@ def exportar_faqs_memoria(faqs_memoria):
         faqs_dict = [vars(faq) for faq in faqs_memoria]
         with open(JSON_MEMORIA_PATH, 'w', encoding='utf-8') as f:
             json.dump(faqs_dict, f, ensure_ascii=False, indent=4)
-    # Mensagem removida para não poluir a interface
     except Exception as e:
         show_message(MSG_EXPORT_MEMORIA_ERROR.format(erro=e), 'error')
 
@@ -26,7 +25,10 @@ def importar_faqs_memoria():
     try:
         if os.path.exists(JSON_MEMORIA_PATH):
             with open(JSON_MEMORIA_PATH, 'r', encoding='utf-8') as f:
-                faqs = json.load(f)
+                content = f.read().strip()
+                if not content:
+                    return []
+                faqs = json.loads(content)
                 if isinstance(faqs, list):
                     # Converte dicionários em objetos FAQ
                     faqs_obj = [FAQ(**faq) for faq in faqs]
