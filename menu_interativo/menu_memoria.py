@@ -3,7 +3,6 @@ Módulo consolidado de operações CRUD de FAQs em memória para o sistema FAQ.
 Inclui funções de adicionar, listar, atualizar, deletar, buscar e o menu interativo.
 """
 
-import os
 from datetime import datetime
 
 from config.settings import (
@@ -42,6 +41,7 @@ from config.settings import (
     show_message,
     validar_campos_obrigatorios,
 )
+from exportacao import exportar_faqs_memoria, importar_faqs_memoria
 from models import FAQ
 
 
@@ -52,7 +52,7 @@ def adicionar_faq_memoria(lista):
     Args:
         lista (list): Lista de objetos FAQ.
     """
-    operacao_iniciada = False
+    # operacao_iniciada removida
     try:
         id = input_id()
         pergunta = input(PROMPT_PERGUNTA).strip()
@@ -79,9 +79,7 @@ def adicionar_faq_memoria(lista):
     else:
         show_message(MSG_FAQ_ADICIONADO, 'success')
         print(novo_faq)
-    finally:
-        if operacao_iniciada:
-            show_message('[LOG] Operação de inserção em memória finalizada.', 'success')
+    # Log removido para não poluir interface
 
 
 def listar_faqs_memoria(lista):
@@ -90,7 +88,7 @@ def listar_faqs_memoria(lista):
     Args:
         lista (list): Lista de objetos FAQ.
     """
-    operacao_iniciada = False
+    # operacao_iniciada removida
     try:
         categoria = input(PROMPT_FILTRAR_CATEGORIA).strip()
         operacao_iniciada = True
@@ -111,13 +109,12 @@ def listar_faqs_memoria(lista):
         else:
             for faq in faqs_filtrados:
                 print(faq)
+                print('-' * 40)
             show_message(
                 f'Total de FAQs em memória{" nesta categoria" if categoria else ""}: {len(faqs_filtrados)}',
                 'success',
             )
-    finally:
-        if operacao_iniciada:
-            show_message('[LOG] Operação de listagem em memória finalizada.', 'success')
+    # Log removido para não poluir interface
 
 
 def atualizar_faq_memoria(lista):
@@ -126,7 +123,7 @@ def atualizar_faq_memoria(lista):
     Args:
         lista (list): Lista de objetos FAQ.
     """
-    operacao_iniciada = False
+    # operacao_iniciada removida
     try:
         id = input_id(f'{COLOR_PROMPT}Digite o ID do FAQ a atualizar: {COLOR_RESET}')
         if not any(item.id == id for item in lista):
@@ -145,7 +142,9 @@ def atualizar_faq_memoria(lista):
                 print(f'{COLOR_OPTION}3. Atualizar Categoria')
                 print(f'{COLOR_OPTION}4. Ativar/Desativar FAQ')
                 print(f'{COLOR_WARNING}0. Voltar{COLOR_RESET}')
-                opcao = input(f'{COLOR_PROMPT}Escolha uma opção: {COLOR_RESET}').strip()
+                opcao = input(
+                    f'{COLOR_PROMPT}Escolha uma opção ({MENU_BACK_KEYS}): {COLOR_RESET}'
+                ).strip()
                 if opcao == '1':
                     atualizar_pergunta_memoria(lista, id)
                 elif opcao == '2':
@@ -160,11 +159,7 @@ def atualizar_faq_memoria(lista):
                     show_message(MENU_INVALID_OPTION, 'error')
         except Exception as e:
             show_message(f'Erro ao atualizar FAQ em memória: {e}', 'error')
-    finally:
-        if operacao_iniciada:
-            show_message(
-                '[LOG] Operação de atualização em memória finalizada.', 'success'
-            )
+    # Log removido para não poluir interface
 
 
 def atualizar_pergunta_memoria(lista, id):
@@ -283,7 +278,7 @@ def remover_faq_memoria(lista):
     Args:
         lista (list): Lista de objetos FAQ.
     """
-    operacao_iniciada = False
+    # operacao_iniciada removida
     try:
         id = input_id(f'{COLOR_PROMPT}Digite o ID do FAQ a deletar: {COLOR_RESET}')
         if not any(item.id == id for item in lista):
@@ -302,9 +297,7 @@ def remover_faq_memoria(lista):
         show_message(f'Erro ao remover FAQ da memória: {e}', 'error')
     else:
         show_message(MSG_FAQ_REMOVIDO, 'success')
-    finally:
-        if operacao_iniciada:
-            show_message('[LOG] Operação de exclusão em memória finalizada.', 'success')
+    # Log removido para não poluir interface
 
 
 def buscar_faq_memoria(lista):
@@ -313,7 +306,7 @@ def buscar_faq_memoria(lista):
     Args:
         lista (list): Lista de objetos FAQ.
     """
-    operacao_iniciada = False
+    # operacao_iniciada removida
     try:
         id = input_id()
         operacao_iniciada = True
@@ -326,9 +319,7 @@ def buscar_faq_memoria(lista):
                 print(faq)
         else:
             show_message(f'FAQ com ID {id} não encontrado em memória.', 'error')
-    finally:
-        if operacao_iniciada:
-            show_message('[LOG] Operação de busca em memória finalizada.', 'success')
+    # Log removido para não poluir interface
 
 
 # --- Menu interativo de memória ---
@@ -337,18 +328,16 @@ class MenuMemoria:
     Classe para o menu interativo do CRUD de FAQs em memória.
     Permite executar operações de adicionar, listar, atualizar, remover e buscar FAQs.
     """
+
     def __init__(self, faqs_memoria=None):
         """
         Inicializa o menu de memória com uma lista de FAQs.
-        Args:
-            faqs_memoria (list, opcional): Lista inicial de FAQs. Se None, inicia vazia.
+        Carrega do JSON se existir, senão inicia vazia.
         """
-        self.faqs_memoria = faqs_memoria if faqs_memoria is not None else []
-        pasta_memoria = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 'data', 'memoria')
-        )
-        os.makedirs(pasta_memoria, exist_ok=True)
-        self.caminho_json = os.path.join(pasta_memoria, 'faq_export.json')
+        if faqs_memoria is not None:
+            self.faqs_memoria = faqs_memoria
+        else:
+            self.faqs_memoria = importar_faqs_memoria()
 
     def menu_memoria(self):
         """
@@ -363,7 +352,7 @@ class MenuMemoria:
             print(f'{COLOR_OPTION}3. Atualizar FAQ')
             print(f'{COLOR_OPTION}4. Deletar FAQ')
             print(f'{COLOR_OPTION}5. Buscar FAQ por ID')
-            print(f'{COLOR_WARNING}{MENU_BACK_KEYS}{COLOR_RESET}')
+            # print(f'{COLOR_WARNING}{MENU_BACK_KEYS}{COLOR_RESET}')
             opcao = (
                 input(
                     f'{COLOR_PROMPT}Escolha uma opção ({MENU_BACK_KEYS}): {COLOR_RESET}'
@@ -382,37 +371,50 @@ class MenuMemoria:
             elif opcao == '5':
                 self.buscar_faq_memoria()
             elif opcao in ['0', 'v']:
-                show_message('Retornando ao menu anterior...', 'warning')
                 break
             else:
                 show_message(MENU_INVALID_OPTION, 'error')
 
+    def sync_from_json(self):
+        self.faqs_memoria = importar_faqs_memoria()
+
+    def sync_to_json(self):
+        exportar_faqs_memoria(self.faqs_memoria)
+
     def listar_faqs_memoria(self):
         """
-        Lista todos os FAQs em memória.
+        Lista todos os FAQs em memória (sempre recarrega do JSON).
         """
+        self.sync_from_json()
         listar_faqs_memoria(self.faqs_memoria)
 
     def adicionar_faq_memoria(self):
         """
-        Adiciona um novo FAQ em memória.
+        Adiciona um novo FAQ em memória (recarrega do JSON antes, exporta depois).
         """
+        self.sync_from_json()
         adicionar_faq_memoria(self.faqs_memoria)
+        self.sync_to_json()
 
     def atualizar_faq_memoria(self):
         """
-        Atualiza um FAQ existente em memória.
+        Atualiza um FAQ existente em memória (recarrega do JSON antes, exporta depois).
         """
+        self.sync_from_json()
         atualizar_faq_memoria(self.faqs_memoria)
+        self.sync_to_json()
 
     def remover_faq_memoria(self):
         """
-        Remove um FAQ em memória.
+        Remove um FAQ em memória (recarrega do JSON antes, exporta depois).
         """
+        self.sync_from_json()
         remover_faq_memoria(self.faqs_memoria)
+        self.sync_to_json()
 
     def buscar_faq_memoria(self):
         """
-        Busca um FAQ em memória pelo ID.
+        Busca um FAQ em memória pelo ID (recarrega do JSON antes).
         """
+        self.sync_from_json()
         buscar_faq_memoria(self.faqs_memoria)
