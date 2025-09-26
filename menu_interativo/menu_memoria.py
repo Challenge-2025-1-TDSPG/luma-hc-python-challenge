@@ -348,24 +348,21 @@ class MenuMemoria:
             print(f'{COLOR_OPTION}3. Atualizar FAQ')
             print(f'{COLOR_OPTION}4. Deletar FAQ')
             print(f'{COLOR_OPTION}5. Buscar FAQ por ID')
-            opcao = (
-                input(
-                    f'{COLOR_PROMPT}Escolha uma opção ({MENU_BACK_KEYS_PRINCIPAL}): {COLOR_RESET}'
-                )
-                .strip()
-                .lower()
-            )
-            if opcao == '1':
+            opcao = input(
+                f'{COLOR_PROMPT}Escolha uma opção ({MENU_BACK_KEYS_PRINCIPAL}): {COLOR_RESET}'
+            ).strip()
+            opcao_lower = opcao.lower()
+            if opcao_lower == '1':
                 self.adicionar_faq_memoria()
-            elif opcao == '2':
+            elif opcao_lower == '2':
                 self.listar_faqs_memoria()
-            elif opcao == '3':
+            elif opcao_lower == '3':
                 self.atualizar_faq_memoria()
-            elif opcao == '4':
+            elif opcao_lower == '4':
                 self.remover_faq_memoria()
-            elif opcao == '5':
+            elif opcao_lower == '5':
                 self.buscar_faq_memoria()
-            elif opcao in ['0', 'v']:
+            elif opcao_lower in ['0', 'v', 's'] or opcao in ['V', 'S']:
                 break
             else:
                 show_message(MENU_INVALID_OPTION, 'error')
