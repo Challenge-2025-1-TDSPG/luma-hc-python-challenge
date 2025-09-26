@@ -24,10 +24,13 @@
 ### Menu Principal
 
 ```
---- MENU FAQ ---
-1. CRUD de FAQs em memória
-2. Exportar/Importar FAQs em memória (JSON)
-0/s para sair
+--- CRUD FAQ EM MEMÓRIA ---
+1. Adicionar FAQ
+2. Listar FAQs
+3. Atualizar FAQ
+4. Deletar FAQ
+5. Buscar FAQ por ID
+0/v para encerrar o programa
 ```
 
 ### Submenu CRUD (Memória)
