@@ -1,6 +1,7 @@
 """
 Módulo de menu principal do sistema FAQ.
-Oferece interface de CRUD, exportação para JSON e consumo de API pública.
+Oferece interface de CRUD e exportação para JSON.
+API REST disponível para integração com front-end externo.
 """
 
 from config.settings import (

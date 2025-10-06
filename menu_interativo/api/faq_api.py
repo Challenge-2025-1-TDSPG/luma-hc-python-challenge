@@ -31,7 +31,7 @@ logging.basicConfig(
 logger = logging.getLogger('faq_api')
 
 app = Flask(__name__)
-CORS(app)  # Habilita CORS para todas as rotas
+CORS(app)
 
 # Constantes para validação
 MAX_PERGUNTA_LEN = 500
@@ -45,12 +45,10 @@ oracle_config = {
     'password': os.environ.get('DB_PASS'),
     'dsn': os.environ.get('DB_URL'),
 }
+
 # Inicialização do banco de dados
 try:
-    # Inicialização silenciosa para evitar mensagens duplicadas
-    db = FaqDB(
-        oracle_config, silent=True
-    )  # Usar silent=True para evitar mensagens duplicadas
+    db = FaqDB(oracle_config, silent=True)
 except Exception as e:
     logger.critical(f'Falha na conexão com o banco Oracle. Detalhes: {e}')
     print(
