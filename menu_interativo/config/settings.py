@@ -72,8 +72,6 @@ def is_not_empty(value):
 
 
 # Função para obter configuração Oracle
-
-
 def get_oracle_config():
     return {
         'user': os.environ.get('DB_USER'),

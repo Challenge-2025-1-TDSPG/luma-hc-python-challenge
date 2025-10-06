@@ -24,7 +24,7 @@ load_dotenv(
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
-# Inicializa o colorama para formatação colorida no terminal (necessário para Windows)
+# Inicializa o colorama para formatação colorida no terminal
 init(autoreset=True)
 
 

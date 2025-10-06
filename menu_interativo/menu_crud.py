@@ -31,10 +31,8 @@ class Menu:
                           'user', 'password' e 'dsn'
         """
         self.oracle_config = oracle_config
-        self.db = None  # Conexão será criada sob demanda
-        # faqs_memoria = []  # Removed
-        # self.menu_memoria = MenuMemoria(faqs_memoria)  # Removed
-
+        self.db = None 
+       
     def _conectar_banco_se_necessario(self):
         """Conecta ao banco Oracle sob demanda, apenas quando necessário."""
         if self.db is None:

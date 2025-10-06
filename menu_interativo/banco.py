@@ -45,8 +45,6 @@ def autenticar_admin(conn, cpf, nascimento):
             'id_user_adm': row[4],
         }
 
-
-# --- Constantes e SQL ---
 FAQ_TABLE_NAME = 'faq'
 MAX_PERGUNTA_LEN = 150
 MAX_RESPOSTA_LEN = 600
@@ -143,11 +141,6 @@ class OracleConnection:
                     f'{COLOR_ERROR}Erro ao fechar a conexão com o banco.' + COLOR_RESET
                 )
 
-
-
-
-
-# --- Funções CRUD ---
 def adicionar(conn, pergunta, resposta, ativo, categoria, user_adm_id_user_adm):
     pergunta = pergunta.strip()
     resposta = resposta.strip()
@@ -334,8 +327,6 @@ def listar_categorias(conn):
         show_message('Erro ao listar categorias.', 'error')
         return []
 
-
-# --- Classe FaqDB (interface principal) ---
 class FaqDB:
     def menu_crud(self):
         from config.settings import (
