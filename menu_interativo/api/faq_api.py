@@ -1,5 +1,7 @@
 """
 API RESTful para gerenciamento de FAQs usando Flask.
+Esta API permite integração com o front-end do Luma (repositório externo).
+Mudanças feitas no CRUD refletem automaticamente no front-end via esta API.
 """
 
 import logging

@@ -65,21 +65,11 @@ class Menu:
             except Exception as e:
                 show_message(f'Erro na exportação: {e}', 'error')
 
-    def _acessar_api_externa(self):
-        """Acessa funcionalidades da API externa (DummyJSON Quotes)."""
-        try:
-            from api_externa import menu_api_externa
-
-            menu_api_externa()
-        except Exception as e:
-            show_message(f'Erro ao acessar API externa: {e}', 'error')
-
     def exibir_menu(self):
         while True:
             print(f'\n{COLOR_TITLE}--- MENU FAQ ---{COLOR_RESET}')
             print(f'{COLOR_OPTION}1. CRUD de FAQs (Banco Oracle)')
             print(f'{COLOR_OPTION}2. Exportar FAQs do banco para JSON')
-            print(f'{COLOR_OPTION}3. API Externa: Citações Inspiracionais')
             print(f'{COLOR_WARNING}{MENU_EXIT_KEYS}{COLOR_RESET}')
             opcao = (
                 input(
@@ -101,9 +91,6 @@ class Menu:
             elif opcao == '2':
                 # Conecta ao banco sob demanda antes de exportar
                 self._exportar_banco_json()
-            elif opcao == '3':
-                # Consumo de API externa
-                self._acessar_api_externa()
             elif opcao in ['0', 's']:
                 confirm = (
                     input(f'{COLOR_WARNING}{MENU_CONFIRM_EXIT}{COLOR_RESET}')
