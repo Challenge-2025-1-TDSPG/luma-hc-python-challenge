@@ -140,6 +140,7 @@ class OracleConnection:
                     f'{COLOR_ERROR}Erro ao fechar a conexão com o banco.' + COLOR_RESET
                 )
 
+
 def adicionar(conn, pergunta, resposta, ativo, categoria, user_adm_id_user_adm):
     pergunta = pergunta.strip()
     resposta = resposta.strip()
@@ -285,9 +286,7 @@ def deletar(conn, id):
         if rows_affected > 0:
             show_message(f'FAQ ID {id} deletada com sucesso.', 'success')
         else:
-            show_message(
-                f'FAQ ID {id} não encontrada para exclusão.', 'warning'
-            )
+            show_message(f'FAQ ID {id} não encontrada para exclusão.', 'warning')
         return rows_affected > 0
     except Exception:
         if conn.conn:
@@ -325,6 +324,7 @@ def listar_categorias(conn):
 
         show_message('Erro ao listar categorias.', 'error')
         return []
+
 
 class FaqDB:
     def menu_crud(self):

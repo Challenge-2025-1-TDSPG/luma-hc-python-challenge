@@ -12,9 +12,10 @@ class FAQ:
         ativo (int): Status de ativação (1 para ativo, 0 para inativo).
         atualizado_em (str): Data/hora da última atualização (YYYY-MM-DD HH:MM:SS).
         categoria (str): Categoria do FAQ.
+        user_account_id_user (int): ID do usuário responsável pelo FAQ.
 
     Example:
-        >>> faq = FAQ(1, 'O que é Python?', 'Uma linguagem de programação.', 1, '2025-09-23 10:00:00', 'Programação')
+        >>> faq = FAQ(1, 'O que é Python?', 'Uma linguagem de programação.', 1, '2025-09-23 10:00:00', 'Programação', 1)
         >>> print(faq)
         ID: 1
         Pergunta: O que é Python?
@@ -24,7 +25,16 @@ class FAQ:
         Categoria: Programação
     """
 
-    def __init__(self, id, pergunta, resposta, ativo, atualizado_em, categoria):
+    def __init__(
+        self,
+        id,
+        pergunta,
+        resposta,
+        ativo,
+        atualizado_em,
+        categoria,
+        user_account_id_user=None,
+    ):
         """
         Inicializa um objeto FAQ.
 
@@ -35,6 +45,7 @@ class FAQ:
             ativo (int): 1 para ativo, 0 para inativo.
             atualizado_em (str): Data/hora da última atualização.
             categoria (str): Categoria do FAQ.
+            user_account_id_user (int, optional): ID do usuário responsável.
         """
         self.id = id
         self.pergunta = pergunta
@@ -42,6 +53,7 @@ class FAQ:
         self.ativo = ativo
         self.atualizado_em = atualizado_em
         self.categoria = categoria
+        self.user_account_id_user = user_account_id_user
 
     def __str__(self):
         """
