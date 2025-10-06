@@ -2,8 +2,19 @@ import logging
 
 from config.settings import COLOR_ERROR, COLOR_RESET, COLOR_SUCCESS, COLOR_WARNING
 
+# --- Constantes da tabela FAQ ---
 FAQ_TABLE_NAME = 'faq'
+MAX_PERGUNTA_LEN = 150
+MAX_RESPOSTA_LEN = 600
+MAX_CATEGORIA_LEN = 50
+ATIVO_TYPE = 'NUMBER(1)'
 
+# --- Consultas SQL ---
+SQL_INSERT = f"""
+    INSERT INTO {FAQ_TABLE_NAME}
+    (question_faq, answer_faq, active_faq, category_faq, user_account_id_user)
+    VALUES (:1, :2, :3, :4, :5)
+"""
 SQL_UPDATE = f"""
     UPDATE {FAQ_TABLE_NAME}
     SET question_faq = :1, answer_faq = :2, active_faq = :3, category_faq = :4, faq_updated_at = SYSDATE, user_account_id_user = :5
@@ -12,10 +23,36 @@ SQL_UPDATE = f"""
 SQL_DELETE = f"""
     DELETE FROM {FAQ_TABLE_NAME} WHERE id_faq = :1
 """
+SQL_SELECT_ALL = f"""
+  SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user
+  FROM {FAQ_TABLE_NAME}
+  ORDER BY id_faq DESC
+"""
 SQL_SELECT_BY_ID = f"""
     SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user
     FROM {FAQ_TABLE_NAME}
     WHERE id_faq = :1
+"""
+SQL_SELECT_BY_CATEGORY = f"""
+  SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user
+  FROM {FAQ_TABLE_NAME}
+  WHERE UPPER(category_faq) = UPPER(:1)
+  ORDER BY id_faq DESC
+"""
+SQL_SELECT_WITH_LIMIT = f"""
+    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM (
+        SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM {FAQ_TABLE_NAME}
+        ORDER BY id_faq DESC
+    )
+    WHERE ROWNUM <= :1
+"""
+SQL_SELECT_BY_CATEGORY_WITH_LIMIT = f"""
+    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM (
+        SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM {FAQ_TABLE_NAME}
+        WHERE UPPER(category_faq) = UPPER(:1)
+        ORDER BY id_faq DESC
+    )
+    WHERE ROWNUM <= :2
 """
 SQL_SELECT_DISTINCT_CATEGORIES = f"""
     SELECT DISTINCT category_faq FROM {FAQ_TABLE_NAME} ORDER BY category_faq
@@ -44,44 +81,6 @@ def autenticar_admin(conn, cpf, nascimento):
             'birth_date': row[3],
             'id_user_adm': row[4],
         }
-
-FAQ_TABLE_NAME = 'faq'
-MAX_PERGUNTA_LEN = 150
-MAX_RESPOSTA_LEN = 600
-MAX_CATEGORIA_LEN = 50
-ATIVO_TYPE = 'NUMBER(1)'
-
-SQL_INSERT = f"""
-    INSERT INTO {FAQ_TABLE_NAME}
-    (question_faq, answer_faq, active_faq, category_faq, user_account_id_user)
-    VALUES (:1, :2, :3, :4, :5)
-"""
-SQL_SELECT_ALL = f"""
-  SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user
-  FROM {FAQ_TABLE_NAME}
-  ORDER BY id_faq DESC
-"""
-SQL_SELECT_BY_CATEGORY = f"""
-  SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user
-  FROM {FAQ_TABLE_NAME}
-  WHERE UPPER(category_faq) = UPPER(:1)
-  ORDER BY id_faq DESC
-"""
-SQL_SELECT_WITH_LIMIT = f"""
-    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM (
-        SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM {FAQ_TABLE_NAME}
-        ORDER BY id_faq DESC
-    )
-    WHERE ROWNUM <= :1
-"""
-SQL_SELECT_BY_CATEGORY_WITH_LIMIT = f"""
-    SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM (
-        SELECT id_faq, question_faq, answer_faq, active_faq, faq_updated_at, category_faq, user_account_id_user FROM {FAQ_TABLE_NAME}
-        WHERE UPPER(category_faq) = UPPER(:1)
-        ORDER BY id_faq DESC
-    )
-    WHERE ROWNUM <= :2
-"""
 
 
 class OracleConnection:
@@ -257,7 +256,7 @@ def atualizar(conn, id, pergunta, resposta, ativo, categoria, user_adm_id_user_a
         from config.settings import show_message
 
         if rows_affected > 0:
-            show_message('FAQ ID ' + str(id) + ' atualizada com sucesso.', 'success')
+            show_message(f'FAQ ID {id} atualizada com sucesso.', 'success')
         return rows_affected > 0
     except Exception as e:
         if conn.conn:
@@ -284,10 +283,10 @@ def deletar(conn, id):
         from config.settings import show_message
 
         if rows_affected > 0:
-            show_message('FAQ ID ' + str(id) + ' deletada com sucesso.', 'success')
+            show_message(f'FAQ ID {id} deletada com sucesso.', 'success')
         else:
             show_message(
-                'FAQ ID ' + str(id) + ' não encontrada para exclusão.', 'warning'
+                f'FAQ ID {id} não encontrada para exclusão.', 'warning'
             )
         return rows_affected > 0
     except Exception:
