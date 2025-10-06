@@ -31,8 +31,8 @@ class Menu:
                           'user', 'password' e 'dsn'
         """
         self.oracle_config = oracle_config
-        self.db = None 
-       
+        self.db = None
+
     def _conectar_banco_se_necessario(self):
         """Conecta ao banco Oracle sob demanda, apenas quando necessário."""
         if self.db is None:
@@ -69,6 +69,7 @@ class Menu:
         """Acessa funcionalidades da API externa (DummyJSON Quotes)."""
         try:
             from api_externa import menu_api_externa
+
             menu_api_externa()
         except Exception as e:
             show_message(f'Erro ao acessar API externa: {e}', 'error')
