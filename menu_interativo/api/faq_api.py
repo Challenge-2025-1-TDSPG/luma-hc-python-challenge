@@ -184,14 +184,21 @@ def adicionar_faq():
             return jsonify({'erros': errors}), 400
 
         try:
-            novo_id = db.adicionar(
-                data['pergunta'], data['resposta'], data['ativo'], data['categoria']
+            # Usar ID de admin padrão se não fornecido
+            user_adm_id = data.get('user_account_id_user', 1)  # Admin padrão
+
+            success = db.adicionar(
+                data['pergunta'],
+                data['resposta'],
+                data['ativo'],
+                data['categoria'],
+                user_adm_id,
             )
 
-            # Retornar o ID do FAQ recém-criado
-            return jsonify(
-                {'mensagem': 'FAQ adicionado com sucesso!', 'id': novo_id}
-            ), 201
+            if success:
+                return jsonify({'mensagem': 'FAQ adicionado com sucesso!'}), 201
+            else:
+                return jsonify({'erro': 'Falha ao adicionar FAQ'}), 500
 
         except Exception as db_error:
             logger.error(f'Erro de banco ao adicionar FAQ: {db_error}')
@@ -220,14 +227,22 @@ def atualizar_faq(faq_id):
             return jsonify({'erros': errors}), 400
 
         try:
-            db.atualizar(
+            # Usa ID de admin padrão se não fornecido
+            user_adm_id = data.get('user_account_id_user', 1)  # Admin padrão
+
+            success = db.atualizar(
                 faq_id,
                 data['pergunta'],
                 data['resposta'],
                 data['ativo'],
                 data['categoria'],
+                user_adm_id,
             )
-            return jsonify({'mensagem': 'FAQ atualizado com sucesso!'})
+
+            if success:
+                return jsonify({'mensagem': 'FAQ atualizado com sucesso!'})
+            else:
+                return jsonify({'erro': 'Falha ao atualizar FAQ'}), 500
 
         except Exception as db_error:
             logger.error(f'Erro de banco ao atualizar FAQ {faq_id}: {db_error}')
