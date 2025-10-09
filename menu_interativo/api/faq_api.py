@@ -316,14 +316,11 @@ def status():
 
 
 if __name__ == '__main__':
-    print('\n' + '=' * 60)
-    print('        API FAQ v1.0 - INICIANDO SERVIDOR')
-    print('=' * 60)
+    print('   INICIANDO SERVIDOR   \n')
     print('• Servidor: http://localhost:5000')
     print('• Endpoints: /faqs, /status, /categorias')
     print('• CORS: Habilitado para todos os domínios')
     print('• Banco de dados: Oracle')
-    print('=' * 60)
 
     # Usa threaded=True para melhor desempenho e use_reloader=False para evitar reinicializações duplicadas
     app.run(debug=True, host='0.0.0.0', port=5000, threaded=True, use_reloader=False)
