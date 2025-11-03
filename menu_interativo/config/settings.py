@@ -71,9 +71,24 @@ def is_not_empty(value):
     return bool(value and str(value).strip())
 
 
+<<<<<<< HEAD
 # Caminhos padrão
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 JSON_MEMORIA_PATH = os.path.join(BASE_DIR, 'json', 'memoria', 'faq_export.json')
+=======
+# Função para obter configuração Oracle
+def get_oracle_config():
+    return {
+        'user': os.environ.get('DB_USER'),
+        'password': os.environ.get('DB_PASS'),
+        'dsn': os.environ.get('DB_URL'),
+    }
+
+
+# Caminhos padrão
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+JSON_BANCO_PATH = os.path.join(BASE_DIR, 'json', 'banco', 'faq_export.json')
+>>>>>>> SP4
 
 
 # Mensagens padrão
@@ -82,12 +97,12 @@ ERROR = f'{Fore.RED}Ocorreu um erro!{Style.RESET_ALL}'
 WARNING = f'{Fore.YELLOW}Atenção!{Style.RESET_ALL}'
 
 # Mensagens de exportação/importação
+<<<<<<< HEAD
 MSG_EXPORT_MEMORIA_OK = 'Exportação realizada com sucesso para {path}!'
+=======
+MSG_EXPORT_BANCO_OK = 'Exportação realizada com sucesso para {path}!'
+>>>>>>> SP4
 MSG_EXPORT_JSON_ERROR = 'Erro ao exportar para JSON: {erro}'
-MSG_EXPORT_MEMORIA_ERROR = 'Erro ao exportar FAQs para JSON: {erro}'
-MSG_IMPORT_MEMORIA_OK = 'FAQs importados do JSON com sucesso!'
-MSG_IMPORT_MEMORIA_WARN = 'Nenhum arquivo JSON válido encontrado para importar.'
-MSG_IMPORT_MEMORIA_ERROR = 'Erro ao importar FAQs do JSON: {erro}'
 
 # Strings de navegação e atalhos de menus
 MENU_BACK_KEYS_PRINCIPAL = '0/s para encerrar o programa'
