@@ -6,26 +6,6 @@
 
 Sistema completo de gerenciamento de perguntas e respostas frequentes (FAQs) desenvolvido em Python, com integração Oracle Database e API REST para comunicação com front-ends.
 
-<<<<<<< HEAD
-- **Linguagem:** Python 3.8+
-- **Interface de Terminal:** Colorama 0.4.6
-- **Gerenciador de Dependências:** venv + requirements.txt
-- **Ambiente:** Windows (recomendado)
-
----
-
-## Funcionalidades
-
-- CRUD completo de FAQs em memória (adicionar, listar, atualizar, deletar, buscar por ID)
-- Dados organizados em listas de objetos (classe `FAQ`) ou dicionários
-- Exportação e importação dos dados em formato JSON na pasta `json/memoria/`
-- Menus e submenus interativos no terminal
-- Validação de dados e tratamento de erros
-
----
-
-## Menus
-=======
 ## 🚀 Características Principais
 
 - **CRUD Completo** - Criar, ler, atualizar e deletar FAQs
@@ -47,7 +27,6 @@ Sistema completo de gerenciamento de perguntas e respostas frequentes (FAQs) des
 ---
 
 ## 📋 Estrutura de Menus
->>>>>>> SP4
 
 ### Menu Principal
 
