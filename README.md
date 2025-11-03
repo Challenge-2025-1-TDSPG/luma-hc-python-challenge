@@ -38,11 +38,10 @@ Sistema completo de gerenciamento de perguntas e respostas frequentes (FAQs) des
 ```
 --- CRUD FAQ (Banco Oracle) ---
 1. Adicionar FAQ
-2. Listar FAQs
-3. Atualizar FAQ
-4. Deletar FAQ
-5. Buscar FAQ por ID
-0/v para encerrar o programa
+2. Atualizar FAQ
+3. Deletar FAQ
+4. Listar FAQs
+0. Voltar ao menu principal
 ```
 
 ---
