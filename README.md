@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# Sistema de Gerenciamento de FAQs (CRUD) em Memória - Luma
-=======
 # Sistema FAQ CRUD com Integração Oracle + API REST
->>>>>>> SP4
 
 Sistema completo de gerenciamento de perguntas e respostas frequentes (FAQs) desenvolvido em Python, com integração Oracle Database e API REST para comunicação com front-ends.
 
@@ -31,9 +27,6 @@ Sistema completo de gerenciamento de perguntas e respostas frequentes (FAQs) des
 ### Menu Principal
 
 ```
-<<<<<<< HEAD
---- CRUD FAQ EM MEMÓRIA ---
-=======
 --- MENU FAQ ---
 1. CRUD de FAQs (Banco Oracle)
 2. Exportar FAQs do banco para JSON
@@ -44,7 +37,6 @@ Sistema completo de gerenciamento de perguntas e respostas frequentes (FAQs) des
 
 ```
 --- CRUD FAQ (Banco Oracle) ---
->>>>>>> SP4
 1. Adicionar FAQ
 2. Listar FAQs
 3. Atualizar FAQ
@@ -83,13 +75,6 @@ A API Flask fornece endpoints completos para integração com o front-end Luma:
 ```
 
 ---
-<<<<<<< HEAD
-
-## Exportação e Importação
-
-- Os dados podem ser exportados/importados em formato JSON na pasta `json/memoria/faq_export.json`.
-- Não há integração com banco de dados ou API nesta versão (Sprint 3).
-=======
 
 ## 🗄️ Banco de Dados Oracle
 
@@ -118,27 +103,12 @@ ALTER TABLE FAQ ADD CONSTRAINT CK_FAQ_ATIVO CHECK (active_faq IN (0,1));
 - Conexão transacional com rollback automático
 - Driver nativo `oracledb` (modo Thin)
 - Suporte a Oracle 12c+ (requer IDENTITY)
->>>>>>> SP4
 
 ---
 
 ## ⚙️ Instalação e Configuração
 
-<<<<<<< HEAD
-- **Simplicidade**: Estrutura plana, fácil de entender e manter.
-- **Documentação**: Todas as classes e métodos possuem docstrings explicativas.
-- **Validação e Segurança**: Entradas do usuário e operações críticas são validadas e tratadas (centralizadas em `config/settings.py`).
-- **Tratamento de Erros**: Uso extensivo de try/except e mensagens padronizadas.
-- **Configuração Centralizada**: Variáveis de ambiente, caminhos, mensagens e utilitários em `config/settings.
-
----
-
-## Configuração e Execução
-
-### 1. Ambiente Virtual e Instalação de Dependências
-=======
 ### 1. Ambiente Virtual
->>>>>>> SP4
 
 ```cmd
 # Windows
@@ -147,24 +117,6 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-<<<<<<< HEAD
-### 2. Estrutura de Pastas
-
-```
-menu_interativo/
-├── main.py              # Ponto de entrada do sistema (menu interativo)
-├── models.py            # Classe FAQ (estrutura dos dados)
-├── menu_memoria.py      # Lógica do CRUD em memória
-├── exportacao.py        # Exportação/importação JSON
-├── config/
-│   └── settings.py      # Configurações, mensagens e utilitários
-├── README.md            # Documentação
-└── json/
-    └── memoria/
-        └── faq_export.json  # Arquivo de exportação/importação dos dados
-scripts/
-└── run_menu.bat         # Script para executar o menu interativo
-=======
 ### 2. Arquivo de Configuração (.env)
 
 Crie `.env` na raiz do projeto:
@@ -174,7 +126,6 @@ Crie `.env` na raiz do projeto:
 DB_USER=seu_usuario
 DB_PASS=sua_senha
 DB_URL=oracle.com.br:xxxx/ORCL
->>>>>>> SP4
 ```
 
 ### 3. Execução
@@ -193,9 +144,6 @@ cd menu_interativo
 python api/faq_api.py
 ```
 
-<<<<<<< HEAD
-- `run_menu.bat` — Executa o menu interativo
-=======
 #### Scripts Prontos
 
 ```cmd
@@ -205,7 +153,6 @@ scripts\run_menu.bat
 # API REST
 scripts\run_api.bat
 ```
->>>>>>> SP4
 
 ---
 
