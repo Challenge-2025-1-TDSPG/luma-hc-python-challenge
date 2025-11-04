@@ -1,6 +1,6 @@
 # Sistema FAQ CRUD com Integração Oracle + API REST
 
-Sistema completo de gerenciamento de perguntas e respostas frequentes (FAQs) desenvolvido em Python, com integração Oracle Database e API REST para comunicação com front-ends.
+Sistema completo de gerenciamento de perguntas e respostas frequentes (FAQs) desenvolvido em Python, com integração Oracle Database e API REST para comunicação com front-end.
 
 ## 🚀 Características Principais
 
